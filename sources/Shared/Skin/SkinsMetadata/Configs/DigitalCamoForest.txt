@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetDigitalCamoSkinConfigCreator)({
+	displayName = "Forest Digital Camo",
+	color = Color3.fromRGB(69, 139, 72)
+})

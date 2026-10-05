@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetAnimeFireCharacterAuraConfigCreator)({
+	displayName = "Anime Fire White",
+	icon = "rbxassetid://77583319265049",
+	color = Color3.fromRGB(255, 255, 255)
+})

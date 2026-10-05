@@ -1,0 +1,36 @@
+local TweenService = game:GetService("TweenService")
+local SpaceLaser = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.SpaceLaser
+
+return function()
+	return {
+		displayName = "Space Laser",
+		icon = "rbxassetid://11669338179",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = SpaceLaser.SpaceLaser:Clone()
+
+			task.delay(4.5, function()
+				clone:Destroy()
+			end)
+			clone.PrimaryPart.CFrame = CFrame.new(HumanoidRootPart.Position + Vector3.new(0, 100, 0))
+			clone.Parent = workspace.EffectsJunk
+
+			local tween = TweenService:Create(clone.PrimaryPart, TweenInfo.new(0.25), {
+				CFrame = CFrame.new(HumanoidRootPart.CFrame.Position + Vector3.new(0, -2.5, 0))
+			})
+
+			tween:Play()
+			tween.Completed:Once(function()
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+			end)
+		end
+	}
+end

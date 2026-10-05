@@ -1,0 +1,21 @@
+local RainbowLightning = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.RainbowLightning
+
+return function()
+	return {
+		displayName = "Rainbow Lightning",
+		icon = "rbxassetid://13515775549",
+		apply = function(target)
+			local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+			EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+				EnchantsUtil.applyVisualsToPart(part, {
+					scale = part.Size.Magnitude / 4
+				}, RainbowLightning)
+			end)
+		end,
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true
+	}
+end

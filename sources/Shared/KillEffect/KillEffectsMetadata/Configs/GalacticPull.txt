@@ -1,0 +1,38 @@
+local TweenService = game:GetService("TweenService")
+local GalacticPull = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.GalacticPull
+
+return function()
+	return {
+		displayName = "Galactic Pull",
+		icon = "rbxassetid://115297586837935",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = GalacticPull.Part:Clone()
+
+			task.delay(4.5, function()
+				clone:Destroy()
+			end)
+			clone.CFrame = CFrame.new(position + Vector3.new(0, clone.Size.Y / 2 + 0.1, 0))
+			clone.Parent = workspace.EffectsJunk
+
+			local tween = TweenService:Create(HumanoidRootPart, TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+				CFrame = CFrame.new(position + Vector3.new(0, -8, 0))
+			})
+
+			tween:Play()
+			tween.Completed:Once(function()
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+			end)
+		end
+	}
+end

@@ -1,0 +1,137 @@
+local TweenService = game:GetService("TweenService")
+local RagdollHandler = require(game.ReplicatedStorage.Shared.Source.Ragdoll.RagdollHandler)
+local RagdollHandlerClient = require(game.ReplicatedStorage.Client.Source.Ragdoll.RagdollHandlerClient)
+local RaycastUtil = require(game.ReplicatedStorage.Shared.Source.Raycast.RaycastUtil)
+local module = {
+	enableRagdoll = function(container)
+		local Humanoid = container:WaitForChild("Humanoid", 1)
+
+		if not Humanoid then
+			return
+		end
+
+		RagdollHandler.buildRagdoll(Humanoid)
+		RagdollHandlerClient.toggleRagdoll(Humanoid, true)
+	end,
+	fadeOutCharacter = function(character4, p3)
+		local v10 = p3 or {}
+		local v11 = v10.tweenInfo or TweenInfo.new(2, Enum.EasingStyle.Linear)
+		local newPartSize = v10.newPartSize
+		local newPartPosition = v10.newPartPosition
+		local newPartTransparency = v10.newPartTransparency
+		local makeInvisAfter = v10.makeInvisAfter
+
+		character4.ItemsAttached:Destroy()
+
+		for _, instance in character4.Humanoid:GetAccessories() do
+			instance:Destroy()
+		end
+
+		local t1 = nil
+
+		if makeInvisAfter then
+			t1 = {}
+		end
+
+		for _, child in pairs(character4:GetChildren()) do
+			if child:IsA("BasePart") then
+				if newPartPosition then
+					child.Anchored = true
+				end
+
+				if newPartSize then
+					for _, child2 in child:GetChildren() do
+						if child2:IsA("SpecialMesh") then
+							child2:Destroy()
+						end
+					end
+				end
+
+				TweenService:Create(child, v11, {
+					Size = newPartSize,
+					Position = newPartPosition,
+					Transparency = newPartTransparency
+				}):Play()
+
+				if t1 then
+					table.insert(t1, child)
+				end
+			end
+		end
+
+		if makeInvisAfter then
+			task.delay(v11.Time, function()
+				for _, v44 in t1 do
+					v44.Transparency = 1
+				end
+			end)
+		end
+	end,
+	getCharacterFloor = function(character, p5)
+		local v25 = p5 or 4.5
+
+		return RaycastUtil.genericRaycast({
+			ignoreCharacters = true,
+			origin = character.HumanoidRootPart.Position,
+			direction = Vector3.new(0, -v25, 0)
+		})
+	end,
+	makeCharacterDisappear = function(character2, p7, p8)
+		local v29 = p7 or "destroy"
+		local v30 = p8 or {}
+		local character5 = v30.namesToKeep or {}
+
+		if v29 == "destroy" then
+			character5.HumanoidRootPart = true
+
+			if v30.anchorHrp ~= false then
+				character2.HumanoidRootPart.Anchored = true
+			end
+
+			for _, child in character2:GetChildren() do
+				if not character5[child.Name] then
+					child:Destroy()
+				end
+			end
+
+			character2.Parent = workspace.EffectsJunk
+		end
+	end
+}
+
+function module.replaceCharacterWithObjects(character3, p10, p11)
+	local amount = (p11 or {}).amount or 8
+
+	module.makeCharacterDisappear(character3)
+	task.spawn(function()
+		local HumanoidRootPartPosition = character3.HumanoidRootPart.Position
+
+		for _ = 1, amount do
+			local Part = p10:GetPart()
+
+			Part.Anchored = false
+			Part.Position = HumanoidRootPartPosition + Vector3.new(Random.new():NextNumber(-2, 2), Random.new():NextNumber(-2, 2), Random.new():NextNumber(-2, 2))
+			Part.Orientation = Vector3.new(Random.new():NextNumber(-360, 360), Random.new():NextNumber(-360, 360), Random.new():NextNumber(-360, 360))
+			task.delay(6, function()
+				p10:ReturnPart(Part)
+			end)
+			Instance.new("Attachment").Parent = Part
+			Part:ApplyImpulse(Part.AssemblyMass * Vector3.new(Random.new():NextNumber(-1, 1) * 20, 60, Random.new():NextNumber(-1, 1) * 20))
+			Part:ApplyAngularImpulse((Vector3.new(Random.new():NextNumber(-4, 4), Random.new():NextNumber(-4, 4), Random.new():NextNumber(-4, 4))))
+			task.wait(0.05)
+		end
+	end)
+end
+function module.transformCharacter(container2, p13)
+	local modifyInstance = (p13 or {}).modifyInstance
+
+	for _, child in pairs(container2:GetChildren()) do
+		modifyInstance(child)
+
+		if child:IsA("Clothing") then
+			child:Destroy()
+		end
+	end
+end
+
+return module

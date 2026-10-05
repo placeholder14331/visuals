@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.KillEffect.GetConfigCreators.GetFireworkKillEffectConfigCreator)({
+	prefabName = "Butterfly",
+	displayNameAppend = " (Butterflies)",
+	iconId = "rbxassetid://11896864338"
+})

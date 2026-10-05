@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetOrnateSkinConfigCreator)({
+	displayName = "Yellow Ornate",
+	textureColor = Color3.new(1, 1, 0),
+	partColor = Color3.new(0.25, 0.25, 0)
+})

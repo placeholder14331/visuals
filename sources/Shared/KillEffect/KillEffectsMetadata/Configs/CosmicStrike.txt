@@ -1,0 +1,33 @@
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local CosmicStrike = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.CosmicStrike
+
+return function()
+	return {
+		displayName = "Cosmic Strike",
+		icon = "rbxassetid://13515776413",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		willCharacterDisappear = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local clone = CosmicStrike.Part.Attachment:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone.WorldPosition = position
+			clone.Parent = workspace.Terrain
+
+			for _, child in pairs(clone:GetChildren()) do
+				if child:IsA("ParticleEmitter") then
+					VisualEffectsUtil.emit(child)
+				end
+			end
+		end
+	}
+end

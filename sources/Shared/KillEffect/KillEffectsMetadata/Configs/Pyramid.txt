@@ -1,0 +1,36 @@
+local TweenService = game:GetService("TweenService")
+local Pyramid = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Pyramid
+
+return function()
+	return {
+		displayName = "Pyramid",
+		icon = "rbxassetid://100270046376505",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		apply = function(character)
+			local CharacterConstantsClient = require(game.ReplicatedStorage.Client.Source.Character.CharacterConstantsClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = Pyramid.Pyramid:Clone()
+
+			task.delay(CharacterConstantsClient.FAKE_CHARACTER_DESTROY_DELAY, function()
+				clone:Destroy()
+			end)
+			clone.CFrame = CFrame.new(HumanoidRootPart.Position + Vector3.new(0, 1.8, 0))
+			clone.Parent = workspace.EffectsJunk
+
+			local cloneSize = clone.Size
+
+			clone.Size = cloneSize * 3
+			clone.Transparency = 0.5
+			TweenService:Create(clone, TweenInfo.new(0.33, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+				Transparency = 0,
+				Size = cloneSize
+			}):Play()
+		end
+	}
+end

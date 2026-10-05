@@ -1,0 +1,39 @@
+local KillEffects = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects
+
+return function()
+	return {
+		displayName = "Ice Shard",
+		icon = "rbxassetid://12058247938",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "uncommon",
+		inItemShop = false,
+		caseIds = {},
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local clone = KillEffects.IceShard:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone.Parent = workspace.EffectsJunk
+
+			for _, child in pairs(clone:GetChildren()) do
+				if child:IsA("BasePart") then
+					child:ApplyImpulse(child.AssemblyMass * Vector3.new(Random.new():NextNumber(-40, 40), Random.new():NextNumber(20, 80), Random.new():NextNumber(-40, 40)))
+				end
+			end
+
+			clone:PivotTo(HumanoidRootPart.CFrame)
+			KillEffectsUtilClient.transformCharacter(character, {
+				modifyInstance = function(part)
+					if part:IsA("BasePart") then
+						part.Material = Enum.Material.Ice
+						part.Color = Color3.fromRGB(82, 124, 174)
+					end
+				end
+			})
+		end
+	}
+end

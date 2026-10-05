@@ -1,0 +1,119 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local VisualEffectsUtil = require(ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local KillEffectsUtilClient = nil
+local FrigidBloom = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.FrigidBloom
+
+return function()
+	return {
+		displayName = "Frigid Bloom",
+		icon = "rbxassetid://126037042540084",
+		vaulted = false,
+		refundIfVaulted = false,
+		willCharacterDisappear = false,
+		willHaveVictimAnimation = true,
+		rarity = "epic",
+		caseIds = { "case16" },
+		apply = function(character)
+			KillEffectsUtilClient = require(ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+
+			local maid = Maid.createInstanceMaid(character)
+			local Humanoid = character.Humanoid
+			local HumanoidRootPart = character.HumanoidRootPart
+			local track = Humanoid.Animator:LoadAnimation(FrigidBloom.Animations.killEffectVictim)
+			local children = FrigidBloom.Props:GetChildren()
+			local n1 = 0
+			local clone = FrigidBloom.VFX.FlowerAscends:Clone()
+			local clone2 = FrigidBloom.VFX.FlowerDescends:Clone()
+			local clone3 = FrigidBloom.VFX.VictimGround:Clone()
+
+			clone.Parent = HumanoidRootPart
+			clone2.Parent = HumanoidRootPart
+			clone3.Motor6D.Part0 = HumanoidRootPart
+			clone3.Parent = character
+
+			for v16, template in children do
+				local clone4 = template:Clone()
+				local found = clone4:FindFirstChild("1", true)
+
+				clone4.Parent = character
+				found.Part0 = HumanoidRootPart
+				maid:GiveTask(clone4)
+
+				for _, descendant in clone4:GetDescendants() do
+					if descendant:IsA("BasePart") then
+						descendant.Transparency = 1
+					end
+				end
+
+				children[v16] = clone4
+			end
+
+			maid:GiveTask(clone)
+			maid:GiveTask(clone2)
+			maid:GiveTask(clone3)
+			maid:GiveTask(track:GetMarkerReachedSignal("flowersAscend"):Connect(function(p2)
+				local parts = string.split(p2, ":")
+
+				if p2 == "" then
+					return VisualEffectsUtil.emitObject(clone3)
+				end
+
+				if #parts == 0 then
+					parts = { p2 }
+				end
+
+				for _, v25 in parts do
+					n1 += 1
+
+					local instance2 = character:FindFirstChild(v25, true)
+					local container2 = instance2 and instance2.Parent
+					local found2 = clone:FindFirstChild(`flower{ n1 }`)
+
+					if found2 then
+						VisualEffectsUtil.emitObject(found2)
+					end
+
+					for _, descendant in container2:GetDescendants() do
+						if descendant:IsA("BasePart") then
+							descendant.Transparency = 0
+						end
+					end
+				end
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("flowersDescend"):Connect(function(p3)
+				local parts = string.split(p3, ":")
+
+				if p3 == "" then
+					return VisualEffectsUtil.emitObject(clone2)
+				end
+
+				if #parts == 0 then
+					parts = { p3 }
+				end
+
+				for _, v34 in parts do
+					local instance = character:FindFirstChild(v34, true)
+					local container = instance and instance.Parent
+
+					if container then
+						for _, descendant in container:GetDescendants() do
+							if descendant:IsA("BasePart") then
+								descendant.Transparency = 1
+							end
+						end
+					end
+				end
+			end))
+			maid:GiveTask(track.Stopped:Connect(function()
+				HumanoidRootPart.Anchored = false
+				KillEffectsUtilClient.enableRagdoll(character)
+
+				return maid:Destroy()
+			end))
+			HumanoidRootPart.Anchored = true
+
+			return track:Play()
+		end
+	}
+end

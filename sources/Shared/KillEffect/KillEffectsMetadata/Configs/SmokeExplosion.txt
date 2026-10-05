@@ -1,0 +1,55 @@
+local TweenService = game:GetService("TweenService")
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local SmokeExplosion = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.SmokeExplosion
+
+return function()
+	return {
+		displayName = "Smoke Explosion",
+		icon = "rbxassetid://110904915209138",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Head = character.Head
+			local maid = Maid.new()
+
+			task.delay(4, function()
+				maid:Destroy()
+			end)
+			HumanoidRootPart.Anchored = true
+
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local clone = SmokeExplosion.FloorSmokePart:Clone()
+
+			maid:GiveTask(clone)
+			clone.Position = position + Vector3.new(0, clone.Size.Y / 2, 0)
+			clone.Parent = workspace.EffectsJunk
+
+			local clone2 = SmokeExplosion.particles.Attachment:Clone()
+
+			maid:GiveTask(clone2)
+			clone2.WorldPosition = position
+			clone2.Parent = workspace.Terrain
+
+			local clone3 = SmokeExplosion.particles.HeadAttachment:Clone()
+
+			maid:GiveTask(clone3)
+			clone3.WorldPosition = Head.Position
+			clone3.Parent = workspace.Terrain
+			VisualEffectsUtil.emitObject(clone2)
+			VisualEffectsUtil.emitObject(clone3)
+			TweenService:Create(clone, TweenInfo.new(2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+				Transparency = 1,
+				Size = clone.Size * 4
+			}):Play()
+			task.delay(0.25, function()
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+			end)
+		end
+	}
+end

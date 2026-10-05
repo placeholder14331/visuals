@@ -1,0 +1,53 @@
+local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local AnimationUtil = require(game.ReplicatedStorage.Shared.Source.Animation.AnimationUtil)
+local KillEffects = game.ReplicatedStorage.Shared.Assets.Sounds.KillEffects
+local UFO = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.UFO
+
+return function()
+	return {
+		displayName = "UFO",
+		icon = "rbxassetid://11669335521",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		willHaveVictimAnimation = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Animator = character.Humanoid.Animator
+			local maid = Maid.new()
+			local clone = UFO.UFO:Clone()
+
+			maid:GiveTask(clone)
+			task.delay(4, function()
+				maid:Destroy()
+			end)
+			clone:SetPrimaryPartCFrame(CFrame.new(HumanoidRootPart.Position) * CFrame.new(0, -14, 0))
+			clone.Parent = workspace.EffectsJunk
+			HumanoidRootPart.Anchored = true
+			HumanoidRootPart.CFrame = CFrame.fromMatrix(HumanoidRootPart.Position, HumanoidRootPart.CFrame.RightVector, clone.PrimaryPart.CFrame.UpVector)
+
+			local track = clone.AnimationController:LoadAnimation(UFO.Animation)
+
+			track:Play()
+			Animator:LoadAnimation(UFO.VictimAnimation):Play()
+			SoundHandler.playSound({
+				soundObject = KillEffects.UFO,
+				parent = clone.PrimaryPart
+			})
+			maid:GiveTask(track:GetMarkerReachedSignal("startSuck"):Connect(function()
+				clone.RootPart.Bone.SuckingParticle.Enabled = true
+				KillEffectsUtilClient.fadeOutCharacter(character, {
+					newPartSize = Vector3.new(0.1, 0.1, 0.1),
+					makeInvisAfter = true,
+					tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Linear)
+				})
+			end))
+			maid:GiveTask(track.Stopped:Connect(function()
+				AnimationUtil.freezeAnimationAtPercentage(track, 99.99)
+			end))
+		end
+	}
+end

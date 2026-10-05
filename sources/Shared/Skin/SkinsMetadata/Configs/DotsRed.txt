@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetDotsSkinConfigCreator)({
+	displayName = "Red Dots",
+	color = Color3.new(1, 0, 0)
+})

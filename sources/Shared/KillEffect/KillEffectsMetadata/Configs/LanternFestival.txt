@@ -1,0 +1,37 @@
+local TweenService = game:GetService("TweenService")
+local KillEffectUtil = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectUtil)
+local LanternFestival = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.LanternFestival
+local createPartCacheFromTemplate = KillEffectUtil.createPartCacheFromTemplate(LanternFestival.Lantern, 24)
+
+return function()
+	return {
+		displayName = "Lantern Festival",
+		icon = "rbxassetid://90064255852010",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		willCharacterDisappear = true,
+		apply = function(character)
+			local HumanoidRootPart = character.HumanoidRootPart
+
+			for _ = 1, 6 do
+				local Part = createPartCacheFromTemplate:GetPart()
+
+				Part.Anchored = true
+				Part.CFrame = HumanoidRootPart.CFrame * CFrame.Angles(0, 0, 3.1415927)
+
+				local position = HumanoidRootPart.Position + Vector3.new(Random.new():NextNumber(-50, 50), Random.new():NextNumber(30, 60), Random.new():NextNumber(-50, 50))
+				local tween = TweenService:Create(Part, TweenInfo.new(8, Enum.EasingStyle.Linear), {
+					CFrame = CFrame.lookAt(position, position + (position - Part.CFrame.Position).Unit) * CFrame.Angles(math.rad((Random.new():NextNumber(-16, 16))), math.rad((Random.new():NextNumber(-16, 16))), 3.1415927 + math.rad((Random.new():NextNumber(-16, 16))))
+				})
+
+				tween:Play()
+				task.delay(Random.new():NextNumber(3, 4), function()
+					tween:Cancel()
+					createPartCacheFromTemplate:ReturnPart(Part)
+				end)
+			end
+		end
+	}
+end

@@ -1,0 +1,28 @@
+local t1 = {
+	Torso = true,
+	Humanoid = true,
+	["Left Leg"] = true,
+	["Right Leg"] = true,
+	Pants = true
+}
+
+return function()
+	return {
+		displayName = "Pants",
+		icon = "rbxassetid://9575186333",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+
+			KillEffectsUtilClient.makeCharacterDisappear(character, nil, {
+				anchorHrp = false,
+				namesToKeep = t1
+			})
+			character.Torso.Transparency = 1
+			KillEffectsUtilClient.enableRagdoll(character)
+		end
+	}
+end

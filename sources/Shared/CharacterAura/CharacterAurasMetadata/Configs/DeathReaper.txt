@@ -1,0 +1,6 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetBodyCharacterAuraConfigCreator)({
+	fileName = "DeathReaper",
+	displayName = "Death Reaper",
+	icon = "rbxassetid://92640988293468",
+	rarity = "rare"
+})

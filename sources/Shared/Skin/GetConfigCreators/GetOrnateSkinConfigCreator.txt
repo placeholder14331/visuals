@@ -1,0 +1,37 @@
+local Ornate = game.ReplicatedStorage.Shared.Assets.Cosmetics.Skins.Ornate
+
+return function(config)
+	local textureColor = config.textureColor
+	local partColor = config.partColor
+
+	return function()
+		return {
+			displayName = config.displayName,
+			apply = function(target)
+				local SkinUtil = require(game.ReplicatedStorage.Shared.Source.Skin.SkinUtil)
+
+				local function onVisualCreated(p3)
+					if p3:IsA("Texture") then
+						p3.Color3 = textureColor
+					end
+				end
+				local function modifyPart(emitter)
+					emitter.Color = partColor
+					emitter.Material = Enum.Material.Neon
+				end
+
+				SkinUtil.runCallbackOnTaggedSkinParts(target, function(emitter2)
+					SkinUtil.applyVisualsToPart(emitter2, {}, Ornate, onVisualCreated)
+					emitter2.Color = partColor
+					emitter2.Material = Enum.Material.Neon
+				end, function()
+				end, function()
+				end)
+			end,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = "rare",
+			inItemShop = true
+		}
+	end
+end

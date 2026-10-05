@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetPebblesSkinConfigCreator)({
+	displayName = "Magma",
+	textureColor = Color3.fromRGB(255, 0, 0),
+	partColor = Color3.fromRGB(35, 35, 35)
+})

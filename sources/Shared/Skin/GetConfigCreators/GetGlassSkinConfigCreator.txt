@@ -1,0 +1,37 @@
+return function(config)
+	local color = config.color
+	local partTransparency = config.partTransparency or 0.5
+	local canObtain = config.canObtain == nil
+
+	return function()
+		return {
+			displayName = config.displayName,
+			apply = function(target)
+				local function modifyPart(emitter3)
+					emitter3.Material = Enum.Material.Glass
+					emitter3.Transparency = partTransparency
+					emitter3.Color = color
+				end
+
+				require(game.ReplicatedStorage.Shared.Source.Skin.SkinUtil).runCallbackOnTaggedSkinParts(target, function(emitter2)
+					emitter2.Material = Enum.Material.Glass
+					emitter2.Transparency = partTransparency
+					emitter2.Color = color
+				end, function(emitter4)
+					emitter4.Material = Enum.Material.Glass
+					emitter4.Transparency = partTransparency
+					emitter4.Color = color
+				end, function(emitter)
+					emitter.Material = Enum.Material.Glass
+					emitter.Transparency = partTransparency
+					emitter.Color = color
+				end)
+			end,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = "legendary",
+			inItemShop = canObtain,
+			caseIds = not canObtain and {} or nil
+		}
+	end
+end

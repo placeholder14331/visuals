@@ -1,0 +1,6 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetBodyCharacterAuraConfigCreator)({
+	fileName = "DarkEye",
+	displayName = "Dark Eye",
+	icon = "rbxassetid://11873759179",
+	rarity = "rare"
+})

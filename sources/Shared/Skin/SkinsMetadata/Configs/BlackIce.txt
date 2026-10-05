@@ -1,0 +1,19 @@
+return function()
+	return {
+		displayName = "Hell Ice",
+		apply = function(target)
+			local function modifyPart(emitter)
+				emitter.Reflectance = 1
+				emitter.Material = Enum.Material.Ice
+				emitter.Transparency = 0.1
+				emitter.Color = Color3.fromRGB(54, 68, 70)
+			end
+
+			require(game.ReplicatedStorage.Shared.Source.Skin.SkinUtil).runCallbackOnTaggedSkinParts(target, modifyPart, modifyPart, modifyPart)
+		end,
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = false
+	}
+end

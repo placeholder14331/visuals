@@ -1,0 +1,21 @@
+local Shimmer = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.Shimmer
+
+return function()
+	return {
+		displayName = "Gold Shimmer",
+		icon = "rbxassetid://13515775396",
+		apply = function(target)
+			local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+			EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+				EnchantsUtil.applyVisualsToPart(part, {
+					scale = part.Size.Magnitude / 4
+				}, Shimmer)
+			end)
+		end,
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true
+	}
+end

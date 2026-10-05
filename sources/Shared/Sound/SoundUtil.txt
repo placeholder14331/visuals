@@ -1,0 +1,44 @@
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local lerp = require(game.ReplicatedStorage.Shared.Vendor.lerp)
+local RunService = game:GetService("RunService")
+local module = {}
+
+function module.fadeOutSound(p1, p2, p3, p4)
+	return module.fadeSound(p1, p2, 0, p3, p4)
+end
+function module.fadeSound(p5, p6, p7, p8, p9)
+	local u14 = p7 or 0
+	local timestamp = tick()
+	local maid = Maid.new()
+
+	maid:GiveTask(p5.Played:Connect(function()
+		maid:Destroy()
+	end))
+
+	local p5Volume = p5.Volume
+
+	maid:GiveTask(RunService.Heartbeat:Connect(function()
+		debug.profilebegin("heartbeat_soundUtil")
+
+		local amount = math.clamp((tick() - timestamp) / p6, 0, 1)
+		local v19 = lerp(p5Volume, u14, amount)
+
+		if p8 then
+			p8(v19)
+		else
+			p5.Volume = v19
+		end
+
+		if amount >= 1 then
+			maid:Destroy()
+
+			if p9 then
+				p9()
+			end
+		end
+
+		debug.profileend()
+	end))
+end
+
+return module

@@ -1,0 +1,17 @@
+return function()
+	return {
+		displayName = "Matatibi's Fire",
+		icon = "rbxassetid://12006663516",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = false,
+		caseIds = {},
+		apply = function(character)
+			local CharacterAuraUtil = require(game.ReplicatedStorage.Shared.Source.CharacterAura.CharacterAuraUtil)
+			local CatFire = game.ReplicatedStorage.Shared.Assets.Cosmetics.CharacterAuras.CatFire
+
+			CharacterAuraUtil.applyFromDummy(CatFire, character)
+		end
+	}
+end

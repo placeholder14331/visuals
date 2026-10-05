@@ -1,0 +1,39 @@
+local Darkheart = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Darkheart
+
+return function()
+	return {
+		displayName = "Darkheart",
+		icon = "rbxassetid://9548722366",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(container)
+			local AntiCheatHandler = require(game.ReplicatedStorage.Shared.Source.AntiCheat.AntiCheatHandler)
+
+			for _, child in container:GetChildren() do
+				if child:IsA("BasePart") then
+					for _, instance in child:GetJoints() do
+						instance:Destroy()
+					end
+
+					Darkheart.BackAura:Clone().Parent = child
+					Darkheart.DarkAura:Clone().Parent = child
+
+					local Attachment = Instance.new("Attachment")
+
+					Attachment.Parent = child
+
+					local visual = AntiCheatHandler.createBodyMover("LinearVelocity")
+
+					visual.Attachment0 = Attachment
+					visual.VectorVelocity = Vector3.new(math.random() - 0.5, 0, math.random() - 0.5).Unit * 80
+					visual.MaxForce = 100000
+					visual.Parent = Attachment
+					child.Material = Enum.Material.Pebble
+					child.Color = Color3.fromRGB(123, 31, 162)
+				end
+			end
+		end
+	}
+end

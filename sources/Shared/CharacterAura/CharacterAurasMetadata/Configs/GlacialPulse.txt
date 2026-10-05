@@ -1,0 +1,7 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetBodyCharacterAuraConfigCreator)({
+	fileName = "GlacialPulse",
+	displayName = "Glacial Pulse",
+	icon = "rbxassetid://117579246328220",
+	rarity = "rare",
+	caseIds = {}
+})

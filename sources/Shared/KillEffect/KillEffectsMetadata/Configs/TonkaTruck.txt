@@ -1,0 +1,76 @@
+local TweenService = game:GetService("TweenService")
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local TonkaTruck = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.TonkaTruck
+
+return function()
+	return {
+		displayName = "TöNKÁ-TRÜCK!¿¡",
+		icon = "rbxassetid://93362170124370",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local maid = Maid.new()
+
+			task.delay(4, function()
+				maid:Destroy()
+			end)
+
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position2 = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = TonkaTruck.effects.initialgroundslam:Clone()
+
+			maid:GiveTask(clone)
+			clone.WorldPosition = position2 + Vector3.new(0, 0.1, 0)
+			clone.Parent = workspace.Terrain
+
+			local clone2 = TonkaTruck.effects.explosion:Clone()
+
+			maid:GiveTask(clone2)
+			clone2.WorldPosition = position2
+			clone2.Parent = workspace.Terrain
+
+			local position = HumanoidRootPart.Position + Vector3.new(Random.new():NextNumber(-40, 40), Random.new():NextNumber(20, 40), Random.new():NextNumber(-40, 40))
+			local v14 = position2 + (position2 - position).Unit * -4
+			local clone3 = TonkaTruck.RoadRoller:Clone()
+
+			maid:GiveTask(clone3)
+			clone3.CFrame = CFrame.lookAt(position, v14)
+			clone3.Parent = workspace.EffectsJunk
+
+			local tween = TweenService:Create(clone3, TweenInfo.new(0.175, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
+				Position = v14
+			})
+
+			tween:Play()
+			tween.Completed:Once(function()
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+				VisualEffectsUtil.emitObject(clone, nil, true)
+				task.delay(0.25, function()
+					for _, child in pairs(clone3.FrontAttachment:GetChildren()) do
+						child.Enabled = false
+					end
+				end)
+				clone3.glowPart.CFrame = clone3.CFrame
+
+				local tween2 = TweenService:Create(clone3.glowPart, TweenInfo.new(1, Enum.EasingStyle.Linear), {
+					Transparency = 0
+				})
+
+				tween2:Play()
+				VisualEffectsUtil.emit(clone3.MidAttachment.flare)
+				tween2.Completed:Once(function()
+					clone3:Destroy()
+					VisualEffectsUtil.emitObject(clone2, nil, true)
+				end)
+			end)
+		end
+	}
+end

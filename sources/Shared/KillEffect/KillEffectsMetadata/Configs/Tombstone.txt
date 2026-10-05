@@ -1,0 +1,28 @@
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Tombstone = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Tombstone
+
+return function()
+	return {
+		displayName = "Tombstone",
+		icon = "rbxassetid://11896863048",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		willCharacterDisappear = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -3, 0)
+			local clone = Tombstone.Tombstone:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone:SetPrimaryPartCFrame(CFrame.new(position) * CFrame.Angles(0, math.rad((math.random(0, 360))), 0))
+			clone.Parent = workspace.EffectsJunk
+			VisualEffectsUtil.emitObject(clone.ParticlePart, nil, true)
+		end
+	}
+end

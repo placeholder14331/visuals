@@ -1,0 +1,62 @@
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local SorrowScythe = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.SorrowScythe
+
+return function()
+	return {
+		displayName = "Sorrow Scythe",
+		icon = "rbxassetid://13447710712",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+
+			HumanoidRootPart.Anchored = true
+
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local _, yaw, _ = HumanoidRootPart.CFrame:ToEulerAnglesXYZ()
+			local clone = SorrowScythe.container:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone.CFrame = CFrame.new(position + Vector3.new(0, clone.Size.Y / 2, 0)) * CFrame.Angles(0, yaw + 1.57079633, 0)
+			clone.Parent = workspace.EffectsJunk
+			task.spawn(function()
+				RunService.Heartbeat:Wait()
+				clone.scythe.Anchored = true
+				clone.scytheMotor6d.Enabled = false
+
+				local pose3 = clone.scythe.CFrame:ToWorldSpace(CFrame.Angles(0, 0, 3.9269908))
+				local pose = pose3:ToWorldSpace(CFrame.Angles(0, 0, 2.3561945))
+				local pose2 = pose:ToWorldSpace(CFrame.new(0, -2, 0) * CFrame.Angles(0, 0, 2.3561945))
+				local tween = TweenService:Create(clone.scythe, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
+					CFrame = pose
+				})
+				local tween2 = TweenService:Create(clone.scythe, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+					CFrame = pose2
+				})
+
+				clone.scythe.CFrame = pose3
+				tween:Play()
+				task.delay(0.1, function()
+					VisualEffectsUtil.emitObject(clone.Embers, nil, true)
+					VisualEffectsUtil.emitObject(clone.Slash, nil, true)
+				end)
+				tween.Completed:Once(function()
+					tween2:Play()
+					task.delay(0.1, function()
+						KillEffectsUtilClient.makeCharacterDisappear(character)
+						VisualEffectsUtil.emitObject(clone.GroundLines, nil, true)
+						VisualEffectsUtil.emitObject(clone.Hit, nil, true)
+					end)
+				end)
+			end)
+		end
+	}
+end

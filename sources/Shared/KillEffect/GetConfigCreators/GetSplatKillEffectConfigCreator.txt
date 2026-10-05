@@ -1,0 +1,64 @@
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local Splatoon = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Splatoon
+
+return function(p1)
+	local prefabName = p1.prefabName
+	local displayNameAppend = p1.displayNameAppend
+	local iconId = p1.iconId
+	local variants = p1.variants
+
+	return function()
+		return {
+			displayName = string.format("Splat%s", displayNameAppend),
+			icon = iconId,
+			variants = variants,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = "legendary",
+			inItemShop = true,
+			willCharacterDisappear = true,
+			apply = function(character)
+				local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+				local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+				local HumanoidRootPart = character.HumanoidRootPart
+				local Torso = character.Torso
+				local maid = Maid.new()
+
+				task.delay(6, function()
+					maid:Destroy()
+				end)
+				HumanoidRootPart.Anchored = true
+
+				local v15 = Splatoon.Prefabs[prefabName]
+
+				SoundHandler.playSound({
+					soundObject = Splatoon.Prefabs.SplatSound,
+					parent = Torso
+				})
+
+				local part = KillEffectsUtilClient.getCharacterFloor(character)
+				local position2 = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+				local position = part and part.Normal or Vector3.new(0, 1, 0)
+				local v19 = position2 + position * 0.1
+
+				for _, child in v15.particles:GetChildren() do
+					local clone = child:Clone()
+
+					maid:GiveTask(clone)
+					clone.Parent = workspace.Terrain
+
+					if clone.Name == "floor" then
+						clone.WorldCFrame = CFrame.lookAt(v19, v19 + position) * CFrame.Angles(-1.57079633, 3.1415927, 0)
+					else
+						clone.WorldPosition = HumanoidRootPart.Position
+					end
+
+					for _, child2 in clone:GetChildren() do
+						VisualEffectsUtil.emit(child2)
+					end
+				end
+			end
+		}
+	end
+end

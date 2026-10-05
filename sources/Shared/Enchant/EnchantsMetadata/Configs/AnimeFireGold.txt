@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetAnimeFireEnchantConfigCreator)({
+	displayName = "Anime Fire Gold",
+	icon = "rbxassetid://111267693687035",
+	color = Color3.fromRGB(255, 255, 0)
+})

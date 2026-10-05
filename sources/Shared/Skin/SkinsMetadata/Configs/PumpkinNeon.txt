@@ -1,0 +1,29 @@
+return function()
+	return {
+		displayName = "Pumpkin Neon",
+		apply = function(target)
+			local function modifyPart(p2)
+				p2.Material = Enum.Material.Neon
+				p2.Reflectance = 0
+			end
+
+			require(game.ReplicatedStorage.Shared.Source.Skin.SkinUtil).runCallbackOnTaggedSkinParts(target, function(emitter2)
+				emitter2.Material = Enum.Material.Neon
+				emitter2.Reflectance = 0
+				emitter2.Color = Color3.fromHex("F46D0E")
+			end, function(emitter)
+				emitter.Material = Enum.Material.Neon
+				emitter.Reflectance = 0
+				emitter.Color = Color3.fromHex("F5D913")
+			end, function(emitter3)
+				emitter3.Material = Enum.Material.Neon
+				emitter3.Reflectance = 0
+				emitter3.Color = Color3.fromHex("2A5420")
+			end)
+		end,
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true
+	}
+end

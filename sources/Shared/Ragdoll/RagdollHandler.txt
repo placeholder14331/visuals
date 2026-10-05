@@ -1,0 +1,220 @@
+local RunService = game:GetService("RunService")
+local v2 = RunService:IsClient()
+local v3 = RunService:IsServer()
+local ToggleCounterGroup = require(game.ReplicatedStorage.Shared.Vendor.ToggleCounter.ToggleCounterGroup)
+local RagdollRiggingHandler = require(game.ReplicatedStorage.Shared.Source.Ragdoll.RagdollRiggingHandler)
+local HumanoidUtil = require(game.ReplicatedStorage.Shared.Source.Humanoid.HumanoidUtil)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local v8 = v2 and require(game.ReplicatedStorage.Client.Source.Ragdoll.RagdollableClient)
+local v9 = v3 and require(game:GetService("RunService"):IsServer() and game.ServerStorage.Server.Source.Ragdoll.RagdollableServer)
+local MockPlayerHandler = require(game.ReplicatedStorage.Shared.Source.MockPlayer.MockPlayerHandler)
+local DataHandler = require(game.ReplicatedStorage.Shared.Source.Data.DataHandler)
+local RagdollableHandler = require(game.ReplicatedStorage.Shared.Source.Ragdoll.RagdollableHandler)
+local module = {}
+local toggleCounterGroup = ToggleCounterGroup.new(false)
+local toggleCounterGroup2 = ToggleCounterGroup.new(true)
+
+function module.buildRagdoll(p1)
+	p1:AddTag("Ragdollable")
+end
+function module.createKnockbackOptionsForRagdollCloneOnDeath(p2, p3)
+	p2:SetAttribute("KnockbackVelocityOnDeath", p3.velocity)
+	p2:SetAttribute("KnockbackMaxForceOnDeath", p3.maxForce)
+	p2:SetAttribute("KnockbackPOnDeath", p3.p)
+	p2:SetAttribute("KnockbackDurationOnDeath", p3.duration)
+	p2:SetAttribute("AddDeathVelocityMultiplier", p3.addDeathVelocityMultiplier)
+end
+function module.createKnockbackAngularOptionsForRagdollCloneOnDeath(p4, p5)
+	p4:SetAttribute("KnockbackAngularVelocityOnDeath", p5.velocity)
+	p4:SetAttribute("KnockbackAngularMaxForceOnDeath", p5.maxForce)
+	p4:SetAttribute("KnockbackAngularPOnDeath", p5.p)
+	p4:SetAttribute("KnockbackAngularDurationOnDeath", p5.duration)
+	p4:SetAttribute("AddDeathAngularVelocityMultiplier", p5.addDeathVelocityMultiplier)
+end
+function module.setForcedPositionForRagdollCloneOnDeath(p6, p7, p8)
+	p6:SetAttribute("PositionOnDeath", p7)
+
+	if p8 then
+		p6:SetAttribute("ShouldForcePositionOnDeathForLocal", true)
+	end
+end
+function module.toggleCanRagdoll(p9, instance2)
+	local p10Parent = instance2.Parent
+	local v29 = toggleCounterGroup2:getToggleCounter(instance2, true)
+	local v30 = v29:getToggle()
+
+	if p9 then
+		v29:add()
+	else
+		v29:remove()
+	end
+
+	local v31 = v29:getToggle()
+
+	if v31 ~= v30 then
+		if v31 then
+			if v2 then
+				v8.setRagdollDisabledClient(instance2, false)
+			else
+				v9.setRagdollDisabledServer(instance2, false)
+			end
+
+			RagdollRiggingHandler.enableRagdollJoints(p10Parent)
+
+			return
+		end
+
+		if v2 then
+			v8.setRagdollDisabledClient(instance2, true)
+		else
+			v9.setRagdollDisabledServer(instance2, true)
+		end
+
+		RagdollRiggingHandler.disableRagdollJoints(p10Parent)
+	end
+end
+
+local function attemptToggleActualRagdollFromToggleCounter(p11, p12)
+	if not p12 then
+		return
+	end
+
+	local v34 = p12:getToggle()
+
+	if v2 then
+		v8.attemptToggleActualRagdollClient(p11, v34)
+
+		return
+	end
+
+	v9.attemptToggleActualRagdollServer(p11, v34)
+end
+
+function module.toggleRagdoll(instance, p14, p15)
+	local v38 = p15 or {}
+	local velocityMagnitudeToWaitFor = v38.velocityMagnitudeToWaitFor
+	local amount = v38.amount
+
+	if velocityMagnitudeToWaitFor and not p14 then
+		local p13Parent = instance.Parent
+
+		if not p13Parent then
+			return
+		end
+
+		local getPlayerOrMockFromCharacter = MockPlayerHandler.getPlayerOrMockFromCharacter(p13Parent)
+		local getSessionDataRoduxStoreForPlayer = DataHandler.getSessionDataRoduxStoreForPlayer(getPlayerOrMockFromCharacter)
+
+		if not getSessionDataRoduxStoreForPlayer then
+			return
+		end
+
+		local u44 = (v38.delayWhenVelocityMagnitudeMet or 1) * getSessionDataRoduxStoreForPlayer:getState().ragdoll.ragdollDurationMult
+		local HumanoidRootPart = p13Parent.HumanoidRootPart
+		local maid = Maid.new()
+
+		maid:GiveTask(function()
+			toggleCounterGroup:remove(instance, amount)
+		end)
+		maid.checkConn = RunService.Heartbeat:Connect(function()
+			debug.profilebegin("heartbeat_ragdollHRPVeloCheck")
+
+			if HumanoidRootPart.Velocity.Magnitude <= velocityMagnitudeToWaitFor then
+				maid.checkConn = nil
+
+				local u51 = u44
+
+				maid:GiveTask(RunService.Heartbeat:Connect(function(dt)
+					debug.profilebegin("heartbeat_ragdollHRPVeloCheck_2")
+
+					if HumanoidRootPart.Velocity.Magnitude > velocityMagnitudeToWaitFor then
+						return
+					end
+
+					u51 -= dt
+
+					if u51 <= 0 then
+						maid:Destroy()
+					end
+
+					debug.profileend()
+				end))
+			end
+
+			debug.profileend()
+		end)
+		maid:GiveTask(HumanoidUtil.connectToDied(instance, function()
+			maid:Destroy()
+		end))
+		maid:GiveTask(p13Parent.AncestryChanged:Connect(function()
+			if not p13Parent:IsDescendantOf(game) then
+				maid:Destroy()
+			end
+		end))
+	elseif p14 then
+		toggleCounterGroup:add(instance, amount)
+	else
+		toggleCounterGroup:remove(instance, amount)
+	end
+
+	local v47 = toggleCounterGroup:getToggleCounter(instance)
+
+	if not v47 then
+		return
+	end
+
+	local v48 = v47:getToggle()
+
+	if v2 then
+		v8.attemptToggleActualRagdollClient(instance, v48)
+
+		return
+	end
+
+	v9.attemptToggleActualRagdollServer(instance, v48)
+end
+
+local function onRagdollToggleCounterCreated(p16, p17)
+	p16:getToggleChangedSignal():Connect(function()
+		local v52 = p17
+		local v53 = p16
+
+		if not v53 then
+			return
+		end
+
+		local v54 = v53:getToggle()
+
+		if v2 then
+			v8.attemptToggleActualRagdollClient(v52, v54)
+
+			return
+		end
+
+		v9.attemptToggleActualRagdollServer(v52, v54)
+	end)
+	p16:getMaid():GiveTask(RagdollableHandler.hookRagdollDisabledChanged(p17, function()
+		local v55 = p17
+		local v56 = p16
+
+		if not v56 then
+			return
+		end
+
+		local v57 = v56:getToggle()
+
+		if v2 then
+			v8.attemptToggleActualRagdollClient(v55, v57)
+
+			return
+		end
+
+		v9.attemptToggleActualRagdollServer(v55, v57)
+	end))
+end
+
+function module._startModule()
+	toggleCounterGroup:getToggleCounterCreatedSignal():Connect(onRagdollToggleCounterCreated)
+end
+
+return module

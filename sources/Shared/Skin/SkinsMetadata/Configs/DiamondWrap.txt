@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetWrapSkinConfigCreator)({
+	displayName = "Diamond Wrap",
+	color = Color3.fromRGB(185, 250, 248)
+})

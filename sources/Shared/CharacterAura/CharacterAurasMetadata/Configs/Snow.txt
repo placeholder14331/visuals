@@ -1,0 +1,17 @@
+return function()
+	return {
+		displayName = "Snow",
+		icon = "rbxassetid://12006662959",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = false,
+		caseIds = {},
+		apply = function(character)
+			local CharacterAuraUtil = require(game.ReplicatedStorage.Shared.Source.CharacterAura.CharacterAuraUtil)
+			local Snow = game.ReplicatedStorage.Shared.Assets.Cosmetics.CharacterAuras.Snow
+
+			CharacterAuraUtil.applyFromDummy(Snow, character)
+		end
+	}
+end

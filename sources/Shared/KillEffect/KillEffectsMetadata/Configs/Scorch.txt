@@ -1,0 +1,30 @@
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Scorch = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Scorch
+
+return function()
+	return {
+		displayName = "Scorch",
+		icon = "rbxassetid://9552316160",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		apply = function(character)
+			require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient).transformCharacter(character, {
+				modifyInstance = function(part)
+					if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+						part.Material = Enum.Material.Pebble
+						part.Color = Color3.fromRGB(61, 63, 71)
+
+						local clone = Scorch.Fire:Clone()
+
+						clone.Rate = 2
+						clone.Enabled = true
+						VisualEffectsUtil.emit(clone, 4)
+						clone.Parent = part
+					end
+				end
+			})
+		end
+	}
+end

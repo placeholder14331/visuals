@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.KillEffect.GetConfigCreators.GetFireworkKillEffectConfigCreator)({
+	prefabName = "Heart",
+	displayNameAppend = " (Heart)",
+	iconId = "rbxassetid://11896864206"
+})

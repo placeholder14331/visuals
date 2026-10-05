@@ -1,0 +1,10 @@
+return function()
+	return {
+		displayName = "None",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "default",
+		inItemShop = false,
+		caseIds = {}
+	}
+end

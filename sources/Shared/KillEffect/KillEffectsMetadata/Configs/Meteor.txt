@@ -1,0 +1,71 @@
+local TweenService = game:GetService("TweenService")
+local Meteor = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Meteor
+
+return function()
+	return {
+		displayName = "Meteor",
+		icon = "rbxassetid://11896863758",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local LimbDismembermentHandlerClient = require(game.ReplicatedStorage.Client.Source.LimbDismemberment.LimbDismembermentHandlerClient)
+			local LimbDismembermentHandler = require(game.ReplicatedStorage.Shared.Source.LimbDismemberment.LimbDismembermentHandler)
+			local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+			local KnockbackHandler = require(game.ReplicatedStorage.Shared.Source.Knockback.KnockbackHandler)
+			local NumberUtil = require(game.ReplicatedStorage.Shared.Source.Number.NumberUtil)
+			local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+			local HumanoidRootPart = character.HumanoidRootPart
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = Meteor.Meteor:Clone()
+
+			task.delay(4.5, function()
+				clone:Destroy()
+			end)
+			clone:SetPrimaryPartCFrame(CFrame.new(HumanoidRootPart.Position + Vector3.new((math.random() - 0.5) * 150, 150, (math.random() - 0.5) * 150)))
+			clone.Parent = workspace.EffectsJunk
+
+			local tween = TweenService:Create(clone.Meteor.Core, TweenInfo.new(0.5, Enum.EasingStyle.Linear), {
+				CFrame = CFrame.new(character.Torso.Position)
+			})
+
+			SoundHandler.playSound({
+				playType = "noDestroy",
+				soundObject = clone.Meteor.Core.WooshSound
+			})
+			tween:Play()
+			tween.Completed:Once(function()
+				HumanoidRootPart.Anchored = false
+				clone.Ground.CFrame = CFrame.new(HumanoidRootPart.Position)
+
+				for _, child in pairs(clone.Ground.Explosion:GetChildren()) do
+					if child:IsA("ParticleEmitter") then
+						VisualEffectsUtil.emit(child)
+					end
+				end
+
+				SoundHandler.playSound({
+					playType = "noDestroy",
+					soundObject = clone.Ground.ExplosionSound
+				})
+				clone.Meteor:Destroy()
+				LimbDismembermentHandlerClient.handleLimbDismemberment(nil, character, LimbDismembermentHandler.getRandomLimb(character.Humanoid), "destroy")
+				KnockbackHandler.knockbackCharacterPart(character, character.HumanoidRootPart, {
+					velocity = Vector3.new(10 * NumberUtil.getRandomSign(), 80, 10 * NumberUtil.getRandomSign()) * Random.new():NextNumber(1, 1.25)
+				})
+				KillEffectsUtilClient.transformCharacter(character, {
+					modifyInstance = function(part)
+						if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+							part.Material = Enum.Material.Pebble
+							part.Color = Color3.fromRGB(61, 63, 71)
+						end
+					end
+				})
+			end)
+		end
+	}
+end

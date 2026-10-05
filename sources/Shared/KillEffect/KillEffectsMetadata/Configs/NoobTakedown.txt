@@ -1,0 +1,65 @@
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local NoobTakedown = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.NoobTakedown
+
+return function()
+	return {
+		displayName = "Noob Takedown",
+		icon = "rbxassetid://11669338046",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		inItemShop = true,
+		willHaveVictimAnimation = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Animator = character.Humanoid.Animator
+			local maid = Maid.new()
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local position2 = part and part.Normal or Vector3.new(0, 1, 0)
+
+			HumanoidRootPart.Anchored = true
+
+			local pose = CFrame.fromMatrix(position, HumanoidRootPart.CFrame.LookVector:Cross(position2), position2) * CFrame.new(0, 3, 0)
+			local clone = NoobTakedown.Noobs:Clone()
+
+			maid.noobs = clone
+			task.delay(4, function()
+				maid:Destroy()
+			end)
+			clone.PrimaryPart.Anchored = true
+			clone:PivotTo(pose)
+			clone.Parent = workspace.EffectsJunk
+			character:PivotTo(pose)
+
+			local track = clone.AnimationController:LoadAnimation(NoobTakedown.Animation)
+
+			track:Play()
+
+			local track2 = Animator:LoadAnimation(NoobTakedown.PulledUnder)
+
+			track2:Play()
+			maid:GiveTask(track:GetMarkerReachedSignal("deleteA_1"):Connect(function()
+				clone.A_Torso.Transparency = 1
+				clone.A_Head:Destroy()
+				clone.A_RightArm:Destroy()
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("deleteA_2"):Connect(function()
+				clone.A_LeftArm:Destroy()
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("deleteB_1"):Connect(function()
+				clone.D_Torso.Transparency = 1
+				clone.D_Head:Destroy()
+				clone.D_LeftArm:Destroy()
+				clone.D_RightArm:Destroy()
+			end))
+			maid:GiveTask(track.Stopped:Connect(function()
+				maid.noobs = nil
+			end))
+			maid:GiveTask(track2.Stopped:Connect(function()
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+			end))
+		end
+	}
+end

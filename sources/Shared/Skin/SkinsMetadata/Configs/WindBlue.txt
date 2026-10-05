@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetWindSkinConfigCreator)({
+	displayName = "Ice Wind",
+	partColor = Color3.new(0, 0, 0),
+	textureColor = Color3.new(0, 1, 1)
+})

@@ -1,0 +1,53 @@
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local InfinitePortal = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.InfinitePortal
+
+return function()
+	return {
+		displayName = "Infinite Portal",
+		icon = "rbxassetid://79120411481926",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local maid = Maid.new()
+
+			task.delay(4.5, function()
+				maid:Destroy()
+			end)
+
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or character.HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = InfinitePortal.Part:Clone()
+
+			maid:GiveTask(clone)
+			clone.CFrame = CFrame.new(position)
+			clone.Parent = workspace.EffectsJunk
+
+			local cFrame = CFrame.new(clone["Portal 2"].WorldPosition + Vector3.new(0, -2, 0)) * HumanoidRootPart.CFrame.Rotation
+			local timestamp = tick()
+
+			maid:GiveTask(RunService.Heartbeat:Connect(function(dt)
+				debug.profilebegin("heartbeat_infPortal")
+
+				local startedAt = tick() - timestamp
+				local amount = 250 * TweenService:GetValue(math.clamp(startedAt / 2, 0, 1), Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+
+				HumanoidRootPart.CFrame = HumanoidRootPart.CFrame + Vector3.new(0, -dt * amount, 0)
+
+				if HumanoidRootPart.Position.Y <= clone["Portal 1"].WorldPosition.Y then
+					HumanoidRootPart.CFrame = cFrame
+				end
+
+				debug.profileend()
+			end))
+		end
+	}
+end

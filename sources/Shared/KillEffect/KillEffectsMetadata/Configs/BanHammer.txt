@@ -1,0 +1,67 @@
+local TweenService = game:GetService("TweenService")
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local BanHammer = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.BanHammer
+
+return function()
+	return {
+		displayName = "Ban Hammer",
+		icon = "rbxassetid://13447710813",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local maid = Maid.new()
+
+			task.delay(4, function()
+				maid:Destroy()
+			end)
+			HumanoidRootPart.Anchored = true
+
+			local clone = BanHammer.Hammer:Clone()
+
+			maid:GiveTask(clone)
+			clone:PivotTo(HumanoidRootPart.CFrame * CFrame.new(0.09516811, 5.144323, 6.029499, 1, 0, 0, 0, 1, 0, 0, 0, 1))
+			clone.Parent = workspace.EffectsJunk
+
+			local _, yaw, _ = HumanoidRootPart.CFrame:ToEulerAnglesXYZ()
+			local clone2 = BanHammer.Part:Clone()
+
+			maid:GiveTask(clone2)
+
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -3, 0)
+
+			clone2.CFrame = CFrame.new(position) * CFrame.Angles(0, yaw, 0)
+			clone2.Parent = workspace.EffectsJunk
+
+			local track = clone.AnimationController:LoadAnimation(clone.Animation)
+
+			track.Looped = false
+			track:Play()
+
+			local part2 = clone["Plane.001"]
+			local Size = part2.Size
+
+			part2.Size = Vector3.new(0, 0, 0)
+			TweenService:Create(part2, TweenInfo.new(0.166, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+				Size = Size
+			}):Play()
+			maid:GiveTask(track.Stopped:Once(function()
+				clone:Destroy()
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("slam"):Connect(function()
+				VisualEffectsUtil.emitObject(clone2)
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("startSizeDown"):Connect(function()
+				TweenService:Create(part2, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+					Size = Vector3.new(0, 0, 0)
+				}):Play()
+			end))
+		end
+	}
+end

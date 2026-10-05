@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetCamoSkinConfigCreator)({
+	displayName = "Arctic Camo",
+	color = Color3.fromRGB(214, 214, 214)
+})

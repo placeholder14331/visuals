@@ -1,0 +1,6 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetEgoistCharacterAuraConfigCreator)({
+	displayName = "Egoist (Yellow)",
+	icon = "rbxassetid://85912843885295",
+	color = Color3.fromRGB(255, 255, 0),
+	rarity = "legendary"
+})

@@ -1,0 +1,6 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetLightningCharacterAuraConfigCreator)({
+	displayName = "Purple Lightning",
+	icon = "rbxassetid://12006663921",
+	color = Color3.fromRGB(239, 117, 255),
+	canObtain = false
+})

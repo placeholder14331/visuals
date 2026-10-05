@@ -1,0 +1,336 @@
+local KillEffectIds = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectIds)
+
+return {
+	{
+		configModuleName = "Ragdoll",
+		id = KillEffectIds.ragdoll
+	},
+	{
+		configModuleName = "None",
+		id = KillEffectIds.none
+	},
+	{
+		configModuleName = "VanguardDeath",
+		id = KillEffectIds.vanguardDeath
+	},
+	{
+		configModuleName = "GoldStatue",
+		id = KillEffectIds.goldStatue
+	},
+	{
+		configModuleName = "Blackhole",
+		id = KillEffectIds.blackhole
+	},
+	{
+		configModuleName = "Stone",
+		id = KillEffectIds.stone
+	},
+	{
+		configModuleName = "Fade",
+		id = KillEffectIds.fade
+	},
+	{
+		configModuleName = "Ice",
+		id = KillEffectIds.ice
+	},
+	{
+		configModuleName = "Dismember",
+		id = KillEffectIds.dismember
+	},
+	{
+		configModuleName = "IceCube",
+		id = KillEffectIds.iceCube
+	},
+	{
+		configModuleName = "Scorch",
+		id = KillEffectIds.scorch
+	},
+	{
+		configModuleName = "Ghost",
+		id = KillEffectIds.ghost
+	},
+	{
+		configModuleName = "Darkheart",
+		id = KillEffectIds.darkheart
+	},
+	{
+		configModuleName = "Tacos",
+		id = KillEffectIds.tacos
+	},
+	{
+		configModuleName = "Money",
+		id = KillEffectIds.money
+	},
+	{
+		configModuleName = "Shrink",
+		id = KillEffectIds.shrink
+	},
+	{
+		configModuleName = "Pants",
+		id = KillEffectIds.pants
+	},
+	{
+		configModuleName = "NoobTakedown",
+		id = KillEffectIds.noobTakedown
+	},
+	{
+		configModuleName = "AThousandCuts",
+		id = KillEffectIds.aThousandCuts
+	},
+	{
+		configModuleName = "Cyberspace",
+		id = KillEffectIds.cyberspace
+	},
+	{
+		configModuleName = "SplatWhite",
+		id = KillEffectIds.splatWhite
+	},
+	{
+		configModuleName = "Tombstone",
+		id = KillEffectIds.tombstone
+	},
+	{
+		configModuleName = "Glitterbomb",
+		id = KillEffectIds.glitterbomb
+	},
+	{
+		configModuleName = "TentacleDeath",
+		id = KillEffectIds.tentacleDeath
+	},
+	{
+		configModuleName = "Deleted",
+		id = KillEffectIds.deleted
+	},
+	{
+		configModuleName = "Lotus",
+		id = KillEffectIds.lotus
+	},
+	{
+		configModuleName = "Excalibur",
+		id = KillEffectIds.excalibur
+	},
+	{
+		configModuleName = "Baseball",
+		id = KillEffectIds.baseball
+	},
+	{
+		configModuleName = "Sniped",
+		id = KillEffectIds.sniped
+	},
+	{
+		configModuleName = "ShadowHands",
+		id = KillEffectIds.shadowHands
+	},
+	{
+		configModuleName = "TNT",
+		id = KillEffectIds.tnt
+	},
+	{
+		configModuleName = "NukeDeath",
+		id = KillEffectIds.nuke
+	},
+	{
+		configModuleName = "PinkStar",
+		id = KillEffectIds.pinkStar
+	},
+	{
+		configModuleName = "SpaceLaser",
+		id = KillEffectIds.spaceLaser
+	},
+	{
+		configModuleName = "UFO",
+		id = KillEffectIds.ufo
+	},
+	{
+		configModuleName = "DarkSphere",
+		id = KillEffectIds.darkSphere
+	},
+	{
+		configModuleName = "FireworkHeart",
+		id = KillEffectIds.fireworkHeart
+	},
+	{
+		configModuleName = "FireworkSkull",
+		id = KillEffectIds.fireworkSkull
+	},
+	{
+		configModuleName = "FireworkMoon",
+		id = KillEffectIds.fireworkMoon
+	},
+	{
+		configModuleName = "FireworkButterfly",
+		id = KillEffectIds.fireworkButterfly
+	},
+	{
+		configModuleName = "FireworkBats",
+		id = KillEffectIds.fireworkBats
+	},
+	{
+		configModuleName = "PaperSurprise",
+		id = KillEffectIds.paperSurprise
+	},
+	{
+		configModuleName = "AmongUs",
+		id = KillEffectIds.amongUs
+	},
+	{
+		configModuleName = "Meteor",
+		id = KillEffectIds.meteor
+	},
+	{
+		configModuleName = "RainyCloud",
+		id = KillEffectIds.rainyCloud
+	},
+	{
+		configModuleName = "IceShard",
+		id = KillEffectIds.iceShard
+	},
+	{
+		configModuleName = "IcePillar",
+		id = KillEffectIds.icePillar
+	},
+	{
+		configModuleName = "GameOver",
+		id = KillEffectIds.gameOver
+	},
+	{
+		configModuleName = "CosmicStrike",
+		id = KillEffectIds.cosmicStrike
+	},
+	{
+		configModuleName = "PianoCrush",
+		id = KillEffectIds.pianoCrush
+	},
+	{
+		configModuleName = "HeartBurst",
+		id = KillEffectIds.heartBurst
+	},
+	{
+		configModuleName = "CupidsArrow",
+		id = KillEffectIds.cupidsArrow
+	},
+	{
+		configModuleName = "LoveLetter",
+		id = KillEffectIds.loveLetter
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "ChainHell",
+		id = KillEffectIds.chainHell
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "Tornado",
+		id = KillEffectIds.tornado
+	},
+	{
+		configModuleName = "BanHammer",
+		id = KillEffectIds.banHammer
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "SmokeExplosion",
+		id = KillEffectIds.smokeExplosion
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "TonkaTruck",
+		id = KillEffectIds.tonkaTruck
+	},
+	{
+		configModuleName = "ClassicSpikeTrap",
+		id = KillEffectIds.classicSpikeTrap
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "SoulGrasp",
+		id = KillEffectIds.soulGrasp
+	},
+	{
+		configModuleName = "SorrowScythe",
+		id = KillEffectIds.sorrowScythe
+	},
+	{
+		configModuleName = "ShadowTendrils",
+		id = KillEffectIds.shadowTendrils
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "InfinitePortal",
+		id = KillEffectIds.infinitePortal
+	},
+	{
+		configModuleName = "Heartbreak",
+		id = KillEffectIds.heartbreak
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "Stereo",
+		id = KillEffectIds.stereo
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "LogSubstitution",
+		id = KillEffectIds.logSubstitution
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "TrafficCone",
+		id = KillEffectIds.trafficCone
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "Thunderstorm",
+		id = KillEffectIds.thunderstorm
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "GalacticPull",
+		id = KillEffectIds.galacticPull
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "Pyramid",
+		id = KillEffectIds.pyramid
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "Fished",
+		id = KillEffectIds.fished
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "DivineStab",
+		id = KillEffectIds.divineStab
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "Bubble",
+		id = KillEffectIds.bubble
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "MarioPipe",
+		id = KillEffectIds.marioPipe
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "LanternFestival",
+		id = KillEffectIds.lanternFestival
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "Cross",
+		id = KillEffectIds.cross
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "DarkheartDimension",
+		id = KillEffectIds.darkheartDimension
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "UndyingGrasp",
+		id = KillEffectIds.undyingGrasp
+	},
+	{
+		configModuleName = "Lego",
+		id = KillEffectIds.lego
+	},
+	{
+		configModuleName = "BlackIceGate",
+		id = KillEffectIds.blackIceGate
+	},
+	{
+		configModuleName = "AuroraBurst",
+		id = KillEffectIds.auroraBurst
+	},
+	{
+		configModuleName = "GetBoxed",
+		id = KillEffectIds.getBoxed
+	},
+	{
+		configModuleName = "FrigidBloom",
+		id = KillEffectIds.frigidBloom
+	}
+}

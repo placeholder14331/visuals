@@ -1,0 +1,29 @@
+local Witch = game.ReplicatedStorage.Shared.Assets.Cosmetics.CharacterAuras.Witch
+
+return function()
+	return {
+		displayName = "Witch",
+		icon = "rbxassetid://11577118866",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local CharacterAuraUtil = require(game.ReplicatedStorage.Shared.Source.CharacterAura.CharacterAuraUtil)
+
+			CharacterAuraUtil.applyFromDummy(Witch.Witch.Dummy, character)
+
+			local clone = Witch.Witch.Part:Clone()
+
+			CharacterAuraUtil.onCharacterAuraInstanceCreated(clone)
+			clone.Parent = character.HumanoidRootPart
+
+			local Weld = Instance.new("Weld")
+
+			Weld.Part0 = character.HumanoidRootPart
+			Weld.Part1 = clone
+			Weld.C0 = CFrame.new(0, -1.8, 0)
+			Weld.Parent = clone
+		end
+	}
+end

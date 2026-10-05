@@ -1,0 +1,6 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetBodyCharacterAuraConfigCreator)({
+	fileName = "AncientMagic",
+	displayName = "Ancient Magic",
+	icon = "rbxassetid://11873739048",
+	rarity = "rare"
+})

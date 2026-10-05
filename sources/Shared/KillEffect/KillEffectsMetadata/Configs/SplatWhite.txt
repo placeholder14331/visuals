@@ -1,0 +1,21 @@
+local KillEffectIds = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectIds)
+
+return require(game.ReplicatedStorage.Shared.Source.KillEffect.GetConfigCreators.GetSplatKillEffectConfigCreator)({
+	prefabName = "white",
+	displayNameAppend = "",
+	iconId = "rbxassetid://12006667213",
+	variants = {
+		{
+			configModuleName = "SplatBlueOrange",
+			id = KillEffectIds.splatBlueOrange
+		},
+		{
+			configModuleName = "SplatGreenPink",
+			id = KillEffectIds.splatGreenPink
+		},
+		{
+			configModuleName = "SplatPurpleLime",
+			id = KillEffectIds.splatPurpleLime
+		}
+	}
+})

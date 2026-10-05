@@ -1,0 +1,33 @@
+local Blackhole = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Blackhole
+
+return function()
+	return {
+		displayName = "Blackhole",
+		icon = "rbxassetid://9552316565",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+			local position = character.HumanoidRootPart.Position + -character.HumanoidRootPart.CFrame.LookVector * 5 + Vector3.new(0, 10, 0)
+
+			KillEffectsUtilClient.fadeOutCharacter(character, {
+				newPartSize = Vector3.new(0.1, 0.1, 0.1),
+				makeInvisAfter = true,
+				tweenInfo = TweenInfo.new(4, Enum.EasingStyle.Linear),
+				newPartPosition = position
+			})
+
+			local clone = Blackhole.BlackholeParticlesContainer:Clone()
+
+			clone.CanCollide = false
+			clone.Position = position
+			clone.Parent = workspace.EffectsJunk
+			task.delay(4.125, function()
+				VisualEffectsUtil.destroyPartWithLifetimeInstances(clone)
+			end)
+		end
+	}
+end

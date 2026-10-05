@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.KillEffect.GetConfigCreators.GetTornadoKillEffectConfigCreator)({
+	prefabName = "Fire",
+	displayNameAppend = " Fire",
+	iconId = "rbxassetid://13515775771"
+})

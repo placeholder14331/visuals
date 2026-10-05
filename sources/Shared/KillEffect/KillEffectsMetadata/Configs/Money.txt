@@ -1,0 +1,17 @@
+local KillEffectUtil = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectUtil)
+local Money = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Money
+local createPartCacheFromTemplate = KillEffectUtil.createPartCacheFromTemplate(Money.Money, 24)
+
+return function()
+	return {
+		displayName = "Money",
+		icon = "rbxassetid://9552316228",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "uncommon",
+		inItemShop = true,
+		apply = function(character)
+			require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient).replaceCharacterWithObjects(character, createPartCacheFromTemplate)
+		end
+	}
+end

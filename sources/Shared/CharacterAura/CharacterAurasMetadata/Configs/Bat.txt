@@ -1,0 +1,15 @@
+local Bat = game.ReplicatedStorage.Shared.Assets.Cosmetics.CharacterAuras.Bat
+
+return function()
+	return {
+		displayName = "Bat",
+		icon = "rbxassetid://11897710830",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			require(game.ReplicatedStorage.Shared.Source.CharacterAura.CharacterAuraUtil).applyFromDummy(Bat.Bat.Dummy, character)
+		end
+	}
+end

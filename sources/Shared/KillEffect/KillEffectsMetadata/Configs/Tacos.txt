@@ -1,0 +1,19 @@
+local KillEffectUtil = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectUtil)
+local Tacos = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Tacos
+local createPartCacheFromTemplate = KillEffectUtil.createPartCacheFromTemplate(Tacos.Taco, 24)
+
+return function()
+	return {
+		displayName = "Tacos",
+		icon = "rbxassetid://9552315861",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "uncommon",
+		inItemShop = true,
+		apply = function(character)
+			require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient).replaceCharacterWithObjects(character, createPartCacheFromTemplate, {
+				amount = 6
+			})
+		end
+	}
+end

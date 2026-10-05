@@ -1,0 +1,558 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CollectionService = game:GetService("CollectionService")
+local LocalPlayer = game.Players.LocalPlayer
+local CurrentCamera = workspace.CurrentCamera
+local PartCache = require(game.ReplicatedStorage.Shared.Vendor.PartCache)
+local StateHandlerClient = require(ReplicatedStorage.Client.Source.State.StateHandlerClient)
+local CharmUtil = require(ReplicatedStorage.Shared.Source.Charm.CharmUtil)
+local Network = require(game.ReplicatedStorage.Shared.Vendor.Network)
+local ItemAttachmentHandler = require(game.ReplicatedStorage.Shared.Source.ItemAttachment.ItemAttachmentHandler)
+local CharacterUtil = require(game.ReplicatedStorage.Shared.Source.Character.CharacterUtil)
+local CameraUtil = require(game.ReplicatedStorage.Shared.Source.Camera.CameraUtil)
+local ItemAttachmentHandlerClient = require(game.ReplicatedStorage.Client.Source.ItemAttachment.ItemAttachmentHandlerClient)
+local WeldUtil = require(game.ReplicatedStorage.Shared.Source.Weld.WeldUtil)
+local CharacterConstantsClient = require(game.ReplicatedStorage.Client.Source.Character.CharacterConstantsClient)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local KnockbackHandler = require(game.ReplicatedStorage.Shared.Source.Knockback.KnockbackHandler)
+local ToolHandler = require(game.ReplicatedStorage.Shared.Source.Tool.ToolHandler)
+local LimbDismembermentHandler = require(game.ReplicatedStorage.Shared.Source.LimbDismemberment.LimbDismembermentHandler)
+local DownedHandler = require(game.ReplicatedStorage.Shared.Source.Downed.DownedHandler)
+local CharacterHandler = require(game.ReplicatedStorage.Shared.Source.Character.CharacterHandler)
+local NumberUtil = require(game.ReplicatedStorage.Shared.Source.Number.NumberUtil)
+local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local RoduxStore = require(game.ReplicatedStorage.Shared.Source.Rodux.RoduxStore)
+local KillEffectsMetadata = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectsMetadata)
+local KillEffectIds = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectIds)
+local InstancePropsHandler = require(game.ReplicatedStorage.Shared.Source.Instance.InstancePropsHandler)
+local KillEffectUtil = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectUtil)
+local InstanceUtil = require(game.ReplicatedStorage.Shared.Source.Instance.InstanceUtil)
+local Assets = game.ReplicatedStorage.Shared.Assets
+local Character = Assets.Character
+local KillSounds = game.SoundService.Main.KillSounds
+local Attachment = Instance.new("Attachment")
+
+Attachment.Visible = false
+
+local partCache = PartCache.new(Attachment, 10, workspace.Terrain)
+local module = {}
+local part = {}
+
+function module.addOnCharacterCreatedCallback(p1, p2)
+	if not part[p1] then
+		part[p1] = {}
+	end
+
+	table.insert(part[p1], p2)
+
+	return function()
+		module.removeOnCharacterCreatedCallback(p1, p2)
+	end
+end
+function module.removeOnCharacterCreatedCallback(p3, p4)
+	if not part[p3] then
+		return
+	end
+
+	local find = table.find(part[p3], p4)
+
+	if find then
+		table.remove(part[p3], find)
+
+		if #part[p3] <= 0 then
+			part[p3] = nil
+		end
+	end
+end
+function module.apply(p5, p6)
+	local v50 = KillEffectsMetadata[p5]
+
+	if v50 and v50.apply then
+		task.spawn(function()
+			v50.apply(p6)
+		end)
+	end
+end
+
+local function moveCharacterDescToRagdollClone(container3, p8)
+	for _, child in pairs(container3:GetChildren()) do
+		if CharacterUtil.getIsCharacterPart(child) then
+			if p8 then
+				local childName = p8:FindFirstChild(child.Name)
+
+				if childName then
+					childName.CollisionGroup = "fakeCharacters"
+					childName.CFrame = child.CFrame
+					childName.Velocity = child.Velocity
+					childName.RotVelocity = child.RotVelocity
+
+					local SpecialMesh = child:FindFirstChildOfClass("SpecialMesh")
+
+					if SpecialMesh then
+						SpecialMesh.Parent = childName
+					end
+
+					for _, child2 in pairs(child:GetChildren()) do
+						if child2:IsA("BillboardGui") or (child2:IsA("ParticleEmitter") or child2:GetAttribute("reparentOnDeath")) then
+							child2.Parent = childName
+
+							if child2:GetAttribute("BundleId") ~= nil then
+								task.spawn(function()
+									child2.BundleWeld.Part0 = childName
+									childName.Transparency = child.Transparency
+								end)
+							end
+						end
+					end
+				end
+			end
+
+			if not CharacterUtil.getIsHumanoidRootPart(child) then
+				child:Destroy()
+			end
+		elseif (not p8 or not ToolHandler.getIsTool(child)) and (child:IsA("BasePart") or child:IsA("Model")) then
+			child:Destroy()
+		elseif child:IsA("CharacterMesh") or child:IsA("BodyColors") or child:IsA("Clothing") or child:IsA("ShirtGraphic") then
+			if p8 then
+				child.Parent = p8
+			else
+				child:Destroy()
+			end
+		end
+	end
+
+	if not p8 then
+		local ItemsAttached = container3:FindFirstChild("ItemsAttached")
+
+		if ItemsAttached then
+			for _, child in pairs(ItemsAttached:GetChildren()) do
+				child:Destroy()
+			end
+		end
+	end
+end
+local function playDeathSounds(p9, p10, p11)
+	if p10 ~= nil and (p9 == LocalPlayer or not RoduxStore.store:getState().settingsClient.MuteKillSounds) then
+		local Sound = Instance.new("Sound")
+
+		Sound.SoundId = "rbxassetid://" .. tostring(p10)
+		Sound.Volume = 0.5
+		Sound.SoundGroup = KillSounds
+		Sound.RollOffMinDistance = 15
+		SoundHandler.playSound({
+			playType = "destroyAfter",
+			shouldCloneSoundObject = false,
+			soundObject = Sound,
+			parent = p11
+		})
+	end
+
+	SoundHandler.playSound({
+		playType = "destroyAfter",
+		soundObject = Character.Sounds.DiedSound,
+		parent = p11
+	})
+end
+local function createDownedPointLight(p12)
+	DownedHandler.createDownedPointLight(8, Color3.fromRGB(255, 0, 0)).Parent = p12
+end
+local function createDeathIcon(p13, p14, p15)
+	if p13:GetAttribute("HideStatusIndicators") then
+		return
+	end
+
+	if p14 ~= LocalPlayer then
+		local BillboardGui = Instance.new("BillboardGui")
+
+		BillboardGui.StudsOffset = Vector3.new(0, 3, 0)
+		BillboardGui.Size = UDim2.new(1.5, 0, 1.5, 0)
+		BillboardGui.Enabled = true
+		BillboardGui.Parent = p15
+
+		local ImageLabel = Instance.new("ImageLabel")
+
+		ImageLabel.Size = UDim2.new(1, 0, 1, 0)
+		ImageLabel.BackgroundTransparency = 1
+		ImageLabel.Image = "rbxassetid://7152903422"
+		ImageLabel.Parent = BillboardGui
+	end
+end
+local function reparentChatBubbleAttachment(p16, p17)
+	if p16 then
+		local ChatBubbleAttachment = p16:FindFirstChild("ChatBubbleAttachment")
+
+		if ChatBubbleAttachment then
+			ChatBubbleAttachment.Parent = p17
+		end
+	end
+end
+local function onCreateKillEffect(character, character2, p20, p21, instance)
+	if not character then
+		return
+	end
+
+	if not character.Parent then
+		return
+	end
+
+	local player = game.Players:GetPlayerFromCharacter(character2)
+	local player2 = game.Players:GetPlayerFromCharacter(character)
+	local HumanoidRootPart = character.HumanoidRootPart
+	local cFrame = nil
+
+	if player2 ~= LocalPlayer or (character:GetAttribute("ShouldForcePositionOnDeathForLocal") or false) then
+		local PositionOnDeath = character:GetAttribute("PositionOnDeath")
+
+		if PositionOnDeath then
+			cFrame = CFrame.new(PositionOnDeath)
+		end
+	end
+
+	if character ~= LocalPlayer.Character and player ~= LocalPlayer and not CameraUtil.getShouldRender(CurrentCamera, cFrame and cFrame.Position or HumanoidRootPart.Position, {
+		shouldSee = true,
+		minDistance = 25,
+		maxDistance = 100
+	}) then
+		return
+	end
+
+	local VFXVisibility = RoduxStore.store:getState().settingsClient.VFXVisibility
+
+	if VFXVisibility == "None" or VFXVisibility == "Player" and player ~= LocalPlayer then
+		return
+	end
+
+	local ragdoll = p20 or KillEffectIds.ragdoll
+
+	if (not RoduxStore.store:getState().settingsClient.EnableOtherKillEffects or ragdoll == KillEffectIds.none) and character2 ~= LocalPlayer.Character then
+		ragdoll = KillEffectIds.ragdoll
+	end
+
+	local Humanoid = character.Humanoid
+	local Torso = character:FindFirstChild("Torso")
+	local v89 = KillEffectsMetadata[ragdoll]
+	local willCharacterDisappear = v89.willCharacterDisappear
+	local willHaveVictimAnimation = v89.willHaveVictimAnimation
+
+	if HumanoidRootPart == HumanoidRootPart.AssemblyRootPart then
+		HumanoidRootPart.Anchored = true
+
+		local connection = HumanoidRootPart:GetPropertyChangedSignal("Anchored"):Connect(function()
+			HumanoidRootPart.Anchored = true
+		end)
+
+		InstanceUtil.hookToInstanceUnparented(HumanoidRootPart, function()
+			connection:Disconnect()
+		end)
+	end
+
+	if willCharacterDisappear then
+		local Part = partCache:GetPart()
+
+		Part.WorldCFrame = Torso.CFrame
+
+		local FAKE_CHARACTER_DESTROY_DELAY = CharacterConstantsClient.FAKE_CHARACTER_DESTROY_DELAY
+
+		task.delay(FAKE_CHARACTER_DESTROY_DELAY, function()
+			Part:ClearAllChildren()
+			partCache:ReturnPart(Part)
+		end)
+		module.apply(ragdoll, character)
+
+		if Torso then
+			local ChatBubbleAttachment = Torso:FindFirstChild("ChatBubbleAttachment")
+
+			if ChatBubbleAttachment then
+				ChatBubbleAttachment.Parent = Part
+			end
+		end
+
+		moveCharacterDescToRagdollClone(character, nil)
+
+		for _, v in pairs(Humanoid:GetAccessories()) do
+			if character == v.Parent then
+				v:Destroy()
+			end
+		end
+
+		createDeathIcon(character, player2, Part)
+		DownedHandler.createDownedPointLight(8, Color3.fromRGB(255, 0, 0)).Parent = Part
+		playDeathSounds(player, p21, Part)
+
+		return
+	end
+
+	local maid = Maid.new()
+	local container = ItemAttachmentHandler.getItemsAttachedFolder(character)
+	local clone = Character.Models.BlankCharacter:Clone()
+
+	maid:GiveTask(clone)
+
+	for _, child in pairs(clone:GetChildren()) do
+		if CharacterUtil.getIsCharacterPart(child) and not character:FindFirstChild(child.Name) then
+			child:Destroy()
+		end
+	end
+
+	local FAKE_CHARACTER_DESTROY_DELAY = CharacterConstantsClient.FAKE_CHARACTER_DESTROY_DELAY
+
+	task.delay(FAKE_CHARACTER_DESTROY_DELAY, function()
+		maid:Destroy()
+	end)
+
+	for _, v in pairs(Humanoid:GetAccessories()) do
+		if character == v.Parent then
+			local Handle = v:FindFirstChild("Handle")
+
+			if Handle then
+				local AccessoryWeld = Handle:FindFirstChild("AccessoryWeld")
+
+				if AccessoryWeld then
+					local AccessoryWeldPart1Name = clone:FindFirstChild(AccessoryWeld.Part1.Name)
+
+					if AccessoryWeldPart1Name then
+						AccessoryWeld.Part1 = AccessoryWeldPart1Name
+						v.Parent = clone
+					end
+				end
+			end
+		end
+	end
+
+	clone:SetAttribute("CreatedTick", tick())
+	clone:SetAttribute("CharacterType", "fake")
+
+	local ObjectValue = Instance.new("ObjectValue")
+
+	ObjectValue.Name = "RealCharacter"
+	ObjectValue.Value = character
+	ObjectValue.Parent = clone
+
+	local ObjectValue2 = Instance.new("ObjectValue")
+
+	ObjectValue2.Name = "RagdollClone"
+	ObjectValue2.Value = clone
+	ObjectValue2.Parent = character
+
+	local Humanoid2 = clone:FindFirstChild("Humanoid")
+	local HumanoidRootPart2 = clone:FindFirstChild("HumanoidRootPart")
+	local Torso2 = clone:FindFirstChild("Torso")
+
+	if not Humanoid2 or not HumanoidRootPart2 or not Torso2 then
+		maid:Destroy()
+
+		return
+	end
+
+	Humanoid2.DisplayName = Humanoid.DisplayName
+	Humanoid2.AutoJumpEnabled = false
+	Humanoid2.AutoRotate = false
+	Humanoid2.AutomaticScalingEnabled = false
+	Humanoid2.PlatformStand = true
+	Humanoid2.RequiresNeck = false
+	Humanoid2.BreakJointsOnDeath = false
+	Humanoid2.AutoRotate = false
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.Running, false)
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics, false)
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.StrafingNoPhysics, false)
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.GettingUp, false)
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.Landed, false)
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.Flying, false)
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.Freefall, false)
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, false)
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+	Humanoid2:SetStateEnabled(Enum.HumanoidStateType.Swimming, false)
+	HumanoidRootPart2.CanQuery = false
+	ItemAttachmentHandler.createItemsAttachedFolder(clone)
+	LimbDismembermentHandler.createLimbDismembermentWoundsFolder(clone)
+	clone.Name = character.Name
+	clone.Parent = workspace.FakeCharacters
+	Humanoid2.Health = 0
+	Humanoid2:ChangeState(Enum.HumanoidStateType.Dead)
+	InstancePropsHandler.remove(character)
+	CharacterHandler.reattachCharacterWeldParts(character, clone)
+
+	if HumanoidRootPart2 then
+		createDeathIcon(character, player2, HumanoidRootPart2)
+		playDeathSounds(player, p21, HumanoidRootPart2)
+	end
+
+	if Torso2 then
+		DownedHandler.createDownedPointLight(8, Color3.fromRGB(255, 0, 0)).Parent = Torso2
+	end
+
+	if Torso then
+		local ChatBubbleAttachment = Torso:FindFirstChild("ChatBubbleAttachment")
+
+		if ChatBubbleAttachment then
+			ChatBubbleAttachment.Parent = HumanoidRootPart
+		end
+	end
+
+	local Animate = character:FindFirstChild("Animate")
+
+	if Animate then
+		Animate.Enabled = false
+	end
+
+	local t3 = {}
+
+	local function insertRagdollClonePartMotor6Ds(container2)
+		for _, child in pairs(container2:GetChildren()) do
+			if child:IsA("Motor6D") then
+				child.Enabled = false
+				table.insert(t3, child)
+			end
+		end
+	end
+
+	if Torso2 then
+		insertRagdollClonePartMotor6Ds(Torso2)
+	end
+
+	if HumanoidRootPart2 then
+		insertRagdollClonePartMotor6Ds(HumanoidRootPart2)
+	end
+
+	local Head = character:FindFirstChild("Head")
+
+	if Head then
+		Head.face.Parent = clone.Head
+	end
+
+	moveCharacterDescToRagdollClone(character, clone)
+
+	if cFrame then
+		clone:PivotTo(cFrame)
+	end
+
+	if Torso2 then
+		HumanoidRootPart2.CFrame = Torso2.CFrame
+	end
+
+	for _, v in pairs(t3) do
+		local vPart0 = v.Part0
+		local vPart1 = v.Part1
+		local Motor6D
+
+		if willHaveVictimAnimation then
+			Motor6D = Instance.new("Motor6D")
+			Motor6D.Part0 = vPart0
+			Motor6D.Part1 = vPart1
+			Motor6D.C0 = v.C0
+			Motor6D.C1 = v.C1
+		else
+			Motor6D = WeldUtil.weldTwoParts("Motor6D", vPart0, vPart1)
+		end
+
+		Motor6D.Name = v.Name
+		Motor6D.Parent = v.Parent
+		v:Destroy()
+	end
+
+	for _, child in pairs(container:GetChildren()) do
+		local OriginalToolVOValue = child.OriginalToolVO.Value
+
+		if OriginalToolVOValue:IsDescendantOf(player2.Backpack) then
+			task.spawn(ItemAttachmentHandlerClient.createItemAttachment, clone, OriginalToolVOValue)
+		else
+			child:Destroy()
+		end
+	end
+
+	if instance then
+		instance.Parent = clone
+
+		for _, child in instance.Motor6Ds:GetChildren() do
+			local childPart0Name = clone:FindFirstChild(child.Part0.Name)
+
+			if childPart0Name then
+				child.Part0 = childPart0Name
+			end
+		end
+	end
+
+	local getSessionStore = StateHandlerClient.getSessionStore(player2)
+
+	if player2 == LocalPlayer and Humanoid2.Parent ~= nil then
+		maid:GiveTask(CharmUtil.connectToAtom(function()
+			return not getSessionStore.death.suppressDeath()
+		end, function()
+			CurrentCamera.CameraSubject = Humanoid2
+		end))
+		Humanoid2.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+	end
+
+	module.apply(ragdoll, clone)
+
+	local KnockbackVelocityOnDeath = character:GetAttribute("KnockbackVelocityOnDeath")
+
+	if KnockbackVelocityOnDeath then
+		local KnockbackMaxForceOnDeath = character:GetAttribute("KnockbackMaxForceOnDeath")
+		local KnockbackDurationOnDeath = character:GetAttribute("KnockbackDurationOnDeath")
+		local KnockbackPOnDeath = character:GetAttribute("KnockbackPOnDeath")
+		local vector3 = Vector3.new(0, 0, 0)
+		local AddDeathVelocityMultiplier = character:GetAttribute("AddDeathVelocityMultiplier")
+
+		if AddDeathVelocityMultiplier then
+			vector3 += HumanoidRootPart2.Velocity * AddDeathVelocityMultiplier
+		end
+
+		KnockbackHandler.knockbackCharacterPart(clone, HumanoidRootPart2, {
+			velocity = KnockbackVelocityOnDeath + vector3,
+			maxForce = KnockbackMaxForceOnDeath,
+			p = KnockbackPOnDeath,
+			duration = KnockbackDurationOnDeath
+		})
+	else
+		HumanoidRootPart2:ApplyImpulse(HumanoidRootPart2.AssemblyMass * HumanoidRootPart.CFrame.LookVector * 15 * NumberUtil.getRandomSign())
+	end
+
+	local KnockbackAngularVelocityOnDeath = character:GetAttribute("KnockbackAngularVelocityOnDeath")
+
+	if KnockbackAngularVelocityOnDeath then
+		local KnockbackAngularMaxForceOnDeath = character:GetAttribute("KnockbackAngularMaxForceOnDeath")
+		local KnockbackAngularDurationOnDeath = character:GetAttribute("KnockbackAngularDurationOnDeath")
+		local KnockbackAngularPOnDeath = character:GetAttribute("KnockbackAngularPOnDeath")
+		local vector3 = Vector3.new(0, 0, 0)
+		local AddDeathAngularVelocityMultiplier = character:GetAttribute("AddDeathAngularVelocityMultiplier")
+
+		if AddDeathAngularVelocityMultiplier then
+			vector3 += HumanoidRootPart2.AssemblyAngularVelocity * AddDeathAngularVelocityMultiplier
+		end
+
+		KnockbackHandler.knockbackCharacterPartAngular(clone, HumanoidRootPart2, {
+			velocity = KnockbackAngularVelocityOnDeath + vector3,
+			maxForce = KnockbackAngularMaxForceOnDeath,
+			p = KnockbackAngularPOnDeath,
+			duration = KnockbackAngularDurationOnDeath
+		})
+	end
+
+	local v143 = part[character]
+
+	if v143 then
+		for _, v145 in v143 do
+			task.spawn(v145, clone)
+		end
+	end
+end
+local function configureKillEffectAssets()
+	KillEffectUtil.configureContainer(Assets.Cosmetics.KillEffects)
+end
+
+function module._initModule()
+	KillEffectUtil.configureContainer(Assets.Cosmetics.KillEffects)
+end
+function module._startModule()
+	CollectionService:AddTag(workspace.FakeCharacters, "CAMERA_COLLISION_IGNORE_LIST")
+	Network:BindEvents({
+		CreateKillEffect = onCreateKillEffect
+	})
+end
+
+return module

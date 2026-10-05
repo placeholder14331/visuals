@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetSkullsEnchantConfigCreator)({
+	displayName = "Skulls",
+	icon = "rbxassetid://9726014692"
+})

@@ -1,0 +1,48 @@
+local TweenService = game:GetService("TweenService")
+local MarioPipe = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.MarioPipe
+
+return function()
+	return {
+		displayName = "Green Pipe",
+		icon = "rbxassetid://129759568042161",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = MarioPipe.Pipe:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone.Position = position + Vector3.new(0, -clone.Size.Y / 2, 0)
+			clone.Parent = workspace.Terrain
+
+			local clone2 = clone.GroundAttachment:Clone()
+
+			task.delay(4, function()
+				clone2:Destroy()
+			end)
+			clone2.WorldPosition = position
+			clone2.Parent = workspace.Terrain
+			TweenService:Create(clone, TweenInfo.new(0.5, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {
+				Position = position + Vector3.new(0, clone.Size.Y / 2, 0)
+			}):Play()
+			TweenService:Create(HumanoidRootPart, TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+				CFrame = CFrame.new(position + Vector3.new(0, 20, 0))
+			}):Play()
+			task.delay(0.2, function()
+				TweenService:Create(HumanoidRootPart, TweenInfo.new(0.6, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
+					CFrame = CFrame.new(position + Vector3.new(0, -5, 0))
+				}):Play()
+			end)
+		end
+	}
+end

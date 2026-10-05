@@ -1,0 +1,37 @@
+local SkinsInOrder = require(game.ReplicatedStorage.Shared.Source.Skin.SkinsInOrder)
+local ThingUtil = require(game.ReplicatedStorage.Shared.Source.Thing.ThingUtil)
+local SkinConstants = require(game.ReplicatedStorage.Shared.Source.Skin.SkinConstants)
+local CaseIds = require(game.ReplicatedStorage.Shared.Source.Case.CaseIds)
+local Configs = script.Configs
+local module = {}
+
+ThingUtil.insertConfigs({
+	handleCosmeticDefaults = true,
+	cosmeticType = "skins",
+	tblToInsert = module,
+	configsToInsertInOrder = SkinsInOrder,
+	configsFolder = Configs,
+	singleConfigCallback = function(config)
+		if not config.aetherPrice then
+			local n1 = 1e999
+
+			if config.rarity == "legendary" then
+				n1 = SkinConstants.LEGENDARY_PRICE
+			elseif config.rarity == "epic" then
+				n1 = SkinConstants.EPIC_PRICE
+			elseif config.rarity == "rare" then
+				n1 = SkinConstants.RARE_PRICE
+			elseif config.rarity == "uncommon" then
+				n1 = SkinConstants.UNCOMMON_PRICE
+			end
+
+			config.aetherPrice = n1
+		end
+
+		if not config.caseIds then
+			config.caseIds = { CaseIds.skins }
+		end
+	end
+})
+
+return module

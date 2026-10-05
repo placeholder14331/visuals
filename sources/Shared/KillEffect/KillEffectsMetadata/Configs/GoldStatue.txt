@@ -1,0 +1,41 @@
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Statue = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Statue
+local color3 = Color3.fromRGB(255, 238, 88)
+local colorSequence = ColorSequence.new(color3)
+
+return function()
+	return {
+		displayName = "Gold Statue",
+		icon = "rbxassetid://9552315967",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "exotic",
+		inItemShop = false,
+		caseIds = {},
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Torso = character.Torso
+
+			SoundHandler.playSound({
+				soundObject = Statue.Sound,
+				parent = HumanoidRootPart
+			})
+
+			local clone = Statue.RayParticles:Clone()
+
+			clone.Color = colorSequence
+			VisualEffectsUtil.emit(clone, 10)
+			clone.Parent = Torso
+			KillEffectsUtilClient.transformCharacter(character, {
+				modifyInstance = function(part)
+					if part:IsA("BasePart") then
+						part.Material = Enum.Material.Glass
+						part.Color = color3
+					end
+				end
+			})
+		end
+	}
+end

@@ -1,0 +1,80 @@
+local CollectionService = game:GetService("CollectionService")
+local LocalPlayer = game.Players.LocalPlayer
+local Network = require(game.ReplicatedStorage.Shared.Vendor.Network)
+local CharacterAurasHandler = require(game.ReplicatedStorage.Shared.Source.CharacterAura.CharacterAurasHandler)
+local RoduxStore = require(game.ReplicatedStorage.Shared.Source.Rodux.RoduxStore)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local CharacterAuraConstants = require(game.ReplicatedStorage.Shared.Source.CharacterAura.CharacterAuraConstants)
+local module = {}
+
+local function onApplyCharacterAura(character, p2)
+	if not RoduxStore.store:getState().settingsClient.EnableOtherCharacterAuras and character ~= LocalPlayer.Character then
+		return
+	end
+
+	CharacterAurasHandler.applyCharacterAura(character, p2)
+end
+
+local createStateToggler = Maid.createStateToggler()
+
+local function onRangedCurrAimInfoChanged(aimInfo)
+	local Character = LocalPlayer.Character
+
+	if aimInfo and (aimInfo.isAiming and Character) then
+		createStateToggler:create(function(maid2)
+			local CharacterAuraId = Character:GetAttribute("CharacterAuraId")
+
+			CharacterAurasHandler.destroyCharacterAuras(Character)
+			maid2:GiveTask(function()
+				CharacterAurasHandler.applyCharacterAura(Character, CharacterAuraId)
+			end)
+		end)
+
+		return
+	end
+
+	createStateToggler:destroy()
+end
+local function onCharacterAuraInstanceAdded(visual)
+	if (not LocalPlayer.Character or not visual:IsDescendantOf(LocalPlayer.Character)) and visual:IsA("ParticleEmitter") then
+		visual.Rate = visual.Rate * 0.5
+	end
+end
+
+function module._startModule()
+	local currAimInfo = RoduxStore.store:getState().rangedClient.currAimInfo
+	local Character = LocalPlayer.Character
+
+	if currAimInfo and (currAimInfo.isAiming and Character) then
+		createStateToggler:create(function(maid)
+			local CharacterAuraId = Character:GetAttribute("CharacterAuraId")
+
+			CharacterAurasHandler.destroyCharacterAuras(Character)
+			maid:GiveTask(function()
+				CharacterAurasHandler.applyCharacterAura(Character, CharacterAuraId)
+			end)
+		end)
+	else
+		createStateToggler:destroy()
+	end
+
+	for _, v in pairs(CollectionService:GetTagged(CharacterAuraConstants.CHARACTER_AURA_INSTANCE_TAG_NAME)) do
+		task.spawn(function()
+			local visual2 = v
+
+			if (not LocalPlayer.Character or not visual2:IsDescendantOf(LocalPlayer.Character)) and visual2:IsA("ParticleEmitter") then
+				visual2.Rate = visual2.Rate * 0.5
+			end
+		end)
+	end
+
+	RoduxStore.store:listenToKey("rangedClient", function(p7)
+		return p7.rangedClient.currAimInfo
+	end, onRangedCurrAimInfoChanged)
+	Network:BindEvents({
+		ApplyCharacterAura = onApplyCharacterAura
+	})
+	CollectionService:GetInstanceAddedSignal(CharacterAuraConstants.CHARACTER_AURA_INSTANCE_TAG_NAME):Connect(onCharacterAuraInstanceAdded)
+end
+
+return module

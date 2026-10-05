@@ -1,0 +1,19 @@
+return function()
+	return {
+		displayName = "Fade..",
+		icon = "rbxassetid://9575186548",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+
+			KillEffectsUtilClient.enableRagdoll(character)
+			KillEffectsUtilClient.fadeOutCharacter(character, {
+				newPartTransparency = 1,
+				tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear)
+			})
+		end
+	}
+end

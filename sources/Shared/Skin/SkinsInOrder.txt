@@ -1,0 +1,400 @@
+local SkinIds = require(game.ReplicatedStorage.Shared.Source.Skin.SkinIds)
+
+return {
+	{
+		configModuleName = "None",
+		id = SkinIds.none
+	},
+	{
+		configModuleName = "GoldWrap",
+		id = SkinIds.goldWrap
+	},
+	{
+		configModuleName = "DiamondWrap",
+		id = SkinIds.diamondWrap
+	},
+	{
+		configModuleName = "EmeraldWrap",
+		id = SkinIds.emeraldWrap
+	},
+	{
+		configModuleName = "Shungite",
+		id = SkinIds.shungite
+	},
+	{
+		configModuleName = "SplatterWhite",
+		id = SkinIds.splatterWhite
+	},
+	{
+		configModuleName = "SplatterRed",
+		id = SkinIds.splatterRed
+	},
+	{
+		configModuleName = "SplatterBlue",
+		id = SkinIds.splatterBlue
+	},
+	{
+		configModuleName = "SplatterGreen",
+		id = SkinIds.splatterGreen
+	},
+	{
+		configModuleName = "SplatterYellow",
+		id = SkinIds.splatterYellow
+	},
+	{
+		configModuleName = "CamoBlack",
+		id = SkinIds.camoBlack
+	},
+	{
+		configModuleName = "CamoDesert",
+		id = SkinIds.camoDesert
+	},
+	{
+		configModuleName = "CamoForest",
+		id = SkinIds.camoForest
+	},
+	{
+		configModuleName = "CamoWhite",
+		id = SkinIds.camoWhite
+	},
+	{
+		configModuleName = "DigitalCamoBlack",
+		id = SkinIds.digitalCamoBlack
+	},
+	{
+		configModuleName = "DigitalCamoDesert",
+		id = SkinIds.digitalCamoDesert
+	},
+	{
+		configModuleName = "DigitalCamoForest",
+		id = SkinIds.digitalCamoForest
+	},
+	{
+		configModuleName = "DigitalCamoWhite",
+		id = SkinIds.digitalCamoWhite
+	},
+	{
+		configModuleName = "DotsGreen",
+		id = SkinIds.dotsGreen
+	},
+	{
+		configModuleName = "DotsRed",
+		id = SkinIds.dotsRed
+	},
+	{
+		configModuleName = "DotsBlue",
+		id = SkinIds.dotsBlue
+	},
+	{
+		configModuleName = "DotsYellow",
+		id = SkinIds.dotsYellow
+	},
+	{
+		configModuleName = "FloralGreen",
+		id = SkinIds.floralGreen
+	},
+	{
+		configModuleName = "FloralRed",
+		id = SkinIds.floralRed
+	},
+	{
+		configModuleName = "FloralBlue",
+		id = SkinIds.floralWhite
+	},
+	{
+		configModuleName = "FloralGold",
+		id = SkinIds.floralGold
+	},
+	{
+		configModuleName = "NeonCamoGreen",
+		id = SkinIds.neonCamoGreen
+	},
+	{
+		configModuleName = "NeonCamoRed",
+		id = SkinIds.neonCamoRed
+	},
+	{
+		configModuleName = "NeonCamoBlue",
+		id = SkinIds.neonCamoBlue
+	},
+	{
+		configModuleName = "NeonCamoYellow",
+		id = SkinIds.neonCamoYellow
+	},
+	{
+		configModuleName = "Tiger",
+		id = SkinIds.tiger
+	},
+	{
+		configModuleName = "TigerRed",
+		id = SkinIds.tigerRed
+	},
+	{
+		configModuleName = "TigerCyan",
+		id = SkinIds.tigerCyan
+	},
+	{
+		configModuleName = "CubicBlack",
+		id = SkinIds.cubicBlack
+	},
+	{
+		configModuleName = "CubicRed",
+		id = SkinIds.cubicRed
+	},
+	{
+		configModuleName = "CubicBlue",
+		id = SkinIds.cubicBlue
+	},
+	{
+		configModuleName = "ContourRedBlack",
+		id = SkinIds.contourRedBlack
+	},
+	{
+		configModuleName = "ContourBlack",
+		id = SkinIds.contourBlack
+	},
+	{
+		configModuleName = "ContourBlueWhite",
+		id = SkinIds.contourBlueWhite
+	},
+	{
+		configModuleName = "NeonRed",
+		id = SkinIds.neonRed
+	},
+	{
+		configModuleName = "NeonBlue",
+		id = SkinIds.neonBlue
+	},
+	{
+		configModuleName = "NeonWhite",
+		id = SkinIds.neonWhite
+	},
+	{
+		configModuleName = "NeonGreen",
+		id = SkinIds.neonGreen
+	},
+	{
+		configModuleName = "NeonOrange",
+		id = SkinIds.neonOrange
+	},
+	{
+		configModuleName = "NeonPurple",
+		id = SkinIds.neonPurple
+	},
+	{
+		configModuleName = "NeonPink",
+		id = SkinIds.neonPink
+	},
+	{
+		configModuleName = "NeonDarkheart",
+		id = SkinIds.neonDarkheart
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "NeonRainbow",
+		id = SkinIds.neonRainbow
+	},
+	{
+		configModuleName = "Cubes",
+		id = SkinIds.cubes
+	},
+	{
+		configModuleName = "CubesRed",
+		id = SkinIds.cubesRed
+	},
+	{
+		configModuleName = "CubesBlue",
+		id = SkinIds.cubesBlue
+	},
+	{
+		configModuleName = "CubesGreen",
+		id = SkinIds.cubesGreen
+	},
+	{
+		configModuleName = "WavesBlack",
+		id = SkinIds.wavesBlack
+	},
+	{
+		configModuleName = "OrnateRed",
+		id = SkinIds.ornateRed
+	},
+	{
+		configModuleName = "OrnateBlue",
+		id = SkinIds.ornateBlue
+	},
+	{
+		configModuleName = "OrnateGreen",
+		id = SkinIds.ornateGreen
+	},
+	{
+		configModuleName = "OrnateYellow",
+		id = SkinIds.ornateYellow
+	},
+	{
+		configModuleName = "OrnateIllusionRed",
+		id = SkinIds.ornateIllusionRed
+	},
+	{
+		configModuleName = "OrnateIllusionGreen",
+		id = SkinIds.ornateIllusionGreen
+	},
+	{
+		configModuleName = "OrnateIllusionBlue",
+		id = SkinIds.ornateIllusionBlue
+	},
+	{
+		configModuleName = "OrnateIllusionYellow",
+		id = SkinIds.ornateIllusionYellow
+	},
+	{
+		configModuleName = "HexagonHive",
+		id = SkinIds.hexagonHive
+	},
+	{
+		configModuleName = "HexagonTablet",
+		id = SkinIds.hexagonTablet
+	},
+	{
+		configModuleName = "PebblesOrange",
+		id = SkinIds.pebblesOrange
+	},
+	{
+		configModuleName = "PebblesGreen",
+		id = SkinIds.pebblesGreen
+	},
+	{
+		configModuleName = "TerminalGreen",
+		id = SkinIds.terminalGreen
+	},
+	{
+		configModuleName = "WindBlack",
+		id = SkinIds.windBlack
+	},
+	{
+		configModuleName = "WindBlue",
+		id = SkinIds.windBlue
+	},
+	{
+		configModuleName = "WindRed",
+		id = SkinIds.windRed
+	},
+	{
+		configModuleName = "Leopard",
+		id = SkinIds.leopard
+	},
+	{
+		configModuleName = "LeopardCyan",
+		id = SkinIds.leopardCyan
+	},
+	{
+		configModuleName = "LeopardRed",
+		id = SkinIds.leopardRed
+	},
+	{
+		configModuleName = "Reflect",
+		id = SkinIds.reflect
+	},
+	{
+		configModuleName = "PumpkinNeon",
+		id = SkinIds.pumpkinNeon
+	},
+	{
+		configModuleName = "PumpkinWrap",
+		id = SkinIds.pumpkinWrap
+	},
+	{
+		configModuleName = "LucidDreams",
+		id = SkinIds.lucidDreams
+	},
+	{
+		configModuleName = "NightFlowers",
+		id = SkinIds.nightFlowers
+	},
+	{
+		configModuleName = "GardenFlowers",
+		id = SkinIds.gardenFlowers
+	},
+	{
+		configModuleName = "IceNeon",
+		id = SkinIds.iceNeon
+	},
+	{
+		configModuleName = "IceWrap",
+		id = SkinIds.iceWrap
+	},
+	{
+		configModuleName = "ForcefieldWhite",
+		id = SkinIds.forcefieldWhite
+	},
+	{
+		configModuleName = "ForcefieldCyan",
+		id = SkinIds.forcefieldCyan
+	},
+	{
+		configModuleName = "ForcefieldBlack",
+		id = SkinIds.forcefieldBlack
+	},
+	{
+		configModuleName = "ForcefieldGreen",
+		id = SkinIds.forcefieldGreen
+	},
+	{
+		configModuleName = "ForcefieldOrange",
+		id = SkinIds.forcefieldOrange
+	},
+	{
+		configModuleName = "ForcefieldRed",
+		id = SkinIds.forcefieldRed
+	},
+	{
+		configModuleName = "ForcefieldBlue",
+		id = SkinIds.forcefieldBlue
+	},
+	{
+		configModuleName = "ForcefieldPink",
+		id = SkinIds.forcefieldPink
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "Glass",
+		id = SkinIds.glass
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "GlassWhite",
+		id = SkinIds.glassWhite
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "GlassBlack",
+		id = SkinIds.glassBlack
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "GlassGreen",
+		id = SkinIds.glassGreen
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "GlassOrange",
+		id = SkinIds.glassOrange
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "GlassRed",
+		id = SkinIds.glassRed
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "GlassBlue",
+		id = SkinIds.glassBlue
+	},
+	if not require(game.ReplicatedStorage.Shared.Source.LocalFlag.LocalFlags).upd4 then nil else {
+		configModuleName = "GlassPink",
+		id = SkinIds.glassPink
+	},
+	{
+		configModuleName = "BlackIce",
+		id = SkinIds.blackIce
+	},
+	{
+		configModuleName = "AncientBorealis",
+		id = SkinIds.ancientBorealis
+	},
+	{
+		configModuleName = "FrostlineAlloy",
+		id = SkinIds.frostlineAlloy
+	}
+}

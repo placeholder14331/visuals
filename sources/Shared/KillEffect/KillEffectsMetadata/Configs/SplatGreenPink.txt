@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.KillEffect.GetConfigCreators.GetSplatKillEffectConfigCreator)({
+	prefabName = "green/pink",
+	displayNameAppend = " (Green/Pink)",
+	iconId = "rbxassetid://11905091511"
+})

@@ -1,0 +1,88 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ForgeVFX = require(ReplicatedStorage.Packages.ForgeVFX)
+local Maid = require(ReplicatedStorage.Shared.Vendor.Maid)
+local SoundHandler = require(ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local VisualEffectsUtil = require(ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local CaseIds = require(ReplicatedStorage.Shared.Source.Case.CaseIds)
+local PianoCrush = ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.PianoCrush
+
+return function()
+	return {
+		displayName = "Piano Crush",
+		icon = "rbxassetid://138008990774642",
+		vaulted = false,
+		refundIfVaulted = false,
+		inItemShop = true,
+		rarity = "epic",
+		caseIds = { CaseIds.valentines2026 },
+		willHaveVictimAnimation = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local maid = Maid.new()
+			local Humanoid = character.Humanoid
+			local HumanoidRootPart = character.HumanoidRootPart
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local clone = PianoCrush.Piano:Clone()
+
+			clone:PivotTo(CFrame.new(position))
+			HumanoidRootPart.Anchored = true
+			HumanoidRootPart.CFrame = CFrame.fromMatrix(position + Vector3.new(0, 2.5, 0), HumanoidRootPart.CFrame.RightVector, clone.PrimaryPart.CFrame.UpVector)
+
+			local random = PianoCrush[`PianoCrushSound{ math.random(3) }`]
+
+			maid:GiveTask(SoundHandler.playSound({
+				playType = "destroyAfter",
+				soundObject = random,
+				parent = clone.main
+			}))
+			maid:GiveTask(clone)
+
+			local track = clone.AnimationController:LoadAnimation(PianoCrush.PianoAnimation)
+			local track2 = Humanoid.Animator:LoadAnimation(PianoCrush.PianoAnimationVictim)
+
+			maid:GiveTask(track:GetMarkerReachedSignal("Event1"):Connect(function()
+				VisualEffectsUtil.toggleObject(clone.main.Music, true)
+				VisualEffectsUtil.toggleObject(clone.main.LightningAura, true)
+				VisualEffectsUtil.toggleObject(clone.main.FloorGlow, true)
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("Event2"):Connect(function()
+				ForgeVFX.emit(clone.main.ChargeGlow)
+
+				local clone2 = PianoCrush.InwardsBezier:Clone()
+
+				clone2:PivotTo(CFrame.new(position) * clone.main.BezierPosition.CFrame)
+				clone2.Parent = workspace.EffectsJunk
+				maid:GiveTask(clone2)
+				ForgeVFX.emit(clone2)
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("Event3"):Connect(function()
+				VisualEffectsUtil.toggleObject(clone.main.Music, false)
+				VisualEffectsUtil.toggleObject(clone.main.LightningAura, false)
+				VisualEffectsUtil.toggleObject(clone.main.FloorGlow, false)
+
+				local clone3 = PianoCrush.FinisherImpact:Clone()
+
+				clone3.CFrame = CFrame.new(position + Vector3.new(0, 1, 0))
+				clone3.Parent = workspace.EffectsJunk
+
+				local clone4 = PianoCrush.DownMeshMore:Clone()
+
+				clone4:PivotTo(clone:GetPivot())
+				clone4.Parent = workspace.EffectsJunk
+				maid:GiveTask(clone3)
+				maid:GiveTask(clone4)
+				ForgeVFX.emit(clone3)
+				ForgeVFX.emit(clone4)
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+				track:AdjustSpeed(0)
+				maid:GiveTask(task.delay(2.25, function()
+					maid:Destroy()
+				end))
+			end))
+			track:Play()
+			track2:Play()
+			clone.Parent = workspace.EffectsJunk
+		end
+	}
+end

@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetFireEnchantConfigCreator)({
+	displayName = "Crimson Fire",
+	icon = "rbxassetid://9612757511",
+	color = Color3.fromRGB(255, 0, 0)
+})

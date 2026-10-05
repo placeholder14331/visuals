@@ -1,0 +1,65 @@
+local KillEffectUtil = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectUtil)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local KillEffects = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects
+local createPartCacheFromTemplate = KillEffectUtil.createPartCacheFromTemplate(KillEffects.Blocks.Block, 24)
+local clone = VisualEffectsUtil.createSoleLocalAttachment(KillEffects.Blocks.ExplodeVfx.Attachment:Clone(), "BlocksKillEffectExplodeVfxAttachment")
+
+return function()
+	local function createBlocks(part, p2)
+		for _ = 1, p2 do
+			local Part = createPartCacheFromTemplate:GetPart()
+
+			task.delay(6, function()
+				createPartCacheFromTemplate:ReturnPart(Part)
+			end)
+			Part.Anchored = false
+			Part.CFrame = part.CFrame * CFrame.new(Random.new():NextNumber(-part.Size.X / 2, part.Size.X / 2), Random.new():NextNumber(0, part.Size.Y / 2), Random.new():NextNumber(-part.Size.Z / 2, part.Size.Z / 2))
+			Part.Color = part.Color
+			Part:ApplyImpulse(Part.AssemblyMass * Vector3.new(Random.new():NextNumber(-20, 20), Random.new():NextNumber(20, 30), Random.new():NextNumber(-20, 20)))
+			Part:ApplyAngularImpulse((Vector3.new(Random.new():NextNumber(-2, 2), Random.new():NextNumber(-2, 2), Random.new():NextNumber(-2, 2))))
+		end
+	end
+
+	return {
+		displayName = "Blocks",
+		icon = "rbxassetid://91117969425232",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local Torso = character.Torso
+			local Head = character:FindFirstChild("Head")
+			local found2 = character:FindFirstChild("Left Arm")
+			local found3 = character:FindFirstChild("Right Arm")
+			local found4 = character:FindFirstChild("Left Leg")
+			local found = character:FindFirstChild("Right Leg")
+
+			KillEffectsUtilClient.makeCharacterDisappear(character)
+			clone.WorldCFrame = Torso.CFrame
+			VisualEffectsUtil.emitObject(clone)
+			createBlocks(Torso, 2)
+
+			if Head then
+				createBlocks(Head, 1)
+			end
+
+			if found2 then
+				createBlocks(found2, 1)
+			end
+
+			if found3 then
+				createBlocks(found3, 1)
+			end
+
+			if found4 then
+				createBlocks(found4, 1)
+			end
+
+			if found then
+				createBlocks(found, 1)
+			end
+		end
+	}
+end

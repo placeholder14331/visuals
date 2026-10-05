@@ -1,0 +1,90 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = game.Players.LocalPlayer
+local u3 = nil
+local StateHandlerClient = require(ReplicatedStorage.Client.Source.State.StateHandlerClient)
+local RagdollHandler = require(game.ReplicatedStorage.Shared.Source.Ragdoll.RagdollHandler)
+local Network = require(game.ReplicatedStorage.Shared.Vendor.Network)
+local CoreGuiHandlerClient = require(game.ReplicatedStorage.Client.Source.CoreGui.CoreGuiHandlerClient)
+local HipHeightHandlerClient = require(game.ReplicatedStorage.Client.Source.Character.Handlers.HipHeightHandlerClient)
+local CharacterHandler = require(game.ReplicatedStorage.Shared.Source.Character.CharacterHandler)
+local AutoRotateHandlerClient = require(game.ReplicatedStorage.Client.Source.AutoRotate.AutoRotateHandlerClient)
+local DataHandler = require(game.ReplicatedStorage.Shared.Source.Data.DataHandler)
+local CrouchHandlerClient = require(game.ReplicatedStorage.Client.Source.Crouch.CrouchHandlerClient)
+local JumpHandlerClient = require(game.ReplicatedStorage.Client.Source.Jump.JumpHandlerClient)
+local CharacterHandlerClient = require(game.ReplicatedStorage.Client.Source.Character.CharacterHandlerClient)
+local CharacterUtil = require(game.ReplicatedStorage.Shared.Source.Character.CharacterUtil)
+local ToolHandlerClient = require(game.ReplicatedStorage.Client.Source.Tool.ToolHandlerClient)
+local RagdollableBinderClient = require(game.ReplicatedStorage.Client.Source.Ragdoll.RagdollableBinderClient)
+local module = {
+	toggleCanRagdoll = RagdollHandler.toggleCanRagdoll,
+	toggleRagdoll = RagdollHandler.toggleRagdoll
+}
+
+local function onCharacterAdded(character)
+	CharacterHandler.waitForCharacterLoaded(character)
+
+	local Humanoid = character.Humanoid
+
+	RagdollHandler.buildRagdoll(Humanoid)
+end
+local function onIsRagdolledClientChanged(p2)
+	local Character = LocalPlayer.Character
+	local found2 = Character and Character:FindFirstChild("Head")
+	local getSessionStore = StateHandlerClient.getSessionStore()
+	local getAutoRotateToggleCounter = AutoRotateHandlerClient.getAutoRotateToggleCounter()
+	local getValueContainerGroup = HipHeightHandlerClient.getValueContainerGroup()
+
+	if p2 then
+		getValueContainerGroup:addToShouldBeZeroCount()
+		getAutoRotateToggleCounter:remove()
+		CrouchHandlerClient.toggleCrouching(false)
+		ToolHandlerClient.setToolToReEquip()
+
+		local found = Character and Character:FindFirstChild("Humanoid")
+
+		if found and not getSessionStore.death.suppressDeath() then
+			CharacterHandler.unequipTools(found)
+		end
+
+		if found2 then
+			found2.CanCollide = true
+		end
+	else
+		getValueContainerGroup:removeFromShouldBeZeroCount()
+		getAutoRotateToggleCounter:add()
+
+		local getJumpCooldownTimer = JumpHandlerClient.getJumpCooldownTimer()
+
+		getJumpCooldownTimer:setTimeLeft(getJumpCooldownTimer:getTimeLeft() + 0.25)
+		CharacterHandlerClient.playStandUpAnim()
+		ToolHandlerClient.reEquipToolSet()
+
+		if found2 then
+			CharacterHandler.setDefaultHeadCanCollide(found2)
+		end
+	end
+
+	CoreGuiHandlerClient.toggleBackpack(not p2)
+end
+
+function module._initModule()
+	RagdollableBinderClient:Init()
+	u3 = DataHandler.getSessionDataRoduxStoreForPlayer(LocalPlayer)
+end
+function module._startModule()
+	CharacterUtil.hookPlayerCharacterAdded(nil, onCharacterAdded)
+	u3:listenToKey("ragdollClient", function(p3)
+		return p3.ragdollClient.isRagdolled
+	end, onIsRagdolledClientChanged)
+	Network:BindEvents({
+		ToggleRagdoll = function(p4, p5, p6)
+			if not p4 then
+				return
+			end
+
+			RagdollHandler.toggleRagdoll(p4, p5, p6)
+		end
+	})
+end
+
+return module

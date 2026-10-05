@@ -1,0 +1,796 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local RunService2 = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local CurrentCamera = workspace.CurrentCamera
+local v9 = RunService2:IsServer()
+local RaycastUtil = require(ReplicatedStorage.Shared.Source.Raycast.RaycastUtil)
+local WeldUtil = require(ReplicatedStorage.Shared.Source.Weld.WeldUtil)
+local NumberUtil = require(game.ReplicatedStorage.Shared.Source.Number.NumberUtil)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local lerp = require(game.ReplicatedStorage.Shared.Vendor.lerp)
+local module3 = {
+	cloneOverAttachmentVisual = function(visual6, p2)
+		local clone = visual6:Clone()
+		local p1Attachment0 = visual6.Attachment0
+		local Attachment = nil
+
+		if p1Attachment0 then
+			Attachment = Instance.new("Attachment")
+			Attachment.CFrame = p1Attachment0.CFrame
+			Attachment.Parent = p2
+			clone.Attachment0 = Attachment
+		end
+
+		local p1Attachment1 = visual6.Attachment1
+		local Attachment2 = nil
+
+		if p1Attachment1 then
+			Attachment2 = Instance.new("Attachment")
+			Attachment2.CFrame = p1Attachment1.CFrame
+			Attachment2.Parent = p2
+			clone.Attachment1 = Attachment2
+		end
+
+		clone.Parent = p2
+
+		return clone, Attachment, Attachment2
+	end,
+	getEmitCountOptimizeMult = function(part7)
+		if not v9 and part7 then
+			local position = if not part7:IsA("Attachment") then part7.Position else part7.WorldPosition
+			local Magnitude = (CurrentCamera.CFrame.Position - position).Magnitude
+
+			return (NumberUtil.mapClamp(Magnitude, 50, 250, 1, 0.1))
+		end
+
+		return 1
+	end,
+	emit = function(p4, p5, p6)
+		local v39 = p5 or p4:GetAttribute("EmitCount")
+
+		if not v39 then
+			return
+		end
+
+		if p6 then
+			v39 = math.max(v39 * p6, 1)
+		end
+
+		p4:Emit(v39)
+	end
+}
+
+function module3.emitDelay(p7, p8, p9)
+	local EmitDelay = p7:GetAttribute("EmitDelay")
+
+	if EmitDelay then
+		task.delay(EmitDelay, module3.emit, p7, p8, p9)
+
+		return
+	end
+
+	module3.emit(p7, p8, p9)
+end
+function module3.emitDuration(p10, p11, p12)
+	local EmitDuration = p10:GetAttribute("EmitDuration")
+
+	if EmitDuration then
+		p10.Enabled = true
+		task.delay(EmitDuration, function()
+			p10.Enabled = false
+		end)
+	end
+
+	module3.emit(p10, p11, p12)
+end
+
+local function createEmitObject(p13)
+	return function(container11, p15, p16)
+		local descendants = container11:GetDescendants()
+		local v232 = nil
+
+		if p16 then
+			v232 = if type(p16) ~= "number" then module3.getEmitCountOptimizeMult(container11) else p16
+		end
+
+		table.insert(descendants, container11)
+
+		for _, visual5 in descendants do
+			if visual5:IsA("ParticleEmitter") then
+				p13(visual5, if not p15 then nil else visual5.Rate, v232)
+			end
+		end
+	end
+end
+
+local emit = module3.emit
+
+function module3.emitObject(container2, p18, p19)
+	local descendants = container2:GetDescendants()
+	local v53 = nil
+
+	if p19 then
+		v53 = if type(p19) ~= "number" then module3.getEmitCountOptimizeMult(container2) else p19
+	end
+
+	table.insert(descendants, container2)
+
+	for _, visual4 in descendants do
+		if visual4:IsA("ParticleEmitter") then
+			emit(visual4, if not p18 then nil else visual4.Rate, v53)
+		end
+	end
+end
+
+local emitDelay = module3.emitDelay
+
+function module3.emitDelayObject(container9, p21, p22)
+	local descendants = container9:GetDescendants()
+	local v60 = nil
+
+	if p22 then
+		v60 = if type(p22) ~= "number" then module3.getEmitCountOptimizeMult(container9) else p22
+	end
+
+	table.insert(descendants, container9)
+
+	for _, visual13 in descendants do
+		if visual13:IsA("ParticleEmitter") then
+			emitDelay(visual13, if not p21 then nil else visual13.Rate, v60)
+		end
+	end
+end
+
+local emitDuration = module3.emitDuration
+
+function module3.emitDurationObject(container10, p24, p25)
+	local descendants = container10:GetDescendants()
+	local v67 = nil
+
+	if p25 then
+		v67 = if type(p25) ~= "number" then module3.getEmitCountOptimizeMult(container10) else p25
+	end
+
+	table.insert(descendants, container10)
+
+	for _, visual10 in descendants do
+		if visual10:IsA("ParticleEmitter") then
+			emitDuration(visual10, if not p24 then nil else visual10.Rate, v67)
+		end
+	end
+end
+function module3.toggleObject(p26, p27)
+	for _, visual in typeof(p26) == "table" and p26 or p26:QueryDescendants("ParticleEmitter, Trail, Beam") do
+		if visual:IsA("ParticleEmitter") or visual:IsA("Trail") or visual:IsA("Beam") then
+			visual.Enabled = p27
+		end
+	end
+end
+function module3.createTweenCallback(p28, p29)
+	local elapsed = os.clock()
+	local connection = nil
+
+	connection = RunService.Heartbeat:Connect(function()
+		local startedAt = os.clock() - elapsed
+		local Value = TweenService:GetValue(math.clamp(startedAt / p28.Time, 0, 1), p28.EasingStyle, p28.EasingDirection)
+
+		p29(Value)
+
+		if Value >= 1 then
+			connection:Disconnect()
+		end
+	end)
+	p29(0)
+
+	return connection
+end
+function module3.unlightObject(p30, p31)
+	for _, v in ipairs(p30:QueryDescendants("PointLight, SpotLight")) do
+		TweenService:Create(v, TweenInfo.new(p31), {
+			Brightness = 0,
+			Range = 0
+		}):Play()
+	end
+end
+function module3.lightObject(p32, p33, p34)
+	for _, v in ipairs(p32:QueryDescendants("PointLight, SpotLight")) do
+		local vBrightness = v.Brightness
+		local vBrightness2 = v.Brightness
+
+		v.Brightness = 0
+		v.Range = 0
+		TweenService:Create(v, TweenInfo.new(p33), {
+			Brightness = vBrightness,
+			Range = vBrightness2
+		}):Play()
+	end
+
+	if p34 then
+		task.delay(p34, function()
+			module3.unlightObject(p32, p33)
+		end)
+	end
+end
+function module3.destroyInstanceWithLifetime(visual8, p36)
+	visual8.Enabled = false
+
+	local v91 = if not visual8:IsA("ParticleEmitter") then visual8.Lifetime else visual8.Lifetime.Max
+
+	task.delay(v91, function()
+		visual8:Destroy()
+
+		if p36 then
+			p36()
+		end
+	end)
+end
+function module3.destroyPartWithLifetimeInstances(container5, p38, p39)
+	local n1 = 0
+	local descendants = container5:GetDescendants()
+
+	table.insert(descendants, container5)
+
+	for _, visual2 in descendants do
+		if visual2:IsA("ParticleEmitter") then
+			n1 = math.max(n1, visual2.Lifetime.Max)
+			visual2.Enabled = false
+		elseif visual2:IsA("Trail") then
+			n1 = math.max(n1, visual2.Lifetime)
+
+			if not p39 or p39.disableTrails ~= false then
+				visual2.Enabled = false
+			end
+		elseif visual2:IsA("Beam") then
+			visual2.Enabled = false
+		end
+	end
+
+	task.delay(n1, function()
+		container5:Destroy()
+
+		if p38 then
+			p38()
+		end
+	end)
+end
+
+local function setBeamOrigAttr(p40, p41)
+	if p41 == "width" then
+		if not p40:GetAttribute("DefaultWidth0") then
+			p40:SetAttribute("DefaultWidth0", p40.Width0)
+		end
+
+		if not p40:GetAttribute("DefaultWidth1") then
+			p40:SetAttribute("DefaultWidth1", p40.Width1)
+		end
+	end
+end
+
+function module3.disableBeam(p42)
+	local type3 = p42.type or "width"
+	local v103 = p42.tweenInfo or TweenInfo.new(1, Enum.EasingStyle.Linear)
+	local container = p42.container
+
+	if p42.shouldDestroy then
+		task.delay(v103.Time, function()
+			container:Destroy()
+		end)
+	end
+
+	local function disableThisBeam(visual3)
+		if not visual3:IsA("Beam") then
+			return
+		end
+
+		setBeamOrigAttr(visual3, type3)
+
+		if type3 == "width" then
+			TweenService:Create(visual3, v103, {
+				Width0 = 0,
+				Width1 = 0
+			}):Play()
+
+			return
+		end
+
+		if type3 == "instant" then
+			visual3.Enabled = false
+
+			return
+		end
+
+		if type3 == "transparency" then
+			local timestamp = tick()
+			local p43Transparency = visual3.Transparency
+			local connection = nil
+
+			connection = RunService2.Heartbeat:Connect(function()
+				local amount = math.clamp((tick() - timestamp) / v103.Time, 0, 1)
+				local Value = TweenService:GetValue(amount, v103.EasingStyle, v103.EasingDirection)
+				local attachment2 = {}
+
+				for _, v259 in p43Transparency.Keypoints do
+					table.insert(attachment2, NumberSequenceKeypoint.new(v259.Time, lerp(v259.Value, 1, Value), lerp(v259.Envelope, 1, Value)))
+				end
+
+				visual3.Transparency = NumberSequence.new(attachment2)
+
+				if Value >= 1 then
+					connection:Disconnect()
+				end
+			end)
+		end
+	end
+
+	disableThisBeam(container)
+
+	for _, v107 in container:QueryDescendants("Beam") do
+		disableThisBeam(v107)
+	end
+end
+function module3.enableBeam(p44)
+	local type2 = p44.type or "width"
+	local v110 = p44.tweenInfo or TweenInfo.new(1, Enum.EasingStyle.Linear)
+	local container = p44.container
+	local shouldStartInvis = p44.shouldStartInvis
+
+	if shouldStartInvis == nil then
+		shouldStartInvis = true
+	end
+
+	local function enableThisBeam(visual11)
+		if not visual11:IsA("Beam") then
+			return
+		end
+
+		setBeamOrigAttr(visual11, type2)
+
+		if type2 == "width" then
+			local goalWidth0 = p44.goalWidth0 or visual11:GetAttribute("DefaultWidth0")
+			local goalWidth1 = p44.goalWidth1 or visual11:GetAttribute("DefaultWidth1")
+
+			if shouldStartInvis then
+				visual11.Width0 = 0
+				visual11.Width1 = 0
+			end
+
+			visual11.Enabled = true
+			TweenService:Create(visual11, v110, {
+				Width0 = goalWidth0,
+				Width1 = goalWidth1
+			}):Play()
+
+			return
+		end
+
+		if type2 == "instant" then
+			visual11.Enabled = false
+		end
+	end
+
+	enableThisBeam(container)
+
+	for _, v115 in container:QueryDescendants("Beam") do
+		enableThisBeam(v115)
+	end
+end
+
+local t3 = {
+	props = {
+		Transparency = 1
+	}
+}
+local t4 = {
+	props = {
+		Transparency = 1
+	}
+}
+local t5 = {
+	props = {
+		Enabled = false
+	},
+	callback = function(p46)
+		if p46:GetAttribute("dontClearWhenHiding") then
+			return
+		end
+
+		p46:Clear()
+	end
+}
+local t6 = {
+	props = {
+		Enabled = false
+	}
+}
+local t7 = {
+	props = {
+		Enabled = false
+	}
+}
+
+function module3.hidePart(container8, p48)
+	local module4 = {}
+	local t9 = {
+		Part = t3,
+		MeshPart = t3,
+		Texture = t4
+	}
+
+	if p48 then
+		local hideVFX = p48.hideVFX
+		local hideVFX2 = p48.hideVFX
+		local hideVFX3 = p48.hideVFX
+
+		if hideVFX then
+			t9.ParticleEmitter = t5
+		end
+
+		if hideVFX2 then
+			t9.Beam = t6
+		end
+
+		if hideVFX3 then
+			t9.Trail = t7
+		end
+	end
+
+	local function setPropsToHideInstance(p49, p50)
+		if not p50 then
+			return
+		end
+
+		for k, v in pairs(p50.props) do
+			if v ~= p49[k] then
+				if not module4[p49] then
+					module4[p49] = {}
+				end
+
+				module4[p49][k] = p49[k]
+				p49[k] = v
+			end
+		end
+
+		if p50.callback then
+			p50.callback(p49)
+		end
+	end
+
+	setPropsToHideInstance(container8, t9[container8.ClassName])
+
+	for _, descendant in container8:GetDescendants() do
+		setPropsToHideInstance(descendant, t9[descendant.ClassName])
+	end
+
+	return module4
+end
+function module3.unhidePart(p51)
+	for k, v in pairs(p51) do
+		for k2, v2 in pairs(v) do
+			k[k2] = v2
+		end
+	end
+end
+function module3.setupHideVisualsOnMoveDir(p52)
+	local module = Maid.new()
+	local inst = p52.inst
+	local hookMoveDirectionChanged = p52.hookMoveDirectionChanged
+	local getDirectionVec3 = p52.getDirectionVec3
+	local t10 = {
+		forward = {},
+		backward = {},
+		left = {},
+		right = {}
+	}
+	local u138 = nil
+
+	local function onMoveDirectionChanged()
+		local v248 = getDirectionVec3()
+		local s1 = nil
+
+		if v248.Z > 0.5 then
+			s1 = "backward"
+		elseif v248.Z < -0.5 then
+			s1 = "forward"
+		elseif v248.X > 0.5 then
+			s1 = "right"
+		elseif v248.X < -0.5 then
+			s1 = "left"
+		end
+
+		if s1 and t10[s1] then
+			if not module.reverseDisableOnMoveDirection or s1 ~= u138 then
+				local t11 = {}
+
+				for _, v in pairs(t10[s1]) do
+					v:SetAttribute("EnabledCount", v:GetAttribute("EnabledCount") - 1)
+					table.insert(t11, v)
+				end
+
+				function module.reverseDisableOnMoveDirection()
+					for _, v in pairs(t11) do
+						v:SetAttribute("EnabledCount", v:GetAttribute("EnabledCount") + 1)
+					end
+				end
+			end
+		else
+			module.reverseDisableOnMoveDirection = nil
+		end
+
+		u138 = s1
+	end
+
+	local v140 = false
+
+	for _, visual12 in inst:QueryDescendants("Trail") do
+		local WorldCFrame = visual12.Attachment0.WorldCFrame
+		local Position = inst.CFrame:ToObjectSpace(WorldCFrame).Position
+		local s2 = nil
+
+		if Position.Z > 0 then
+			s2 = "backward"
+		elseif Position.Z < 0 then
+			s2 = "forward"
+		elseif Position.X > 0 then
+			s2 = "right"
+		elseif Position.X < 0 then
+			s2 = "left"
+		end
+
+		if s2 then
+			v140 = true
+			table.insert(t10[s2], visual12)
+		end
+	end
+
+	if v140 then
+		module:GiveTask(hookMoveDirectionChanged(onMoveDirectionChanged))
+	end
+
+	return {
+		maid = module
+	}
+end
+function module3.createSoleLocalAttachment(instance2, p54)
+	if v9 then
+		return
+	end
+
+	instance2.Name = p54
+	instance2.Parent = workspace.Terrain
+
+	return instance2
+end
+function module3.emitAdorneeVfxContainerOnCharacter(p55, container4, p57, p58)
+	local t12 = {}
+	local n2 = 0
+	local v154 = nil
+
+	if p58 then
+		if type(p58) == "number" then
+			v154 = p58
+		else
+			local PrimaryPart = p55.PrimaryPart
+
+			if PrimaryPart then
+				v154 = module3.getEmitCountOptimizeMult(PrimaryPart)
+			end
+		end
+	end
+
+	for _, child in container4:GetChildren() do
+		local childName = p55:FindFirstChild(child.Name)
+
+		if childName then
+			for _, child2 in child:GetChildren() do
+				local clone = child2:Clone()
+
+				table.insert(t12, clone)
+				clone.Parent = childName
+				n2 = math.max(clone.Lifetime.Max, n2)
+				module3.emit(clone, if not p57 then nil else clone.Rate, v154)
+			end
+		end
+	end
+
+	task.delay(n2, function()
+		for _, instance in t12 do
+			instance:Destroy()
+		end
+	end)
+end
+function module3.weldConstraint(p59, p60, p61)
+	local WeldConstraint = Instance.new("WeldConstraint")
+
+	WeldConstraint.Part0 = p59
+	WeldConstraint.Part1 = p60
+	WeldConstraint.Parent = p61 or p60
+
+	return WeldConstraint
+end
+function module3.removeCameraShakes(container3)
+	for _, descendant in container3:GetDescendants() do
+		if descendant:HasTag("CameraShake") then
+			descendant:Destroy()
+		end
+	end
+end
+function module3.rigVFX(part2, template3, p65)
+	local clone = template3:Clone()
+	local v173 = p65.offsetCFrame or CFrame.identity
+	local parent = p65.parent or Workspace.EffectsJunk
+	local Attachment = nil
+	local p63Parent = part2.Parent
+	local player = Players:GetPlayerFromCharacter(p63Parent)
+
+	if p65.relativeRootPart then
+		v173 *= p65.relativeRootPart.CFrame:ToObjectSpace(clone:GetPivot())
+	end
+
+	if p65.createAttachment then
+		Attachment = Instance.new("Attachment")
+		Attachment.Parent = parent or part2
+		Attachment.WorldCFrame = part2.CFrame * v173
+		parent = Attachment
+	end
+
+	if p65.destroyCameraShake or player ~= LocalPlayer then
+		module3.removeCameraShakes(clone)
+	end
+
+	local part8 = part2.CFrame * v173
+
+	if p65.shouldRaycastToGround then
+		local part = RaycastUtil.genericRaycast({
+			ignoreCharacters = true,
+			direction = Vector3.new(0, -10, 0),
+			origin = part8.Position
+		})
+
+		if part then
+			part8 = CFrame.lookAt(part.Position, part.Position + part8.LookVector, part.Normal)
+		end
+	end
+
+	clone:PivotTo(part8)
+	clone.Parent = parent
+
+	if p65.shouldWeldToRoot then
+		for _, v181 in clone:QueryDescendants("BasePart") do
+			WeldUtil.createWeldConstraint(part2, v181).Parent = v181
+			v181.Anchored = false
+			v181.CanCollide = false
+			v181.Massless = true
+		end
+	end
+
+	return {
+		model = clone,
+		attachment = Attachment
+	}
+end
+function module3.createRelativeVfx(part5, part6, template2, p69)
+	local p66Parent = part5.Parent
+	local player = Players:GetPlayerFromCharacter(p66Parent)
+	local identity = part6.CFrame:ToObjectSpace(template2:GetPivot())
+	local clone = template2:Clone()
+
+	if part5 == part6 then
+		identity = CFrame.identity
+	end
+
+	if player ~= LocalPlayer then
+		module3.removeCameraShakes(clone)
+	end
+
+	clone:PivotTo(part5.CFrame * identity)
+	clone.Parent = p69 or Workspace.EffectsJunk
+
+	return clone
+end
+function module3.createRelativeVfxUnderAttachment(part4, part3, template, p73)
+	local pivot = part3.CFrame:ToObjectSpace(template:GetPivot())
+	local clone = template:Clone()
+
+	clone:PivotTo(part4.CFrame * pivot)
+
+	local Attachment = Instance.new("Attachment")
+
+	Attachment.Parent = p73 or part4
+	Attachment.WorldCFrame = clone:GetPivot()
+	clone.Parent = Attachment
+
+	return Attachment, clone
+end
+function module3.emitAllDescendants(p74)
+	local n3 = 0
+
+	for _, v in ipairs(p74:QueryDescendants("ParticleEmitter, Beam, Trail, PointLight")) do
+		local v201 = v:GetAttribute("EmitDelay") or 0
+		local v202 = v:GetAttribute("EmitCount") or 1
+		local v203 = v:GetAttribute("EmitDuration") or 0
+		local v204 = not v:IsA("ParticleEmitter") and 0 or v.Lifetime.Max
+
+		n3 = math.max(n3, v201 + v203 + v204)
+
+		if not v:HasTag("DoNotEmitVFX") then
+			task.spawn(function()
+				task.wait(v201)
+
+				if v:IsA("ParticleEmitter") then
+					v:Emit(v202)
+				end
+
+				if v203 > 0 then
+					v.Enabled = true
+					task.wait(v203)
+					v.Enabled = false
+				end
+			end)
+		end
+	end
+
+	return n3
+end
+function module3.setEnabled(visual9, p76)
+	if visual9:IsA("ParticleEmitter") then
+		visual9.Enabled = p76
+
+		return
+	end
+
+	if visual9:IsA("PointLight") then
+		visual9.Enabled = p76
+
+		return
+	end
+
+	if visual9:IsA("Beam") then
+		visual9.Enabled = p76
+
+		return
+	end
+
+	if visual9:IsA("Trail") then
+		visual9.Enabled = p76
+	end
+end
+function module3.setDescendantsEnabled(container6, p78)
+	for _, descendant in container6:GetDescendants() do
+		module3.setEnabled(descendant, p78)
+	end
+end
+function module3.scaleVfx(visual7, p80)
+	if visual7:IsA("ParticleEmitter") then
+		local t13 = {}
+
+		for new, v215 in visual7.Size.Keypoints do
+			t13[new] = NumberSequenceKeypoint.new(v215.Time, v215.Value * p80, v215.Envelope)
+		end
+
+		visual7.Size = NumberSequence.new(t13)
+	end
+end
+function module3.scaleDescendants(container7, p82)
+	for _, descendant in container7:GetDescendants() do
+		module3.scaleVfx(descendant, p82)
+	end
+end
+function module3.createCirclePositions(p83, p84, p85)
+	local rad = math.rad(360 / p84)
+	local sin = p85 / (math.sin(rad / 2) * 2)
+	local module2 = {}
+	local n4 = 0
+
+	for i = 1, p84 do
+		module2[i] = p83 + Vector3.new(math.cos(n4) * sin, 0, math.sin(n4) * sin)
+		n4 += rad
+	end
+
+	return module2
+end
+
+return module3

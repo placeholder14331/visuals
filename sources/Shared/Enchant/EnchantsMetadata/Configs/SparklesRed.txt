@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetSparklesEnchantConfigCreator)({
+	displayName = "Red Sparkles",
+	icon = "rbxassetid://9726014114",
+	color = Color3.fromRGB(255, 0, 0)
+})

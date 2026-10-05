@@ -1,0 +1,22 @@
+local Bat = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.Bat
+
+return function()
+	return {
+		displayName = "Bat",
+		icon = "rbxassetid://11897710087",
+		apply = function(target)
+			local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+			EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+				EnchantsUtil.applyVisualsToPart(part, {
+					scale = part.Size.Magnitude / 2
+				}, Bat)
+			end)
+		end,
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		caseIds = nil
+	}
+end

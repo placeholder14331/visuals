@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetWrapSkinConfigCreator)({
+	displayName = "Emerald Wrap",
+	color = Color3.fromRGB(27, 132, 44)
+})

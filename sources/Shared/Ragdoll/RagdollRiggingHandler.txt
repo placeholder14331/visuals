@@ -1,0 +1,275 @@
+local Logger = require(game.ReplicatedStorage.Shared.Source.Log.Logger)
+local t1 = {
+	UpperAngle = 40,
+	TwistLowerAngle = -45,
+	TwistUpperAngle = 45
+}
+local t2 = {
+	UpperAngle = 110,
+	TwistLowerAngle = -40,
+	TwistUpperAngle = 0
+}
+local t3 = {
+	UpperAngle = 110,
+	TwistLowerAngle = 0,
+	TwistUpperAngle = 40
+}
+local t4 = {
+	UpperAngle = 40,
+	TwistLowerAngle = -90,
+	TwistUpperAngle = 90
+}
+
+Vector3.new()
+
+local t5 = {
+	{
+		"Torso",
+		"NeckRagdollAttachment",
+		CFrame.new(0, 1, 0)
+	},
+	{
+		"Head",
+		"NeckRagdollAttachment",
+		CFrame.new(0, -0.5, 0)
+	},
+	{
+		"Torso",
+		"RightShoulderRagdollAttachment",
+		CFrame.fromMatrix(Vector3.new(1, 0.5, 0), Vector3.new(1, 0, 0), (Vector3.new(0, 1, 0)))
+	},
+	{
+		"Right Arm",
+		"RightShoulderRagdollAttachment",
+		CFrame.fromMatrix(Vector3.new(-0.5, 0.5, 0), Vector3.new(0, -1, 0), (Vector3.new(1, 0, 0)))
+	},
+	{
+		"Torso",
+		"LeftShoulderRagdollAttachment",
+		CFrame.fromMatrix(Vector3.new(-1, 0.5, 0), Vector3.new(-1, 0, 0), (Vector3.new(0, 1, 0)))
+	},
+	{
+		"Left Arm",
+		"LeftShoulderRagdollAttachment",
+		CFrame.fromMatrix(Vector3.new(0.5, 0.5, 0), Vector3.new(0, -1, 0), (Vector3.new(-1, 0, 0)))
+	},
+	{
+		"Torso",
+		"RightHipRagdollAttachment",
+		CFrame.new(0.5, -1, 0)
+	},
+	{
+		"Right Leg",
+		"RightHipRagdollAttachment",
+		CFrame.new(0, 1, 0)
+	},
+	{
+		"Torso",
+		"LeftHipRagdollAttachment",
+		CFrame.new(-0.5, -1, 0)
+	},
+	{
+		"Left Leg",
+		"LeftHipRagdollAttachment",
+		CFrame.new(0, 1, 0)
+	}
+}
+local t6 = {
+	{
+		"Torso",
+		"Head",
+		"NeckRagdollAttachment",
+		t1
+	},
+	{
+		"Torso",
+		"Left Leg",
+		"LeftHipRagdollAttachment",
+		t4
+	},
+	{
+		"Torso",
+		"Right Leg",
+		"RightHipRagdollAttachment",
+		t4
+	},
+	{
+		"Torso",
+		"Left Arm",
+		"LeftShoulderRagdollAttachment",
+		t2
+	},
+	{
+		"Torso",
+		"Right Arm",
+		"RightShoulderRagdollAttachment",
+		t3
+	}
+}
+local t7 = {
+	{
+		"Neck",
+		"Torso"
+	},
+	{
+		"Left Shoulder",
+		"Torso"
+	},
+	{
+		"Right Shoulder",
+		"Torso"
+	},
+	{
+		"Left Hip",
+		"Torso"
+	},
+	{
+		"Right Hip",
+		"Torso"
+	}
+}
+local logger = Logger.new(script.Name)
+local module = {}
+
+local function indexParts(container)
+	local module3 = {}
+
+	for _, child in ipairs(container:GetChildren()) do
+		if child:IsA("BasePart") then
+			local name = child.name
+
+			if not module3[name] then
+				module3[name] = child
+			end
+		end
+	end
+
+	return module3
+end
+local function createRigJoints(p2, p3)
+	for _, v in ipairs(p3) do
+		local v24, v25, v26, v27 = unpack(v)
+		local v28 = p2[v24]
+		local v29 = p2[v25]
+
+		if v28 and v29 then
+			local found3 = v28:FindFirstChild(v26)
+			local found4 = v29:FindFirstChild(v26)
+
+			if found3 and found4 and found3:IsA("Attachment") and found4:IsA("Attachment") then
+				local RagdollBallSocket = v29:FindFirstChild("RagdollBallSocket")
+
+				if not RagdollBallSocket then
+					RagdollBallSocket = Instance.new("BallSocketConstraint")
+					RagdollBallSocket.Name = "RagdollBallSocket"
+				end
+
+				RagdollBallSocket.Attachment0 = found3
+				RagdollBallSocket.Attachment1 = found4
+				RagdollBallSocket.LimitsEnabled = true
+				RagdollBallSocket.UpperAngle = v27.UpperAngle
+				RagdollBallSocket.TwistLimitsEnabled = true
+				RagdollBallSocket.TwistLowerAngle = v27.TwistLowerAngle
+				RagdollBallSocket.TwistUpperAngle = v27.TwistUpperAngle
+
+				local v33 = workspace.Gravity / 196.2
+				local ReferenceMass = v27.ReferenceMass
+				local v35 = ReferenceMass and v29:GetMass() / ReferenceMass or 1
+
+				RagdollBallSocket.MaxFrictionTorque = (v27.FrictionTorque or 0.5) * v35 * v33
+				RagdollBallSocket.Parent = v29
+			end
+		end
+	end
+end
+local function createAdditionalAttachments(p4, p5)
+	for _, v in ipairs(p5) do
+		local v40, v41, v42, v43 = unpack(v)
+		local v44 = p4[v40]
+
+		if v44 then
+			if v43 then
+				local part = v44:FindFirstChild(v43)
+
+				if part and part:IsA("Attachment") then
+					v42 = part.CFrame * v42
+				end
+			end
+
+			local Attachment = Instance.new("Attachment")
+
+			Attachment.Name = v41
+			Attachment.CFrame = v42
+			Attachment.Parent = v44
+		end
+	end
+end
+local function disableMotorSet(p6, p7)
+	local module2 = {}
+
+	for _, v in ipairs(p7) do
+		local found = p6:FindFirstChild(v[2])
+
+		if found then
+			local found2 = found:FindFirstChild(v[1])
+
+			if found2 and found2:IsA("Motor6D") then
+				table.insert(module2, found2)
+				found2.Enabled = false
+			end
+		end
+	end
+
+	return module2
+end
+
+function module.createRagdollJoints(p8, p9)
+	if p8:GetAttribute("createdRagdollJoints") then
+		return
+	end
+
+	local v56 = indexParts(p8)
+
+	if p9 == Enum.HumanoidRigType.R6 then
+		createAdditionalAttachments(v56, t5)
+		createRigJoints(v56, t6)
+	else
+		logger:Error("unknown rig type", 2)
+	end
+
+	p8:SetAttribute("createdRagdollJoints", true)
+end
+function module.removeRagdollJoints(p10)
+	for _, instance in p10:QueryDescendants("BallSocketConstraint#RagdollBallSocket") do
+		instance:Destroy()
+	end
+end
+function module.disableRagdollJoints(p11)
+	for _, v62 in p11:QueryDescendants("BallSocketConstraint#RagdollBallSocket") do
+		v62.Enabled = false
+	end
+end
+function module.enableRagdollJoints(p12)
+	for _, v65 in p12:QueryDescendants("BallSocketConstraint#RagdollBallSocket") do
+		v65.Enabled = true
+	end
+end
+function module.disableMotors(p13, p14)
+	local v68 = nil
+
+	if p14 == Enum.HumanoidRigType.R6 then
+		v68 = disableMotorSet(p13, t7)
+	else
+		logger:Error("unknown rig type", 2)
+	end
+
+	local HumanoidRootPart = p13:FindFirstChild("HumanoidRootPart")
+
+	if HumanoidRootPart and HumanoidRootPart:IsA("BasePart") then
+		HumanoidRootPart.CanCollide = false
+	end
+
+	return v68
+end
+
+return module

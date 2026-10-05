@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetLightEnchantConfigCreator)({
+	displayName = "Light",
+	icon = "rbxassetid://9726015627"
+})

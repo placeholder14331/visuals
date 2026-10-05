@@ -1,0 +1,33 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Assets = ReplicatedStorage.Shared.Assets
+local CharacterAuraUtil = require(ReplicatedStorage.Shared.Source.CharacterAura.CharacterAuraUtil)
+local NorthernAurora = Assets.Cosmetics.CharacterAuras.NorthernAurora
+
+return function()
+	return {
+		displayName = "Northern Aurora",
+		icon = "rbxassetid://88330033915191",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		caseIds = {},
+		apply = function(character)
+			local Torso = character:FindFirstChild("Torso")
+
+			if Torso then
+				local clone = NorthernAurora.Wrap:Clone()
+
+				clone.Anchored = false
+				CharacterAuraUtil.onCharacterAuraInstanceCreated(clone)
+
+				local ManualWeld = Instance.new("ManualWeld")
+
+				ManualWeld.Part0 = character.HumanoidRootPart
+				ManualWeld.Part1 = clone
+				ManualWeld.C0 = CFrame.new(0, 0, 0)
+				ManualWeld.Parent = ManualWeld.Part1
+				clone.Parent = Torso
+			end
+		end
+	}
+end

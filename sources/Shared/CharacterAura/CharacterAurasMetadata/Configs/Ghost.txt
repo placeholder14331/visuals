@@ -1,0 +1,6 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetBodyCharacterAuraConfigCreator)({
+	fileName = "Ghost",
+	displayName = "Ghost",
+	icon = "rbxassetid://13515776523",
+	rarity = "epic"
+})

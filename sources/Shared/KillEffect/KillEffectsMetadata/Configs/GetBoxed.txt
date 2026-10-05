@@ -1,0 +1,53 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AnimationUtil = require(ReplicatedStorage.Shared.Source.Animation.AnimationUtil)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local WinterGift = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.WinterGift
+
+return function()
+	return {
+		displayName = "Get Box'd",
+		icon = "rbxassetid://99300873747107",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		caseIds = { "case16" },
+		willHaveVictimAnimation = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Animator = character.Humanoid.Animator
+			local maid = Maid.new()
+
+			task.delay(4, function()
+				maid:Destroy()
+			end)
+			HumanoidRootPart.Anchored = true
+
+			local clone = WinterGift.GiftboxCase:Clone()
+
+			clone.RootPart.Anchored = true
+			clone:PivotTo(HumanoidRootPart.CFrame)
+			clone.Parent = character
+			maid:GiveTask(clone)
+			maid:GiveTask(function()
+				if character:IsDescendantOf(game) then
+					KillEffectsUtilClient.makeCharacterDisappear(character)
+				end
+			end)
+
+			local track = Animator:LoadAnimation(WinterGift.Animation)
+
+			track:Play()
+			maid:GiveTask(track.Stopped:Once(function()
+				AnimationUtil.freezeAnimationAtPercentage(track, 99.99)
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("HarryPotterInvisibilityCloak"):Connect(function()
+				for _, descendant in pairs(character:GetDescendants()) do
+					if not descendant:IsDescendantOf(clone) and descendant:IsA("BasePart") then
+						descendant.Transparency = 1
+					end
+				end
+			end))
+		end
+	}
+end

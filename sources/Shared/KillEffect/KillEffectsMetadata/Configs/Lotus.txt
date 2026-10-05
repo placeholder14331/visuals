@@ -1,0 +1,39 @@
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Lotus = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Lotus
+
+return function()
+	return {
+		displayName = "Lotus",
+		icon = "rbxassetid://11896864561",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		willCharacterDisappear = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local clone = Lotus.Lotus:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone:PivotTo(CFrame.new(position))
+			clone.Parent = workspace.EffectsJunk
+
+			for _, child in pairs(clone.CoreVFX:GetChildren()) do
+				if child:IsA("ParticleEmitter") then
+					VisualEffectsUtil.emit(child)
+				end
+			end
+
+			for _, child in pairs(clone.Smoke:GetChildren()) do
+				if child:IsA("ParticleEmitter") then
+					VisualEffectsUtil.emit(child)
+				end
+			end
+		end
+	}
+end

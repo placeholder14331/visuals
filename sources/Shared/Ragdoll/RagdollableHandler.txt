@@ -1,0 +1,101 @@
+local module = {
+	getRagdollDisabledServer = function(p1)
+		return p1:GetAttribute("RagdollDisabledServer")
+	end,
+	hookRagdollDisabledServerChanged = function(p2, p3, p4)
+		if p4 == nil then
+			p4 = true
+		end
+
+		if p4 then
+			task.spawn(p3)
+		end
+
+		return p2:GetAttributeChangedSignal("RagdollDisabledServer"):Connect(p3)
+	end,
+	getIsRagdolledServer = function(p5)
+		return p5:GetAttribute("IsRagdolledServer")
+	end,
+	hookIsRagdolledServerChanged = function(p6, p7, p8)
+		if p8 == nil then
+			p8 = true
+		end
+
+		if p8 then
+			task.spawn(p7)
+		end
+
+		return p6:GetAttributeChangedSignal("IsRagdolledServer"):Connect(p7)
+	end,
+	getRagdollDisabledClient = function(p9)
+		return p9:GetAttribute("RagdollDisabledClient")
+	end,
+	hookRagdollDisabledClientChanged = function(p10, p11, p12)
+		if p12 == nil then
+			p12 = true
+		end
+
+		if p12 then
+			task.spawn(p11)
+		end
+
+		return p10:GetAttributeChangedSignal("RagdollDisabledClient"):Connect(p11)
+	end,
+	getIsRagdolledClient = function(p13)
+		return p13:GetAttribute("IsRagdolledClient")
+	end,
+	hookIsRagdolledClientChanged = function(p14, p15, p16)
+		if p16 == nil then
+			p16 = true
+		end
+
+		if p16 then
+			task.spawn(p15)
+		end
+
+		return p14:GetAttributeChangedSignal("IsRagdolledClient"):Connect(p15)
+	end
+}
+
+function module.getIsRagdolled(p17)
+	return module.getIsRagdolledServer(p17) or module.getIsRagdolledClient(p17)
+end
+function module.hookIsRagdolledChanged(p18, p19, p20)
+	if p20 == nil then
+		p20 = true
+	end
+
+	if p20 then
+		task.spawn(p19)
+	end
+
+	local hookIsRagdolledClientChanged2 = module.hookIsRagdolledClientChanged(p18, p19, false)
+	local hookIsRagdolledServerChanged2 = module.hookIsRagdolledServerChanged(p18, p19, false)
+
+	return function()
+		hookIsRagdolledClientChanged2:Disconnect()
+		hookIsRagdolledServerChanged2:Disconnect()
+	end
+end
+function module.getRagdollDisabled(p21)
+	return module.getRagdollDisabledServer(p21) or module.getRagdollDisabledClient(p21)
+end
+function module.hookRagdollDisabledChanged(p22, p23, p24)
+	if p24 == nil then
+		p24 = true
+	end
+
+	if p24 then
+		task.spawn(p23)
+	end
+
+	local hookRagdollDisabledClientChanged2 = module.hookRagdollDisabledClientChanged(p22, p23, false)
+	local hookRagdollDisabledServerChanged2 = module.hookRagdollDisabledServerChanged(p22, p23, false)
+
+	return function()
+		hookRagdollDisabledClientChanged2:Disconnect()
+		hookRagdollDisabledServerChanged2:Disconnect()
+	end
+end
+
+return module

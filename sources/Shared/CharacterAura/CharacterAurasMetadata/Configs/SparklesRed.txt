@@ -1,0 +1,6 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetSparklesCharacterAuraConfigCreator)({
+	displayName = "Red Sparkles",
+	icon = "rbxassetid://12058244796",
+	color = Color3.fromRGB(255, 0, 0),
+	canObtain = false
+})

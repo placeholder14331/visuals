@@ -1,0 +1,84 @@
+local TweenService = game:GetService("TweenService")
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Sniped = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Sniped
+
+return function()
+	return {
+		displayName = "Sniped",
+		icon = "rbxassetid://11669337933",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local LimbDismembermentHandlerClient = require(game.ReplicatedStorage.Client.Source.LimbDismemberment.LimbDismembermentHandlerClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = Sniped.Sniped:Clone()
+			local Bullet = clone.Bullet
+
+			task.delay(3, function()
+				Bullet:Destroy()
+			end)
+			Bullet.Parent = nil
+
+			local Part = clone.Part
+
+			for _, child in Part.Scope:GetChildren() do
+				child:Emit(child.Rate)
+			end
+
+			Part.Anchored = false
+			clone.Parent = character
+
+			local Weld = Instance.new("Weld")
+
+			Weld.C0 = CFrame.new(0, 2, 0)
+			Weld.Part0 = HumanoidRootPart
+			Weld.Part1 = Part
+			Weld.Parent = Weld.Part1
+			task.wait(0.25)
+			Bullet.CFrame = CFrame.new((HumanoidRootPart.CFrame * CFrame.new(0, 2.5, 0) * CFrame.new(0, 0, -150)).Position) * CFrame.Angles(1.57079633, 0, 0)
+			Bullet.Parent = workspace.EffectsJunk
+			TweenService:Create(Bullet, TweenInfo.new(0.3, Enum.EasingStyle.Linear), {
+				CFrame = HumanoidRootPart.CFrame * CFrame.new(0, 2.5, 0) * CFrame.Angles(1.57079633, 0, 0)
+			}):Play()
+			task.wait(0.3)
+			LimbDismembermentHandlerClient.handleLimbDismemberment(nil, character, { "Head" }, "destroy")
+			HumanoidRootPart.Anchored = false
+			KillEffectsUtilClient.enableRagdoll(character)
+
+			local Attachment = Instance.new("Attachment")
+
+			Attachment.Parent = HumanoidRootPart
+
+			local LinearVelocity = Instance.new("LinearVelocity")
+
+			task.delay(0.03, function()
+				LinearVelocity:Destroy()
+			end)
+			LinearVelocity.Attachment0 = Attachment
+			LinearVelocity.MaxForce = 100000
+			LinearVelocity.VectorVelocity = -HumanoidRootPart.CFrame.LookVector * 100
+			LinearVelocity.Parent = HumanoidRootPart
+
+			for _, child in pairs(Part.Attachment:GetChildren()) do
+				if child:IsA("ParticleEmitter") then
+					VisualEffectsUtil.emit(child)
+				end
+			end
+
+			for _, child in Part.Scope:GetChildren() do
+				child:Destroy()
+			end
+
+			Bullet.Transparency = 1
+			task.delay(1, function()
+				Bullet:Destroy()
+			end)
+		end
+	}
+end

@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetJJKFireEnchantConfigCreator)({
+	displayName = "Jujutsu Fire White",
+	icon = "rbxassetid://13515774619",
+	color = Color3.new(1, 1, 1)
+})

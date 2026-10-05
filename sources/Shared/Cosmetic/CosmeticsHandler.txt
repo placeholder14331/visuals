@@ -1,0 +1,198 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CurrencyHandler = require(ReplicatedStorage.Shared.Source.Currency.CurrencyHandler)
+local CurrencyTypes = require(ReplicatedStorage.Shared.Source.Currency.CurrencyTypes)
+local DataHandler = require(ReplicatedStorage.Shared.Source.Data.DataHandler)
+local StateHandler = require(ReplicatedStorage.Shared.Source.State.StateHandler)
+local CosmeticGroups = require(game.ReplicatedStorage.Shared.Source.Cosmetic.CosmeticGroups)
+local typeConfigs = CosmeticGroups.typeConfigs
+local DataHandler2 = require(game.ReplicatedStorage.Shared.Source.Data.DataHandler)
+local ItemGroups = require(game.ReplicatedStorage.Shared.Source.Item.ItemGroups)
+local TableUtil = require(game.ReplicatedStorage.Shared.Vendor.Table.TableUtil)
+local ChatTagsMetadata = require(game.ReplicatedStorage.Shared.Source.ChatTag.ChatTagsMetadata)
+local OverheadTagsMetadata = require(game.ReplicatedStorage.Shared.Source.OverheadTag.OverheadTagsMetadata)
+local module = {
+	getIsCosmeticOwned = function(p1, p2, p3)
+		local v24 = DataHandler2.getDataRoduxStoreForPlayer(p1):getState()[typeConfigs[p3].ownedThingsId]
+
+		return v24[p2] ~= nil, v24[p2]
+	end,
+	getIsCosmeticEquipped = function(p4, p5, p6, p7, p8)
+		local getDataRoduxStoreForPlayer = DataHandler2.getDataRoduxStoreForPlayer(p4)
+		local extraThingDataId = nil
+
+		if p8 then
+			if ItemGroups.individualTypeConfigs[p8] then
+				local thingType = ItemGroups.individualTypeConfigs[p8].thingType
+
+				extraThingDataId = ItemGroups.typeConfigs[thingType].extraThingDataId
+			elseif CosmeticGroups.individualTypeConfigs[p8] then
+				local thingType = CosmeticGroups.individualTypeConfigs[p8].thingType
+
+				extraThingDataId = CosmeticGroups.typeConfigs[thingType].extraThingDataId
+			end
+		end
+
+		if extraThingDataId then
+			return p5 == getDataRoduxStoreForPlayer:getState()[extraThingDataId][p7][CosmeticGroups.individualTypeConfigs[p6].equippedThingId]
+		end
+
+		return p5 == getDataRoduxStoreForPlayer:getState()[CosmeticGroups.individualTypeConfigs[p6].equippedThingId]
+	end
+}
+local t2 = {
+	admin = true,
+	administrator = true,
+	staff = true,
+	mod = true,
+	moderator = true,
+	owner = true,
+	coowner = true,
+	["co-owner"] = true,
+	developer = true,
+	dev = true,
+	ancient = true,
+	contributor = true,
+	["ugc supporter"] = true,
+	ugc = true,
+	ugcsupporter = true,
+	spender = true,
+	donator = true
+}
+
+for _, v16 in ChatTagsMetadata do
+	if v16.addToCustomCosmeticWordsBlacklist then
+		t2[v16.chatTagDisplayText] = true
+	end
+end
+
+for _, v18 in OverheadTagsMetadata do
+	if v18.addToCustomCosmeticWordsBlacklist then
+		t2[v18.text] = true
+	end
+end
+
+for k in pairs(t2) do
+	local lower2 = string.lower(k)
+
+	t2[k] = nil
+	t2[lower2] = true
+end
+
+function module.getIsCustomCosmeticWordOk(p9)
+	local lower = string.lower(p9)
+
+	if t2[lower] then
+		return false
+	end
+
+	for k in pairs(t2) do
+		if string.find(lower, " " .. k) then
+			return false
+		end
+
+		if string.find(lower, k .. " ") then
+			return false
+		end
+	end
+
+	return true
+end
+function module.getCosmeticConfig(metadata2, p11, metadata3)
+	local configsModulePath = require(CosmeticGroups.typeConfigs[p11].configsModulePath)
+
+	if configsModulePath[metadata2] then
+		return configsModulePath[metadata2]
+	end
+
+	if metadata3 and metadata3[metadata2] and type(metadata3[metadata2]) == "table" and metadata3[metadata2].metadata then
+		local metadata = metadata3[metadata2].metadata
+
+		if metadata then
+			local shallowCopyTable = TableUtil.shallowCopyTable(metadata)
+
+			shallowCopyTable._isCustom = true
+
+			return shallowCopyTable
+		end
+	end
+end
+function module.getEveryCosmetic(p13)
+	local module2 = {}
+
+	for configsModulePath2, v46 in CosmeticGroups.typeConfigs do
+		if not p13 or table.find(p13, configsModulePath2) then
+			module2[configsModulePath2] = require(v46.configsModulePath)
+		end
+	end
+
+	return module2
+end
+function module.getCosmeticUnlockPrerequeistesFulfilled(p14, p15, p16, p17)
+	local getDataRoduxStoreForPlayer2 = DataHandler.getDataRoduxStoreForPlayer(p14):getState()
+	local getSessionStore = StateHandler.getSessionStore(p14)
+	local getCosmeticConfig = module.getCosmeticConfig(p15, p16)
+	local v54 = getSessionStore.quests.currentCosmeticQuestIds()[p15]
+
+	if not p17 and (getCosmeticConfig and getCosmeticConfig.isOffsale) then
+		return false, getCosmeticConfig.offsaleReason or "This item is offsale"
+	end
+
+	if not p17 and getCosmeticConfig and getCosmeticConfig.disabled then
+		return false, getCosmeticConfig.disabledReason or "This item is disabled"
+	end
+
+	if getCosmeticConfig and getCosmeticConfig.vaulted then
+		return false, "This item is vaulted"
+	end
+
+	if getCosmeticConfig and getCosmeticConfig.isAvailableInPublicTesting then
+		return true
+	end
+
+	if v54 then
+		return false, "This item has an active quest"
+	end
+
+	if getCosmeticConfig and getCosmeticConfig.unlockFirst then
+		for _, v in pairs(getCosmeticConfig.unlockFirst) do
+			local itemId = v.itemId
+			local itemType = v.itemType
+			local typeConfigs2 = ItemGroups.typeConfigs[itemType]
+			local configsModulePath3 = require(typeConfigs2.configsModulePath)[itemId]
+
+			if not getDataRoduxStoreForPlayer2[typeConfigs2.ownedThingsId][itemId] then
+				return false, `{ configsModulePath3.displayName } must be unlocked first`
+			end
+		end
+	end
+
+	return true
+end
+function module.getCanPurchaseCosmetic(p18, p19, p20)
+	local getCosmeticConfig2 = module.getCosmeticConfig(p19, p20)
+	local v65 = getCosmeticConfig2.priceCurrency or (getCosmeticConfig2.creditsPrice and CurrencyTypes.credits or getCosmeticConfig2.aetherPrice and CurrencyTypes.aether)
+	local v66 = getCosmeticConfig2.price or (getCosmeticConfig2.aetherPrice or getCosmeticConfig2.creditsPrice)
+	local getCosmeticUnlockPrerequeistesFulfilled2, getCosmeticUnlockPrerequeistesFulfilled = module.getCosmeticUnlockPrerequeistesFulfilled(p18, p19, p20)
+	local getPurchasabilityForPlayer, getPurchasabilityForPlayer2 = CurrencyHandler.getPurchasabilityForPlayer(p18, v65, v66)
+
+	if not getCosmeticUnlockPrerequeistesFulfilled2 then
+		return getCosmeticUnlockPrerequeistesFulfilled2, getCosmeticUnlockPrerequeistesFulfilled
+	end
+
+	if not getPurchasabilityForPlayer then
+		return getPurchasabilityForPlayer, getPurchasabilityForPlayer2
+	end
+
+	return true
+end
+function module.validateTrailOrBeam(visual)
+	if visual:IsA("Beam") or visual:IsA("Trail") then
+		local p21Parent = visual.Parent
+
+		if p21Parent and p21Parent:IsA("Attachment") then
+			visual.Parent = p21Parent.Parent
+		end
+	end
+end
+
+return module

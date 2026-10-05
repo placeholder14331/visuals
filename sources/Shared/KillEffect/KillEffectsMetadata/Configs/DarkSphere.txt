@@ -1,0 +1,49 @@
+local TweenService = game:GetService("TweenService")
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local DarkSphere = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.DarkSphere
+
+return function()
+	return {
+		displayName = "Dark Sphere",
+		icon = "rbxassetid://11896864684",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = DarkSphere.DarkSphere:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone:SetPrimaryPartCFrame(CFrame.new(HumanoidRootPart.Position + Vector3.new((math.random() - 0.5) * 150, 150, (math.random() - 0.5) * 150)))
+			clone.Parent = workspace.EffectsJunk
+
+			local tween = TweenService:Create(clone.Core, TweenInfo.new(0.75, Enum.EasingStyle.Linear), {
+				CFrame = CFrame.new(character.HumanoidRootPart.Position)
+			})
+
+			tween:Play()
+			tween.Completed:Once(function()
+				clone.Core:Destroy()
+
+				local part = KillEffectsUtilClient.getCharacterFloor(character)
+				local position = part and part.Position or HumanoidRootPart.Position
+
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+				clone.Ground.CFrame = CFrame.new(position)
+
+				for _, child in pairs(clone.Ground.Attachment:GetChildren()) do
+					if child:IsA("ParticleEmitter") then
+						VisualEffectsUtil.emit(child)
+					end
+				end
+			end)
+		end
+	}
+end

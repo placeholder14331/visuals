@@ -1,0 +1,69 @@
+local TweenService = game:GetService("TweenService")
+local KillEffectUtil = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectUtil)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local NumberUtil = require(game.ReplicatedStorage.Shared.Source.Number.NumberUtil)
+local KillEffects = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects
+local t1 = {
+	[1] = KillEffectUtil.createPartCacheFromTemplate(KillEffects.BlackIceGate.IceGate, 8),
+	[2] = KillEffectUtil.createPartCacheFromTemplate(KillEffects.BlackIceGate.IceGate2, 8),
+	[3] = KillEffectUtil.createPartCacheFromTemplate(KillEffects.BlackIceGate.IceGate3, 8)
+}
+
+return function()
+	local function createBlackIceGate(p1, p2, p3)
+		local pose2 = p1 * CFrame.new(0, 18, 0)
+		local v13 = p3 or 0.075
+		local v14 = t1[p2]
+		local Part = v14:GetPart()
+
+		task.delay(6, function()
+			v14:ReturnPart(Part)
+		end)
+		Part.CFrame = pose2
+
+		local pose = p1 * CFrame.new(0, Part.Size.Y / 2, 0)
+		local tween = TweenService:Create(Part, TweenInfo.new(v13, Enum.EasingStyle.Linear), {
+			CFrame = pose
+		})
+
+		tween:Play()
+		task.delay(v13 - 0.1, function()
+			SoundHandler.playSound({
+				playType = "noDestroy",
+				props = {
+					Volume = NumberUtil.mapClamp(p2, 1, 3, 0.8, 1.2)
+				},
+				soundObject = Part.Sound
+			})
+		end)
+		tween.Completed:Once(function()
+			VisualEffectsUtil.emitObject(Part.Attachment)
+		end)
+	end
+
+	return {
+		displayName = "Hell Ice Gate",
+		icon = "rbxassetid://94541305659019",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2, 0)
+
+			HumanoidRootPart.Anchored = true
+
+			local cFrame = CFrame.new(position)
+
+			createBlackIceGate(cFrame * CFrame.Angles(0, 0.7853982, 0), 1, 0.125)
+			task.wait(0.5)
+			createBlackIceGate(cFrame * CFrame.Angles(0, 1.57079633, 0), 2)
+			task.wait(0.5)
+			createBlackIceGate(cFrame * CFrame.Angles(0, 2.3561945, 0), 3)
+		end
+	}
+end

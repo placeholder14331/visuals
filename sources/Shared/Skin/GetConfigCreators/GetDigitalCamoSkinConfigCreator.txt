@@ -1,0 +1,29 @@
+local DigitalCamo = game.ReplicatedStorage.Shared.Assets.Cosmetics.Skins.DigitalCamo
+
+return function(config)
+	local color = config.color
+
+	return function()
+		return {
+			displayName = config.displayName,
+			apply = function(target)
+				local SkinUtil = require(game.ReplicatedStorage.Shared.Source.Skin.SkinUtil)
+
+				local function modifyPart(emitter2)
+					emitter2.Color = color
+					emitter2.Reflectance = 0
+				end
+
+				SkinUtil.runCallbackOnTaggedSkinParts(target, function(emitter)
+					SkinUtil.applyVisualsToPart(emitter, {}, DigitalCamo)
+					emitter.Color = color
+					emitter.Reflectance = 0
+				end)
+			end,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = "rare",
+			inItemShop = true
+		}
+	end
+end

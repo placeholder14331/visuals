@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.KillEffect.GetConfigCreators.GetTornadoKillEffectConfigCreator)({
+	prefabName = "Poison",
+	displayNameAppend = " Acid",
+	iconId = "rbxassetid://13515775831"
+})

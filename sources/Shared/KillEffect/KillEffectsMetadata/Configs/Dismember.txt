@@ -1,0 +1,32 @@
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Dismember = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Dismember
+
+return function()
+	return {
+		displayName = "Dismember",
+		icon = "rbxassetid://9552316487",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local LimbDismembermentHandlerClient = require(game.ReplicatedStorage.Client.Source.LimbDismemberment.LimbDismembermentHandlerClient)
+			local Torso = character.Torso
+
+			for _, child in pairs(Dismember.Dismember.Torso:GetChildren()) do
+				if child:IsA("ParticleEmitter") then
+					local clone = child:Clone()
+
+					VisualEffectsUtil.emit(clone)
+					clone.Parent = Torso
+				end
+			end
+
+			KillEffectsUtilClient.enableRagdoll(character)
+			LimbDismembermentHandlerClient.handleLimbDismemberment(nil, character, { "Head" }, "detach")
+			LimbDismembermentHandlerClient.handleLimbDismemberment(nil, character, { "Left Arm" }, "detach")
+			LimbDismembermentHandlerClient.handleLimbDismemberment(nil, character, { "Right Arm" }, "detach")
+		end
+	}
+end

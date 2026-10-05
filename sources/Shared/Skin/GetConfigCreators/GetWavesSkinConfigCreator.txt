@@ -1,0 +1,40 @@
+local v1 = game.ReplicatedStorage.Shared.Assets.Cosmetics.Skins["3DWaves"]
+
+return function(config)
+	local textureColor = config.textureColor
+	local partColor = config.partColor
+
+	return function()
+		return {
+			displayName = config.displayName,
+			apply = function(target)
+				local SkinUtil = require(game.ReplicatedStorage.Shared.Source.Skin.SkinUtil)
+
+				local function onVisualCreated(p3)
+					if p3:IsA("Texture") then
+						p3.Color3 = textureColor
+						SkinUtil.applyAnimation(p3)
+					end
+				end
+				local function modifyPart(emitter2)
+					emitter2.Color = partColor
+				end
+
+				SkinUtil.runCallbackOnTaggedSkinParts(target, function(emitter4)
+					SkinUtil.applyVisualsToPart(emitter4, {}, v1, onVisualCreated)
+					emitter4.Color = partColor
+				end, function(emitter)
+					SkinUtil.applyVisualsToPart(emitter, {}, v1, onVisualCreated)
+					emitter.Color = partColor
+				end, function(emitter3)
+					SkinUtil.applyVisualsToPart(emitter3, {}, v1, onVisualCreated)
+					emitter3.Color = partColor
+				end)
+			end,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = "legendary",
+			inItemShop = true
+		}
+	end
+end

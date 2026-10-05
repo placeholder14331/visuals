@@ -1,0 +1,61 @@
+local TweenService = game:GetService("TweenService")
+local KillEffects = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects
+
+return function()
+	return {
+		displayName = "Ice Pillar",
+		icon = "rbxassetid://12058248207",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = false,
+		caseIds = {},
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Torso = character.Torso
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = KillEffects.FrostPillar:Clone()
+
+			task.delay(4.5, function()
+				clone:Destroy()
+			end)
+			clone.PrimaryPart.CFrame = CFrame.new(HumanoidRootPart.Position + Vector3.new(0, 100, 0))
+			clone.Parent = workspace.EffectsJunk
+
+			local tween = TweenService:Create(clone.PrimaryPart, TweenInfo.new(0.25), {
+				CFrame = CFrame.new(HumanoidRootPart.Position + Vector3.new(0, -2, 0))
+			})
+
+			tween:Play()
+			tween.Completed:Once(function()
+				SoundHandler.playSound({
+					playType = "noDestroy",
+					soundObject = clone.Explosion.Sound,
+					parent = Torso
+				})
+
+				for _, child in pairs(clone.Part.BeamStart:GetChildren()) do
+					if child:IsA("Beam") then
+						TweenService:Create(child, TweenInfo.new(1, Enum.EasingStyle.Linear), {
+							Width0 = 0,
+							Width1 = 0
+						}):Play()
+					end
+				end
+
+				KillEffectsUtilClient.transformCharacter(character, {
+					modifyInstance = function(part)
+						if part:IsA("BasePart") then
+							part.Material = Enum.Material.Neon
+							part.Color = Color3.fromRGB(255, 255, 255)
+						end
+					end
+				})
+			end)
+		end
+	}
+end

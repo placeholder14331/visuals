@@ -1,0 +1,13 @@
+return function(p1)
+	return {
+		signal = p1.animations.finish:GetPropertyChangedSignal("IsPlaying"),
+		condition = function()
+			return p1.animations.finish.IsPlaying
+		end,
+		context = function()
+			return {
+				type = "finisher"
+			}
+		end
+	}
+end

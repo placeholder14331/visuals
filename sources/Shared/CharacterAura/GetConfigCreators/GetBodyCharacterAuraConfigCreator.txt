@@ -1,0 +1,23 @@
+return function(config)
+	local canObtain = config.canObtain == nil
+	local fileName = config.fileName
+	local rarity2 = config.rarity or "uncommon"
+
+	return function()
+		return {
+			displayName = config.displayName,
+			icon = config.icon,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = rarity2,
+			inItemShop = canObtain,
+			caseIds = not canObtain and {} or nil,
+			apply = function(character)
+				local CharacterAuraUtil = require(game.ReplicatedStorage.Shared.Source.CharacterAura.CharacterAuraUtil)
+				local Dummy = game.ReplicatedStorage.Shared.Assets.Cosmetics.CharacterAuras[fileName].Dummy
+
+				CharacterAuraUtil.applyFromDummy(Dummy, character)
+			end
+		}
+	end
+end

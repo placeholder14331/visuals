@@ -1,0 +1,15 @@
+local SoulFire = game.ReplicatedStorage.Shared.Assets.Cosmetics.CharacterAuras.SoulFire
+
+return function()
+	return {
+		displayName = "Soul Fire",
+		icon = "rbxassetid://11897710254",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		apply = function(character)
+			require(game.ReplicatedStorage.Shared.Source.CharacterAura.CharacterAuraUtil).applyFromDummy(SoulFire.Dummy, character)
+		end
+	}
+end

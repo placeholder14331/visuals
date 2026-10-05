@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetPoisonCharacterAuraConfigCreator)({
+	displayName = "Poison",
+	icon = "rbxassetid://12058245648"
+})

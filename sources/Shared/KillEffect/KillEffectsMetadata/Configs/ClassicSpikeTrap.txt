@@ -1,0 +1,52 @@
+local TweenService = game:GetService("TweenService")
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local SonicSpike = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.SonicSpike
+
+return function()
+	return {
+		displayName = "Classic Spike Trap",
+		icon = "rbxassetid://13447710974",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local maid = Maid.new()
+
+			task.delay(4, function()
+				maid:Destroy()
+			end)
+
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -3, 0)
+			local clone = SonicSpike.Spikes:Clone()
+
+			maid:GiveTask(clone)
+			clone.Position = position + Vector3.new(0, -clone.Size.Y / 2, 0)
+			clone.Parent = workspace.EffectsJunk
+
+			local clone2 = SonicSpike.Part.Attachment:Clone()
+
+			maid:GiveTask(clone2)
+			clone2.WorldPosition = HumanoidRootPart.Position
+			clone2.Parent = workspace.Terrain
+			TweenService:Create(clone, TweenInfo.new(1, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {
+				Position = position + Vector3.new(0, clone.Size.Y / 2, 0)
+			}):Play()
+			VisualEffectsUtil.emitObject(clone2)
+			HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+			HumanoidRootPart:ApplyImpulse(Vector3.new(0, 66, 0) * HumanoidRootPart.AssemblyMass)
+			HumanoidRootPart:ApplyAngularImpulse(Vector3.new(Random.new():NextNumber(-50, 50), Random.new():NextNumber(-50, 50), Random.new():NextNumber(-50, 50)) * HumanoidRootPart.AssemblyMass)
+			task.delay(0.03, function()
+				for _, child in pairs(character:GetChildren()) do
+					if child:IsA("BasePart") then
+						child.CanCollide = false
+					end
+				end
+			end)
+		end
+	}
+end

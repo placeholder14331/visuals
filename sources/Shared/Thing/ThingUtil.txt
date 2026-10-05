@@ -1,0 +1,373 @@
+local Logger = require(game.ReplicatedStorage.Shared.Source.Log.Logger)
+local TableUtil = require(game.ReplicatedStorage.Shared.Vendor.Table.TableUtil)
+local Rewire = require(game.ReplicatedStorage.Shared.Vendor.Rewire)
+local logger = Logger.new(script.Name)
+local new = Rewire.HotReloader.new()
+local module = {}
+
+local function getNewOwnedItemIdAmount(p1)
+	if p1 <= 0 then
+		return nil
+	end
+
+	return p1
+end
+
+function module.createExtraThingDataActionHandlers(thingType, _, p4)
+	local CosmeticGroups = require(game.ReplicatedStorage.Shared.Source.Cosmetic.CosmeticGroups)
+	local ItemGroups = require(game.ReplicatedStorage.Shared.Source.Item.ItemGroups)
+	local module4 = {}
+
+	local function createForTypesLinkedTo(p5, p6, p7)
+		for k, v in pairs(p6) do
+			if v[p7] and v[p7][p5] then
+				module4[p5 .. k .. "_OWNED_GIVE"] = function(p8, p9)
+					local payload = p9.payload
+					local id = payload.id
+					local id2 = payload.id2
+					local amount = payload.amount
+					local shallowCopyTable6 = TableUtil.shallowCopyTable(p8)
+					local shallowCopyTable = TableUtil.shallowCopyTable(p8[id])
+
+					shallowCopyTable6[id] = shallowCopyTable
+
+					local v92 = TableUtil.shallowCopyTable(shallowCopyTable[v.ownedThingsId])
+
+					shallowCopyTable[v.ownedThingsId] = v92
+
+					if amount then
+						local v93 = (shallowCopyTable6[id] or 0) + amount
+
+						v92[id2] = if v93 > 0 then v93 else nil
+
+						return shallowCopyTable6
+					end
+
+					if not v92[id2] then
+						v92[id2] = 1
+					end
+
+					return shallowCopyTable6
+				end
+				module4[p5 .. k .. "_OWNED_REMOVE"] = function(p10, p11)
+					local payload = p11.payload
+					local id = payload.id
+					local id2 = payload.id2
+					local amount = payload.amount
+					local shallowCopyTable5 = TableUtil.shallowCopyTable(p10)
+					local shallowCopyTable3 = TableUtil.shallowCopyTable(p10[id])
+
+					shallowCopyTable5[id] = shallowCopyTable3
+
+					local v102 = TableUtil.shallowCopyTable(shallowCopyTable3[v.ownedThingsId])
+
+					shallowCopyTable3[v.ownedThingsId] = v102
+
+					if amount then
+						local v103 = (shallowCopyTable5[id] or 0) - amount
+
+						v102[id2] = if v103 > 0 then v103 else nil
+
+						return shallowCopyTable5
+					end
+
+					v102[id2] = nil
+
+					return shallowCopyTable5
+				end
+			end
+		end
+	end
+	local function createForTypesLinkedToForIndividual(p12, p13, p14)
+		for k, v in pairs(p13) do
+			if v[p14] and v[p14][p12] then
+				module4[p12 .. k .. "_EQUIPPED_CHANGE"] = function(p15, p16)
+					local payload = p16.payload
+					local id = payload.id
+					local id2 = payload.id2
+					local shallowCopyTable4 = TableUtil.shallowCopyTable(p15)
+					local shallowCopyTable2 = TableUtil.shallowCopyTable(p15[id])
+
+					shallowCopyTable4[id] = shallowCopyTable2
+					shallowCopyTable2[v.equippedThingId] = id2
+
+					return shallowCopyTable4
+				end
+			end
+		end
+	end
+
+	createForTypesLinkedTo(thingType, ItemGroups.typeConfigs, "itemTypesLinkedTo")
+	createForTypesLinkedTo(thingType, ItemGroups.typeConfigs, "cosmeticTypesLinkedTo")
+	createForTypesLinkedTo(thingType, CosmeticGroups.typeConfigs, "itemTypesLinkedTo")
+	createForTypesLinkedTo(thingType, CosmeticGroups.typeConfigs, "cosmeticTypesLinkedTo")
+
+	for _, v in pairs(p4) do
+		if thingType == v.thingType then
+			createForTypesLinkedToForIndividual(thingType, ItemGroups.individualTypeConfigs, "itemTypesLinkedTo")
+			createForTypesLinkedToForIndividual(thingType, ItemGroups.individualTypeConfigs, "cosmeticTypesLinkedTo")
+			createForTypesLinkedToForIndividual(thingType, CosmeticGroups.individualTypeConfigs, "itemTypesLinkedTo")
+			createForTypesLinkedToForIndividual(thingType, CosmeticGroups.individualTypeConfigs, "cosmeticTypesLinkedTo")
+		end
+	end
+
+	return module4
+end
+function module.insertConfigs(p17)
+	local typeConfigs = require(game.ReplicatedStorage.Shared.Source.Cosmetic.CosmeticGroups).typeConfigs
+	local typeConfigs2 = require(game.ReplicatedStorage.Shared.Source.Item.ItemGroups).typeConfigs
+	local tblToInsert = p17.tblToInsert
+	local configsToInsertInOrder = p17.configsToInsertInOrder
+	local configsFolder = p17.configsFolder
+	local singleConfigCallback = p17.singleConfigCallback
+	local handleCosmeticDefaults = p17.handleCosmeticDefaults
+	local handleCosmeticVariants = p17.handleCosmeticVariants
+	local singleVariantConfigCallback = p17.singleVariantConfigCallback
+	local handleItemDefaults = p17.handleItemDefaults
+	local handleItemVariants = p17.handleItemVariants
+	local ThingsSpeciallyRewarded = nil
+
+	if handleItemDefaults or handleCosmeticDefaults then
+		ThingsSpeciallyRewarded = require(game.ReplicatedStorage.Shared.Source.Thing.ThingsSpeciallyRewarded)
+	end
+
+	if not configsToInsertInOrder then
+		configsToInsertInOrder = {}
+
+		for _, instance in configsFolder:QueryDescendants("ModuleScript") do
+			table.insert(configsToInsertInOrder, {
+				id = instance.Name,
+				configModuleName = instance.Name
+			})
+		end
+	end
+
+	for k, v in pairs(configsToInsertInOrder) do
+		local id = v.id
+
+		if tblToInsert[id] then
+			logger:Error(`Id already exists!\nId: { id }`)
+		end
+
+		local function doHandleDefaults(order2)
+			order2.order = order2.order or k
+			order2.layoutOrder = order2.layoutOrder or k
+		end
+		local function doHandleCosmeticDefaults(config)
+			config.rarity = config.rarity or "uncommon"
+
+			local cosmeticType = p17.cosmeticType
+
+			if not typeConfigs[cosmeticType] then
+				logger:Error("Invalid cosmetic type")
+			end
+
+			if config.rarity == "default" or ThingsSpeciallyRewarded.cosmetics[cosmeticType .. id] then
+				config.inItemShop = false
+				config.caseIds = {}
+			end
+
+			if config.rarity ~= "default" then
+				config.canTradeUp = true
+
+				if config.rarity ~= "uncommon" then
+					config.canTradeDown = true
+				end
+			end
+		end
+		local function doHandleItemDefaults(config2)
+			config2.rarity = config2.rarity or "uncommon"
+			config2.section = config2.section or "standard"
+
+			if config2.isLevelLocked == nil then
+				config2.isLevelLocked = true
+			end
+
+			if config2.isPerishable == nil then
+				config2.isPerishable = false
+			end
+
+			local itemType = p17.itemType
+
+			if not typeConfigs2[itemType] then
+				logger:Error("Invalid item type")
+			end
+
+			if config2.isForSpec then
+				config2.creditsPrice = 1e999
+				config2.section = "other"
+
+				if itemType == "weapon" then
+					config2.notices = {{
+						text = "Firing it uses one spec token each life",
+						order = 1
+					}}
+				else
+					config2.isEquippable = false
+					config2.notices = {{
+						text = "Can be obtained from the \"Specs\" button on the top of the screen when spawned in",
+						order = 1
+					}}
+				end
+			end
+
+			local items = ThingsSpeciallyRewarded.items[itemType .. id]
+
+			if items then
+				if not config2.variantOf then
+					config2.creditsPrice = 1e999
+				end
+
+				config2.requiresUnlockFirstToEquip = true
+
+				if items.isForEvent then
+					config2.isForEvent = true
+					config2.eventIdFor = items.eventId
+				end
+			end
+
+			if (config2.isPrestige or config2.isMythical) and config2.requiresUnlockFirstToEquip == nil then
+				config2.requiresUnlockFirstToEquip = true
+			end
+
+			if config2.isCosmeticVariant then
+				config2.creditsPrice = 1e999
+			end
+		end
+
+		local configModuleName = v.configModuleName
+		local u41 = nil
+
+		new:listen(configsFolder:FindFirstChild(configModuleName, true), function(p21)
+			u41 = require(p21)()
+
+			if handleCosmeticDefaults then
+				doHandleCosmeticDefaults(u41)
+			end
+
+			if handleItemDefaults then
+				doHandleItemDefaults(u41)
+			end
+
+			local v78 = u41
+
+			v78.order = v78.order or k
+			v78.layoutOrder = v78.layoutOrder or k
+
+			if singleConfigCallback then
+				singleConfigCallback(u41, k, v)
+			end
+
+			tblToInsert[id] = u41
+		end)
+
+		if handleCosmeticVariants then
+			local variants = u41.variants
+
+			if variants then
+				for k2, v2 in pairs(variants) do
+					local u45 = nil
+
+					new:listen(configsFolder[v2.configModuleName], function(p22)
+						u45 = require(p22)()
+
+						local v80 = u45
+
+						v80.order = v80.order or k
+						v80.layoutOrder = v80.layoutOrder or k
+						u45.caseIds = {}
+						u45.inItemShop = false
+						u45.canTradeUp = false
+						u45.variantOf = id
+						doHandleCosmeticDefaults(u45)
+
+						if singleVariantConfigCallback then
+							singleVariantConfigCallback(u45, k2, v2)
+						end
+
+						tblToInsert[v2.id] = u45
+					end)
+				end
+			end
+		end
+
+		if handleItemVariants and u41.variants then
+			for k3, v3 in pairs(u41.variants) do
+				local u48 = nil
+
+				if k3 > 1 then
+					u48 = u41.variants[k3 - 1]
+				end
+
+				local u49 = nil
+
+				new:listen(configsFolder[v3.configModuleName], function(p23)
+					u49 = require(p23)()
+
+					local v82 = u49
+
+					v82.order = v82.order or k
+					v82.layoutOrder = v82.layoutOrder or k
+
+					if v.class then
+						u49.class = u49.class or v.class
+						u49.classSection = v.classSection
+					end
+
+					if v3.requirePrevious ~= false then
+						u49.unlockFirst = TableUtil.combineArrays({ u48 and u48.id or id }, u49.unlockFirst)
+					end
+
+					u49.variants = nil
+					u49.variantOf = id
+					u49.section = u41.section
+					u49.isCosmeticVariant = v3.isCosmeticVariant
+					doHandleItemDefaults(u49)
+
+					if singleVariantConfigCallback then
+						singleVariantConfigCallback(u49, k3, v3)
+					end
+
+					tblToInsert[v3.id] = u49
+				end)
+			end
+		end
+	end
+end
+function module.createIdsHelpers(p24)
+	local t3 = {}
+
+	return {
+		getOnce = function(p25)
+			if t3[p25] then
+				logger:Error(`id already retrieved: { p25 }`)
+			end
+
+			t3[p25] = true
+
+			return p24[p25]
+		end
+	}
+end
+function module.createIdsMapFromList(p26)
+	local module2 = {}
+
+	for _, v55 in p26 do
+		module2[v55] = v55
+	end
+
+	return module2, module.createIdsHelpers(module2)
+end
+function module.createIdsMapFromPrefix(p27, p28)
+	local module3 = {}
+
+	for i = 1, p28 do
+		local v60 = `{ p27 }{ i }`
+
+		module3[v60] = v60
+	end
+
+	return module3, module.createIdsHelpers(module3)
+end
+
+return module

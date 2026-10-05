@@ -1,0 +1,43 @@
+local AnimationUtil = require(game.ReplicatedStorage.Shared.Source.Animation.AnimationUtil)
+local ShadowHands = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.ShadowHands
+
+return function()
+	return {
+		displayName = "Shadow Hands",
+		icon = "rbxassetid://11896863434",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		willHaveVictimAnimation = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Animator = character.Humanoid.Animator
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position2 = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local position = part and part.Normal or Vector3.new(0, 1, 0)
+
+			HumanoidRootPart.Anchored = true
+
+			local cFrame = CFrame.fromMatrix(position2, HumanoidRootPart.CFrame.LookVector:Cross(position), position)
+			local clone = ShadowHands.ShadowHands:Clone()
+
+			task.delay(4.5, function()
+				clone:Destroy()
+			end)
+			clone:PivotTo(cFrame * CFrame.Angles(0, 0, 1.57079633))
+			clone.Parent = workspace.EffectsJunk
+			character:PivotTo(cFrame * CFrame.new(0, 3, -0.75))
+
+			local track = clone.AnimationController:LoadAnimation(ShadowHands.Animation)
+
+			track:Play()
+			Animator:LoadAnimation(ShadowHands.VictimAnimation):Play()
+			track.Stopped:Once(function()
+				AnimationUtil.freezeAnimationAtPercentage(track, 99.99)
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+			end)
+		end
+	}
+end

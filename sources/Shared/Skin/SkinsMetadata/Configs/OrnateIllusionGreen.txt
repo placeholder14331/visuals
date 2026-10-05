@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetOrnateIllusionSkinConfigCreator)({
+	displayName = "Green Ornate Illusion",
+	textureColor = Color3.new(0, 1, 0),
+	partColor = Color3.new(0, 0.25, 0)
+})

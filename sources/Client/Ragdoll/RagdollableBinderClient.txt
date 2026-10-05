@@ -1,0 +1,1 @@
+return require(game.ReplicatedStorage.Shared.Vendor.Binder.Binder).new("Ragdollable", require(game.ReplicatedStorage.Client.Source.Ragdoll.RagdollableClient))

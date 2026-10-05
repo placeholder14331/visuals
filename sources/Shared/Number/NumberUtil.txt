@@ -1,0 +1,295 @@
+local module = {
+	roundNumber = math.round
+}
+local t2 = {
+	"K",
+	"M",
+	"B",
+	"T",
+	"Q",
+	"Qu",
+	"S",
+	"Se",
+	"O",
+	"N",
+	"D"
+}
+
+function module.convertNumberToSuffix(p1, p2, p3)
+	if not p2 then
+		p2 = 2
+	end
+
+	if p3 == nil then
+		p3 = true
+	end
+
+	local num = tonumber(p1)
+
+	if num == nil then
+		return nil
+	end
+
+	for i = #t2, 1, -1 do
+		local pow = math.pow(10, i * 3)
+
+		if pow <= num then
+			if p3 then
+				local str = tostring((math.abs(num)))
+				local v10 = string.find(string.reverse(str), "[1-9]")
+
+				if v10 then
+					p2 = math.clamp(p2, 0, string.len(str) - v10 + 1 - 1)
+				end
+			end
+
+			return ("%." .. p2 .. "f"):format(num / pow) .. t2[i]
+		end
+	end
+
+	return num
+end
+function module.truncateNumber(p4, p5)
+	local v13 = p5 or 0.01
+	local num = tonumber(p4)
+
+	if not num then
+		return nil
+	end
+
+	local v15 = 1 / v13
+
+	if v15 >= 1 then
+		v15 = math.round(v15)
+	end
+
+	return math.round(num * v15) / v15
+end
+function module.addCommasToNumber(gsub)
+	repeat
+		local count
+
+		gsub, count = string.gsub(gsub, "^(-?%d+)(%d%d%d)", "%1,%2")
+	until count == 0
+
+	return gsub
+end
+function module.secondsToMetrics(p7, p8, p9, p10)
+	local v22 = nil
+
+	if p9 then
+		v22 = p7 / 86400
+		p7 %= 86400
+	end
+
+	local v23 = nil
+
+	if p8 then
+		v23 = p7 / 3600
+		p7 %= 3600
+	end
+
+	local v24 = nil
+
+	if p10 then
+		local integer, fraction = math.modf(p7)
+
+		_ = integer
+		v24 = fraction * 1000
+	end
+
+	local v27 = p7 / 60
+	local v28 = p7 % 60
+
+	return {
+		ms = v24,
+		seconds = v28,
+		minutes = v27,
+		hours = v23,
+		days = v22
+	}
+end
+function module.getTextFromSecondsMetrics(p11)
+	if math.floor(p11.days) > 0 then
+		return `{ math.floor(p11.days) } day(s)`
+	end
+
+	if math.floor(p11.hours) > 0 then
+		return `{ math.floor(p11.hours) } hour(s)`
+	end
+
+	if math.floor(p11.minutes) > 0 then
+		return `{ math.floor(p11.minutes) } minute(s)`
+	end
+
+	return `{ math.floor((math.max(p11.seconds, 0))) } second(s)`
+end
+function module.formatSeconds(p12, p13, p14, p15)
+	local secondsToMetrics = module.secondsToMetrics(p12, p13, p14, p15)
+	local v35 = if not p14 then if not p13 then string.format("%02i:%02i", secondsToMetrics.minutes, secondsToMetrics.seconds) else string.format("%02i:%02i:%02i", secondsToMetrics.hours, secondsToMetrics.minutes, secondsToMetrics.seconds) else string.format("%02i:%02i:%02i:%02i", secondsToMetrics.days, secondsToMetrics.hours, secondsToMetrics.minutes, secondsToMetrics.seconds)
+
+	if p15 then
+		v35 ..= string.format(":%02i", secondsToMetrics.ms)
+	end
+
+	return v35
+end
+function module.rollChance(random)
+	return random >= Random.new():NextNumber(0, 1)
+end
+function module.rollChancePercent(p17)
+	return module.rollChance(p17 / 100)
+end
+function module.rollChanceWithWeights(p18, p19, p20)
+	local random2 = p20 or Random.new()
+	local n1 = 0
+
+	for k, v in pairs(p18) do
+		local v45 = p19(k, v)
+
+		if v45 and v45 > 0 then
+			n1 += v45
+		end
+	end
+
+	local v46 = random2:NextNumber(0, n1)
+
+	for k, v in pairs(p18) do
+		local v49 = p19(k, v)
+
+		if not v49 or v49 <= 0 then
+			continue
+		end
+
+		if v46 <= v49 then
+			return k, v49, n1
+		end
+
+		v46 -= v49
+	end
+end
+function module.getTransparencyAfterTransparencyModifier(p21, p22)
+	return 1 - (1 - p21) * (1 - p22)
+end
+function module.scaleTowardsOne(p23, p24)
+	if p23 > 1 then
+		return p23 - (p23 - 1) * (1 - p24)
+	end
+
+	return p23 + (1 - p23) * (1 - p24)
+end
+function module.getPercentageFromWeight(p25, p26)
+	return p25 / p26 * 100
+end
+function module.getExtraCurrency(p27, p28, p29, p30)
+	return p29 - p30 * (p27 / p28)
+end
+function module.getMoneySavedFromExtraCurrency(p31, p32, p33, p34)
+	local v64 = p32 / p31
+	local v65 = p34 / p33
+
+	return p33 * v64 - p33 * v65
+end
+function module.signWithoutZero(p35)
+	local sign = math.sign(p35)
+
+	if sign == 0 then
+		return 1
+	end
+
+	return sign
+end
+function module.cycle(p36, p37, p38)
+	local v71 = p38 - p37 + 1
+
+	return (p36 - p37) % v71 + p37
+end
+function module.getPercentageFractionBetweenTwoNumbers(p39, p40, p41)
+	if p41 == nil then
+		p41 = true
+	end
+
+	local v75 = p39 / p40
+
+	if p41 then
+		v75 = math.clamp(v75, 0, 1)
+	end
+
+	return v75
+end
+function module.getLargestDistanceFromOrigin2D(p42)
+	return p42.Magnitude * 0.5
+end
+function module.getLargestDistanceFromOrigin(p43)
+	return p43.Magnitude * 0.5
+end
+function module.getIsNear(p44, p45, p46)
+	if (p46 or 0.005) < math.abs(p44 - p45) then
+		return false
+	end
+
+	return true
+end
+function module.getRandomSign()
+	if Random.new():NextInteger(0, 1) == 0 then
+		return 1
+	end
+
+	return -1
+end
+function module.flatten(p47, p48, p49)
+	local v84 = p47 * p48
+
+	if p49 then
+		v84 = p49(v84)
+	end
+
+	return math.floor(v84) / p48
+end
+function module.toTimeUnitsAgo(p50)
+	local s1 = "second"
+
+	if p50 >= 86400 then
+		s1 = "day"
+		p50 = math.floor(p50 / 86400)
+	elseif p50 >= 3600 then
+		s1 = "hour"
+		p50 = math.floor(p50 / 3600)
+	elseif p50 >= 60 then
+		s1 = "minute"
+		p50 = math.floor(p50 / 60)
+	end
+
+	return string.format("%s %s", p50, s1 .. "(s)")
+end
+function module.map(p51, p52, p53, p54, p55)
+	return (p51 - p52) * (p55 - p54) / (p53 - p52) + p54
+end
+function module.mapClamp(p56, p57, p58, p59, p60)
+	return (math.clamp(module.map(p56, p57, p58, p59, p60), math.min(p59, p60), (math.max(p59, p60))))
+end
+function module.getPercentageFromMult(p61, p62)
+	local v99 = (p61 - 1) * 100
+
+	if p62 then
+		v99 = module.truncateNumber(v99, p62)
+	end
+
+	return v99
+end
+function module.makeLastDigitZero(p63)
+	return math.floor(p63 / 10) * 10
+end
+function module.getPlusOrMinus(p64)
+	if p64 > 0 then
+		return "+"
+	end
+
+	if p64 < 0 then
+		return "-"
+	end
+
+	return ""
+end
+
+return module

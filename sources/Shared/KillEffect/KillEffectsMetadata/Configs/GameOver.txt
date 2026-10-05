@@ -1,0 +1,33 @@
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local GameOver = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.GameOver
+
+return function()
+	return {
+		displayName = "Game Over",
+		icon = "rbxassetid://13515776196",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		willCharacterDisappear = true,
+		apply = function(character)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local HumanoidRootPartPosition = HumanoidRootPart.Position
+			local clone = GameOver.Part.Attachment:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+
+			for _, descendant in pairs(clone:GetDescendants()) do
+				if descendant:IsA("ParticleEmitter") then
+					VisualEffectsUtil.emit(descendant)
+				end
+			end
+
+			clone.WorldCFrame = CFrame.new(HumanoidRootPartPosition, HumanoidRootPartPosition + HumanoidRootPart.CFrame.LookVector) + Vector3.new(0, 2, 0)
+			clone.Parent = workspace.Terrain
+			GameOver.PointLight:Clone().Parent = clone
+		end
+	}
+end

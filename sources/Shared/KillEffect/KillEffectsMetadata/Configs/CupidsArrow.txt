@@ -1,0 +1,117 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ForgeVFX = require(ReplicatedStorage.Packages.ForgeVFX)
+local Maid = require(ReplicatedStorage.Shared.Vendor.Maid)
+local SoundHandler = require(ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local CaseIds = require(ReplicatedStorage.Shared.Source.Case.CaseIds)
+local CupidsArrow = ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.CupidsArrow
+
+return function()
+	return {
+		displayName = "Cupids Arrow",
+		icon = "rbxassetid://79433950000529",
+		vaulted = false,
+		refundIfVaulted = false,
+		inItemShop = true,
+		rarity = "legendary",
+		caseIds = { CaseIds.valentines2026 },
+		willHaveVictimAnimation = true,
+		apply = function(character)
+			local CharacterHandler = require(ReplicatedStorage.Shared.Source.Character.CharacterHandler)
+			local KillEffectsUtilClient = require(ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local maid = Maid.new()
+			local Humanoid = character.Humanoid
+			local HumanoidRootPart = character.HumanoidRootPart
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position2 = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local position = part and part.Normal or Vector3.new(0, 1, 0)
+			local found = character:FindFirstChild("Left Arm") or CharacterHandler.createPseudoLimb(character, "Left Arm")
+
+			HumanoidRootPart.Anchored = true
+			HumanoidRootPart.CFrame = CFrame.fromMatrix(position2 + Vector3.new(0, 2.5, 0), HumanoidRootPart.CFrame.RightVector, position)
+
+			local clone = CupidsArrow.Handle:Clone()
+
+			clone.Parent = character
+			maid:GiveTask(clone)
+
+			local clone2 = CupidsArrow.CupidArrow:Clone()
+
+			clone2.Parent = character
+			maid:GiveTask(clone2)
+
+			local Motor6D = Instance.new("Motor6D")
+
+			Motor6D.Part0 = found
+			Motor6D.Part1 = clone
+			Motor6D.Name = "Handle"
+			Motor6D.Parent = found
+			maid:GiveTask(Motor6D)
+
+			local Motor6D2 = Instance.new("Motor6D")
+
+			Motor6D2.Part0 = character.Torso
+			Motor6D2.Part1 = clone2
+			Motor6D2.Name = "CupidArrow"
+			Motor6D2.C0 = CFrame.new(-0, 0, -0.251)
+			Motor6D2.Parent = character.Torso
+			maid:GiveTask(Motor6D2)
+			maid:GiveTask(SoundHandler.playSound({
+				soundObject = CupidsArrow.Sound:Clone(),
+				parent = character.PrimaryPart
+			}))
+
+			local track = Humanoid.Animator:LoadAnimation(CupidsArrow.Animation)
+
+			maid:GiveTask(track:GetMarkerReachedSignal("Event1"):Connect(function()
+				local clone3 = CupidsArrow.Shoot:Clone()
+
+				clone3.CFrame = HumanoidRootPart.CFrame * CFrame.new(-1.4, -12.12, 0.405, 0, -0.766, 0.642, 0, 0.642, 0.766, -1, 0, 0)
+				clone3.Parent = workspace.EffectsJunk
+
+				local clone4 = CupidsArrow.ImpactArrow:Clone()
+
+				clone4.CFrame = HumanoidRootPart.CFrame
+				clone4.Parent = workspace.EffectsJunk
+				maid:GiveTask(clone3)
+				maid:GiveTask(clone4)
+				ForgeVFX.emit(clone3)
+				ForgeVFX.emit(clone4)
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("Event2"):Connect(function()
+				local clone5 = CupidsArrow.Pillar:Clone()
+
+				clone5:PivotTo(CFrame.new(position2))
+				clone5.Parent = workspace.EffectsJunk
+
+				local clone6 = CupidsArrow.HeartEnergy:Clone()
+
+				clone6.Parent = character.Torso
+				maid:GiveTask(clone5)
+				maid:GiveTask(clone6)
+				ForgeVFX.emit(clone5)
+				ForgeVFX.emit(clone6)
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("Event3"):Connect(function()
+				local clone7 = CupidsArrow.RotatingTrails:Clone()
+
+				maid:GiveTask(clone7)
+				clone7:PivotTo(HumanoidRootPart.CFrame * CFrame.new(0.63, 8.89, 0.31) * CFrame.Angles(0, 0, 3.1415927))
+				clone7.Parent = workspace.EffectsJunk
+				ForgeVFX.emit(clone7)
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("Event4"):Connect(function()
+				local clone8 = CupidsArrow.Impact:Clone()
+
+				clone8.CFrame = HumanoidRootPart.CFrame
+				clone8.Parent = workspace.EffectsJunk
+				maid:GiveTask(clone8)
+				ForgeVFX.emit(clone8)
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+				task.delay(1.5, function()
+					maid:Destroy()
+				end)
+			end))
+			track:Play()
+		end
+	}
+end

@@ -1,0 +1,42 @@
+local TweenService = game:GetService("TweenService")
+local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local KillEffects = game.ReplicatedStorage.Shared.Assets.Sounds.KillEffects
+
+return function()
+	return {
+		displayName = "Ghost",
+		icon = "rbxassetid://9548810075",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		inItemShop = true,
+		apply = function(character)
+			local NumberUtil = require(game.ReplicatedStorage.Shared.Source.Number.NumberUtil)
+			local AntiCheatHandler = require(game.ReplicatedStorage.Shared.Source.AntiCheat.AntiCheatHandler)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Attachment = Instance.new("Attachment")
+
+			Attachment.Parent = HumanoidRootPart
+
+			local visual = AntiCheatHandler.createBodyMover("LinearVelocity")
+
+			visual.Attachment0 = Attachment
+			visual.VectorVelocity = Vector3.new(0, 5, 0)
+			visual.MaxForce = 5000
+			visual.Parent = HumanoidRootPart
+			SoundHandler.playSound({
+				soundObject = KillEffects.Ghost,
+				parent = HumanoidRootPart
+			})
+
+			for _, child in pairs(character:GetChildren()) do
+				if child:IsA("BasePart") and child ~= HumanoidRootPart then
+					child.Transparency = NumberUtil.getTransparencyAfterTransparencyModifier(child.Transparency, 0.5)
+					TweenService:Create(child, TweenInfo.new(2.5, Enum.EasingStyle.Linear), {
+						Transparency = 1
+					}):Play()
+				end
+			end
+		end
+	}
+end

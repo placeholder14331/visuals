@@ -1,0 +1,56 @@
+local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local KillEffects = game.ReplicatedStorage.Shared.Assets.Sounds.KillEffects
+local Cyberspace = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Cyberspace
+
+return function()
+	return {
+		displayName = "Cyberspace",
+		icon = "rbxassetid://11669337422",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = Cyberspace.Particle.charge:Clone()
+
+			clone.Parent = HumanoidRootPart
+			KillEffectsUtilClient.transformCharacter(character, {
+				modifyInstance = function(part)
+					if part:IsA("BasePart") then
+						part.Material = Enum.Material.Neon
+						part.Color = Color3.fromRGB(255, 255, 255)
+					end
+				end
+			})
+
+			local clone2 = Cyberspace.Particle.burst:Clone()
+
+			task.delay(4, function()
+				clone2:Destroy()
+			end)
+			clone2.Parent = workspace.Terrain
+			clone2.WorldCFrame = HumanoidRootPart.CFrame
+			SoundHandler.playSound({
+				soundObject = KillEffects.Cyberspace,
+				parent = HumanoidRootPart
+			})
+			task.delay(1, function()
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+
+				for _, child in pairs(clone:GetChildren()) do
+					child.Enabled = false
+				end
+
+				for _, child in pairs(clone2:GetChildren()) do
+					VisualEffectsUtil.emit(child)
+				end
+			end)
+		end
+	}
+end

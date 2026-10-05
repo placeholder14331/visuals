@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetNeonSkinConfigCreator)({
+	displayName = "Vanguard Blood",
+	canObtain = false,
+	color = Color3.new(1, 0.1, 0.1)
+})

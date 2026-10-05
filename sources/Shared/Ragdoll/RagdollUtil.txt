@@ -1,0 +1,91 @@
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local promiseChild = require(game.ReplicatedStorage.Shared.Vendor.NevermorePromise.promiseChild)
+local RagdollRiggingHandler = require(game.ReplicatedStorage.Shared.Source.Ragdoll.RagdollRiggingHandler)
+local module = {}
+
+local function v5()
+end
+
+function module.setupState(p1)
+	local maid2 = Maid.new()
+
+	local function updateState()
+		if p1:GetState() ~= Enum.HumanoidStateType.Dead and p1.Health > 0 then
+			p1:ChangeState(Enum.HumanoidStateType.Physics)
+		end
+	end
+
+	maid2:GiveTask(function()
+		maid2:DoCleaning()
+		p1:ChangeState(Enum.HumanoidStateType.Running)
+	end)
+	maid2:GiveTask(p1.StateChanged:Connect(updateState))
+
+	if p1:GetState() ~= Enum.HumanoidStateType.Dead and p1.Health > 0 then
+		p1:ChangeState(Enum.HumanoidStateType.Physics)
+	end
+
+	return maid2
+end
+function module.setupMotors(instance)
+	local p2Parent = instance.Parent
+	local RigType = instance.RigType
+	local disableMotors = RagdollRiggingHandler.disableMotors(p2Parent, RigType)
+
+	return function()
+		for _, v in pairs(disableMotors) do
+			v.Enabled = true
+		end
+	end
+end
+function module.setupHead(instance2)
+	local p3Parent = instance2.Parent
+
+	if not p3Parent then
+		return v5
+	end
+
+	local Head = p3Parent:FindFirstChild("Head")
+
+	if not Head then
+		return v5
+	end
+
+	if Head:IsA("MeshPart") then
+		return v5
+	end
+
+	local OriginalSize = Head:FindFirstChild("OriginalSize")
+
+	if not OriginalSize then
+		return v5
+	end
+
+	local SpecialMesh = Head:FindFirstChildWhichIsA("SpecialMesh")
+
+	if not SpecialMesh then
+		return v5
+	end
+
+	if SpecialMesh.MeshType ~= Enum.MeshType.Head then
+		return v5
+	end
+
+	local maid = Maid.new()
+
+	maid:GivePromise(promiseChild(instance2, "HeadScale")):Then(function(p4)
+		local function updateHeadSize()
+			Head.Size = Vector3.new(1, 1, 1) * p4.Value
+		end
+
+		maid:GiveTask(p4.Changed:Connect(updateHeadSize))
+		Head.Size = Vector3.new(1, 1, 1) * p4.Value
+		maid:GiveTask(function()
+			Head.Size = OriginalSize.Value * p4.Value
+		end)
+	end)
+
+	return maid
+end
+
+return module

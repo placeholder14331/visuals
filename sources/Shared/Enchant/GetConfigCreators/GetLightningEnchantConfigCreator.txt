@@ -1,0 +1,34 @@
+local Lightning = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.Lightning
+
+return function(config)
+	local color = config.color
+
+	return function()
+		return {
+			displayName = config.displayName,
+			icon = config.icon,
+			apply = function(target)
+				local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+				local function onVisualCreated(visual)
+					if visual:IsA("ParticleEmitter") and color then
+						visual.Color = ColorSequence.new({
+							ColorSequenceKeypoint.new(0, color),
+							ColorSequenceKeypoint.new(1, color)
+						})
+					end
+				end
+
+				EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+					EnchantsUtil.applyVisualsToPart(part, {
+						scale = part.Size.Magnitude / 3.8
+					}, Lightning, onVisualCreated)
+				end)
+			end,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = "legendary",
+			inItemShop = true
+		}
+	end
+end

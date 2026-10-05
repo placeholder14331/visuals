@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetBubblesCharacterAuraConfigCreator)({
+	color = Color3.fromRGB(0, 255, 0),
+	displayName = "Bubbles (Green)",
+	icon = "rbxassetid://12006665622"
+})

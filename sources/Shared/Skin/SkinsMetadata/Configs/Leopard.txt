@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetLeopardSkinConfigCreator)({
+	displayName = "Leopard",
+	partColor = Color3.fromRGB(161, 142, 110)
+})

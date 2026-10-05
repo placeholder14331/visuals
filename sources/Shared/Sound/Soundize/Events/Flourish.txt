@@ -1,0 +1,13 @@
+return function(p1)
+	return {
+		signal = p1.animations.flourish:GetPropertyChangedSignal("IsPlaying"),
+		condition = function(p2)
+			return p2.animations.flourish.IsPlaying
+		end,
+		context = function()
+			return {
+				type = "flourish"
+			}
+		end
+	}
+end

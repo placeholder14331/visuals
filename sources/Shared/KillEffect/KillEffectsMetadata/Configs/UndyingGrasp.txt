@@ -1,0 +1,49 @@
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local AnimationUtil = require(game.ReplicatedStorage.Shared.Source.Animation.AnimationUtil)
+local UndyingGrasp = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.UndyingGrasp
+
+return function()
+	return {
+		displayName = "Undying Grasp",
+		icon = "rbxassetid://100083370289525",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		willHaveVictimAnimation = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Animator = character.Humanoid.Animator
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or character.HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local position2 = part and part.Normal or Vector3.new(0, 1, 0)
+
+			HumanoidRootPart.Anchored = true
+
+			local maid = Maid.new()
+
+			task.delay(4, function()
+				maid:Destroy()
+			end)
+
+			local clone = UndyingGrasp.Model:Clone()
+
+			maid:GiveTask(clone)
+			clone:PivotTo(CFrame.fromMatrix(position, HumanoidRootPart.CFrame.LookVector:Cross(position2), position2) * CFrame.new(0, 0.4, 2))
+			clone.Parent = workspace.EffectsJunk
+			character:PivotTo(clone:GetPivot() * CFrame.new(0, 4, -2))
+
+			local track = clone.AnimationController:LoadAnimation(UndyingGrasp.Animation)
+
+			track:Play()
+			Animator:LoadAnimation(UndyingGrasp.VictimAnimation):Play()
+			maid:GiveTask(track:GetMarkerReachedSignal("pulledUnder"):Connect(function()
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+			end))
+			maid:GiveTask(track.Stopped:Once(function()
+				AnimationUtil.freezeAnimationAtPercentage(track, 99.99)
+			end))
+		end
+	}
+end

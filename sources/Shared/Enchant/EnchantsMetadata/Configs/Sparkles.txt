@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetSparklesEnchantConfigCreator)({
+	displayName = "Sparkles",
+	icon = "rbxassetid://9726014909"
+})

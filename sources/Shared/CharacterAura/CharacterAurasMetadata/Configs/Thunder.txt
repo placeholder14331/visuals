@@ -1,0 +1,35 @@
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local Thunder = game.ReplicatedStorage.Shared.Assets.Cosmetics.CharacterAuras.Thunder
+
+return function()
+	return {
+		displayName = "Thunder",
+		icon = "rbxassetid://11577011080",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		apply = function(character)
+			local CharacterAuraUtil = require(game.ReplicatedStorage.Shared.Source.CharacterAura.CharacterAuraUtil)
+			local maid = Maid.new()
+			local clone = Thunder.ThunderAura:Clone()
+
+			CharacterAuraUtil.onCharacterAuraInstanceCreated(clone)
+			clone.Parent = character.Torso
+
+			local n1 = 0
+			local n2 = 0
+
+			maid:GiveTask(game:GetService("RunService").Heartbeat:Connect(function(dt)
+				n1 -= 36 * dt
+				n2 += dt
+				clone.PrimaryPart.CFrame = character.HumanoidRootPart.CFrame * CFrame.new(0, -2, 0) * CFrame.Angles(0, math.rad(n1), 4.712389)
+			end))
+			maid:GiveTask(clone.AncestryChanged:Connect(function()
+				if not clone:IsDescendantOf(game) then
+					maid:Destroy()
+				end
+			end))
+		end
+	}
+end

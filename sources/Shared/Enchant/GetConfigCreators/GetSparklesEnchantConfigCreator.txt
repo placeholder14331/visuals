@@ -1,0 +1,34 @@
+local Sparkles = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.Sparkles
+
+return function(config)
+	local v3 = config.color or Color3.fromRGB(255, 255, 255)
+
+	return function()
+		return {
+			displayName = config.displayName,
+			icon = config.icon,
+			apply = function(target)
+				local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+				local function onVisualCreated(visual)
+					if visual:IsA("ParticleEmitter") and v3 then
+						visual.Color = ColorSequence.new({
+							ColorSequenceKeypoint.new(0, v3),
+							ColorSequenceKeypoint.new(1, v3)
+						})
+					end
+				end
+
+				EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+					EnchantsUtil.applyVisualsToPart(part, {
+						scale = part.Size.Magnitude / 7
+					}, Sparkles, onVisualCreated)
+				end)
+			end,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = "uncommon",
+			inItemShop = true
+		}
+	end
+end

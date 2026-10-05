@@ -1,0 +1,25 @@
+local KillEffectIds = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectIds)
+
+return require(game.ReplicatedStorage.Shared.Source.KillEffect.GetConfigCreators.GetTornadoKillEffectConfigCreator)({
+	prefabName = "Wind",
+	displayNameAppend = "",
+	iconId = "rbxassetid://109274432081251",
+	variants = {
+		{
+			configModuleName = "TornadoPoison",
+			id = KillEffectIds.tornadoPoison
+		},
+		{
+			configModuleName = "TornadoLightning",
+			id = KillEffectIds.tornadoLightning
+		},
+		{
+			configModuleName = "TornadoFire",
+			id = KillEffectIds.tornadoFire
+		},
+		{
+			configModuleName = "TornadoEarth",
+			id = KillEffectIds.tornadoEarth
+		}
+	}
+})

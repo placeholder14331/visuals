@@ -1,0 +1,18 @@
+local GardenFlowers = game.ReplicatedStorage.Shared.Assets.Cosmetics.Skins.GardenFlowers
+
+return function()
+	return {
+		displayName = "Garden Flowers",
+		apply = function(target)
+			local SkinUtil = require(game.ReplicatedStorage.Shared.Source.Skin.SkinUtil)
+
+			SkinUtil.runCallbackOnTaggedSkinParts(target, function(p2)
+				SkinUtil.applyVisualsToPart(p2, {}, GardenFlowers)
+			end)
+		end,
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true
+	}
+end

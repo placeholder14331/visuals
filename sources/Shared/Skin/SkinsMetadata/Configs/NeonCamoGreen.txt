@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetNeonCamoSkinConfigCreator)({
+	displayName = "Neon Camo Green",
+	color = Color3.new(0, 1, 0)
+})

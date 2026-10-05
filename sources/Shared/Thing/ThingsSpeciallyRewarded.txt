@@ -1,0 +1,56 @@
+local BattlePassConfigs = require(game.ReplicatedStorage.Shared.Source.BattlePass.BattlePassConfigs)
+local RewardTypes = require(game.ReplicatedStorage.Shared.Source.Reward.RewardTypes)
+local EventConfigs = require(game.ReplicatedStorage.Shared.Source.Event.EventConfigs)
+local t1 = {
+	cosmetics = {},
+	items = {}
+}
+
+local function addReward(cosmetic, p2)
+	if cosmetic.type == RewardTypes.cosmetic then
+		t1.cosmetics[cosmetic.cosmeticType .. cosmetic.cosmeticId] = p2
+
+		return
+	end
+
+	if cosmetic.type == RewardTypes.item then
+		t1.items[cosmetic.itemType .. cosmetic.itemId] = p2
+	end
+end
+
+for _, v in pairs(BattlePassConfigs) do
+	for _, v2 in pairs(v.rewardSlots) do
+		for _, cosmetic2 in pairs(v2) do
+			local t2 = {
+				isForBattlePass = true
+			}
+
+			if cosmetic2.type == RewardTypes.cosmetic then
+				t1.cosmetics[cosmetic2.cosmeticType .. cosmetic2.cosmeticId] = t2
+			elseif cosmetic2.type == RewardTypes.item then
+				t1.items[cosmetic2.itemType .. cosmetic2.itemId] = t2
+			end
+		end
+	end
+end
+
+for v13, v14 in EventConfigs do
+	for _, v16 in v14.shopSections do
+		for _, v18 in v16.eventShopItems do
+			local reward = v18.reward
+			local t3 = {
+				isForEvent = true,
+				eventId = v13,
+				eventEnabled = v14.enabled
+			}
+
+			if reward.type == RewardTypes.cosmetic then
+				t1.cosmetics[reward.cosmeticType .. reward.cosmeticId] = t3
+			elseif reward.type == RewardTypes.item then
+				t1.items[reward.itemType .. reward.itemId] = t3
+			end
+		end
+	end
+end
+
+return t1

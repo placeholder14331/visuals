@@ -1,0 +1,140 @@
+local Players = game:GetService("Players")
+local Logger = require(game.ReplicatedStorage.Shared.Source.Log.Logger)
+local BaseObject = require(game.ReplicatedStorage.Shared.Vendor.BaseObject)
+local RagdollableConstants = require(game.ReplicatedStorage.Shared.Source.Ragdoll.RagdollableConstants)
+local RagdollRiggingHandler = require(game.ReplicatedStorage.Shared.Source.Ragdoll.RagdollRiggingHandler)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local RagdollUtil = require(game.ReplicatedStorage.Shared.Source.Ragdoll.RagdollUtil)
+local DataHandler = require(game.ReplicatedStorage.Shared.Source.Data.DataHandler)
+local CharacterHandler = require(game.ReplicatedStorage.Shared.Source.Character.CharacterHandler)
+local RagdollableHandler = require(game.ReplicatedStorage.Shared.Source.Ragdoll.RagdollableHandler)
+local logger = Logger.new(script.Name)
+local module = {
+	ClassName = "RagdollableClient"
+}
+
+module.__index = module
+require(game.ReplicatedStorage.Shared.Vendor.NevermorePromise.PromiseRemoteEventMixin):Add(module, RagdollableConstants.REMOTE_EVENT_NAME)
+
+local t2 = {}
+
+function module.attemptToggleActualRagdollClient(p1, p2)
+	local v16 = t2[p1]
+
+	if not v16 then
+		return
+	end
+
+	if p2 then
+		if RagdollableHandler.getRagdollDisabledServer(p1) then
+			return
+		end
+
+		if RagdollableHandler.getRagdollDisabledClient(p1) then
+			return
+		end
+
+		if p1.Health <= 0 and not v16._isFakeCharacter then
+			return
+		end
+	end
+
+	v16:_toggleActualRagdoll(p2)
+end
+function module.setRagdollDisabledClient(p3, p4)
+	p3:SetAttribute("RagdollDisabledClient", p4)
+
+	if p4 then
+		module.attemptToggleActualRagdollClient(p3, false)
+	end
+end
+function module.new(instance)
+	local clone = setmetatable(table.clone(module), {
+		__index = BaseObject.new()
+	})
+
+	clone._obj = instance
+	t2[instance] = clone
+	clone.maid:GiveTask(function()
+		t2[instance] = nil
+	end)
+
+	local p5Parent = instance.Parent
+
+	clone._player = Players:GetPlayerFromCharacter(p5Parent)
+
+	if clone._player == Players.LocalPlayer then
+		clone:PromiseRemoteEvent():Then(function(p6)
+			clone._localPlayerRemoteEvent = p6 or logger:Error("No remoteEvent")
+		end)
+	else
+		clone.maid:GiveTask(RagdollableHandler.hookIsRagdolledServerChanged(instance, function()
+			clone:_toggleActualRagdoll(RagdollableHandler.getIsRagdolledServer(instance))
+		end))
+	end
+
+	clone._isFakeCharacter = CharacterHandler.getIsFakeCharacter(p5Parent)
+
+	return clone
+end
+function module._toggleActualRagdoll(p7, p8)
+	if p8 then
+		if p7.maid._ragdoll then
+			return
+		end
+
+		p7.maid._ragdoll = p7:_doActualRagdoll()
+
+		return
+	end
+
+	if not p7.maid._ragdoll then
+		return
+	end
+
+	p7.maid._ragdoll = nil
+end
+function module._doActualRagdoll(p9)
+	local maid = Maid.new()
+	local _obj = p9._obj
+
+	_obj:SetAttribute("IsRagdolledClient", true)
+	maid:GiveTask(function()
+		_obj:SetAttribute("IsRagdolledClient", false)
+	end)
+
+	if p9._localPlayerRemoteEvent then
+		p9._localPlayerRemoteEvent:FireServer(true)
+		maid:GiveTask(function()
+			p9._localPlayerRemoteEvent:FireServer(false)
+		end)
+	end
+
+	if p9._player == Players.LocalPlayer then
+		local getSessionDataRoduxStoreForPlayer = DataHandler.getSessionDataRoduxStoreForPlayer(p9._player)
+
+		getSessionDataRoduxStoreForPlayer:dispatch({
+			type = "RAGDOLL_CLIENT_IS_RAGDOLLED_CHANGE",
+			payload = true
+		})
+		maid:GiveTask(function()
+			getSessionDataRoduxStoreForPlayer:dispatch({
+				type = "RAGDOLL_CLIENT_IS_RAGDOLLED_CHANGE",
+				payload = false
+			})
+		end)
+	end
+
+	if p9._isFakeCharacter and not p9._createdRagdollJoints then
+		p9._createdRagdollJoints = true
+		RagdollRiggingHandler.createRagdollJoints(_obj.Parent, _obj.RigType)
+	end
+
+	maid:GiveTask(RagdollUtil.setupState(_obj))
+	maid:GiveTask(RagdollUtil.setupMotors(_obj))
+	maid:GiveTask(RagdollUtil.setupHead(_obj))
+
+	return maid
+end
+
+return module

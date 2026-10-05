@@ -1,0 +1,31 @@
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Stereo = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Stereo
+
+return function()
+	return {
+		displayName = "Stereo",
+		icon = "rbxassetid://127620312204010",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		willCharacterDisappear = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = Stereo.Part:Clone()
+
+			task.delay(4.5, function()
+				clone:Destroy()
+			end)
+			clone.CFrame = CFrame.new(position + Vector3.new(0, 5.91, 0))
+			VisualEffectsUtil.emitObject(clone, true, true)
+			clone.Parent = workspace.EffectsJunk
+		end
+	}
+end

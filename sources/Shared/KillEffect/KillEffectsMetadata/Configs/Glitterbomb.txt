@@ -1,0 +1,35 @@
+local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local KillEffects = game.ReplicatedStorage.Shared.Assets.Sounds.KillEffects
+local Glitterbomb = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Glitterbomb
+
+return function()
+	return {
+		displayName = "Glitter Bomb",
+		icon = "rbxassetid://11896863883",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		inItemShop = true,
+		willCharacterDisappear = true,
+		apply = function(character)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local clone = Glitterbomb.Glitterbomb.Core:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone.WorldCFrame = HumanoidRootPart.CFrame
+			clone.Parent = workspace.Terrain
+
+			for _, child in pairs(clone:GetChildren()) do
+				VisualEffectsUtil.emit(child)
+			end
+
+			SoundHandler.playSound({
+				soundObject = KillEffects.SparkleExplosion,
+				parent = HumanoidRootPart
+			})
+		end
+	}
+end

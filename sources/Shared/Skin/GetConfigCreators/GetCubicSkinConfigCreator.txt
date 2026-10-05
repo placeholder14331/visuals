@@ -1,0 +1,58 @@
+local Cubic = game.ReplicatedStorage.Shared.Assets.Cosmetics.Skins.Cubic
+
+return function(config)
+	local textureColor = config.textureColor
+	local partColor = config.partColor
+
+	return function()
+		return {
+			displayName = config.displayName,
+			apply = function(target)
+				local SkinUtil = require(game.ReplicatedStorage.Shared.Source.Skin.SkinUtil)
+
+				local function onVisualCreated(p3)
+					if p3:IsA("Texture") then
+						if textureColor then
+							p3.Color3 = textureColor
+						end
+
+						SkinUtil.applyAnimation(p3)
+					end
+				end
+				local function modifyPart(emitter2)
+					if partColor then
+						emitter2.Color = partColor
+						emitter2.Material = Enum.Material.Neon
+					end
+				end
+
+				SkinUtil.runCallbackOnTaggedSkinParts(target, function(emitter4)
+					SkinUtil.applyVisualsToPart(emitter4, {}, Cubic, onVisualCreated)
+
+					if partColor then
+						emitter4.Color = partColor
+						emitter4.Material = Enum.Material.Neon
+					end
+				end, function(emitter)
+					SkinUtil.applyVisualsToPart(emitter, {}, Cubic, onVisualCreated)
+
+					if partColor then
+						emitter.Color = partColor
+						emitter.Material = Enum.Material.Neon
+					end
+				end, function(emitter3)
+					SkinUtil.applyVisualsToPart(emitter3, {}, Cubic, onVisualCreated)
+
+					if partColor then
+						emitter3.Color = partColor
+						emitter3.Material = Enum.Material.Neon
+					end
+				end)
+			end,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = "epic",
+			inItemShop = true
+		}
+	end
+end

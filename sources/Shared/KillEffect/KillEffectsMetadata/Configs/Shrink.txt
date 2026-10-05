@@ -1,0 +1,17 @@
+return function()
+	return {
+		displayName = "Shrink",
+		icon = "rbxassetid://9552316068",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		inItemShop = true,
+		apply = function(character)
+			require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient).fadeOutCharacter(character, {
+				newPartSize = Vector3.new(0.01, 0.01, 0.01),
+				makeInvisAfter = true,
+				tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Linear)
+			})
+		end
+	}
+end

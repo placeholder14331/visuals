@@ -1,0 +1,48 @@
+local KillEffectUtil = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectUtil)
+local ThousandCutsDeath = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.ThousandCutsDeath
+local part = KillEffectUtil.cloneTemplate(ThousandCutsDeath.SlashParticle, function(instance)
+	instance.Anchored = true
+	instance.CanCollide = false
+	instance.Parent = workspace.EffectsJunk
+end)
+
+return function()
+	return {
+		displayName = "A Thousand Cuts",
+		icon = "rbxassetid://11669336372",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local LimbDismembermentHandlerClient = require(game.ReplicatedStorage.Client.Source.LimbDismemberment.LimbDismembermentHandlerClient)
+			local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+			local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+			local Torso = character.Torso
+
+			Torso.Anchored = true
+
+			for _ = 1, 8 do
+				part.CFrame = Torso.CFrame * CFrame.Angles(math.rad((Random.new():NextNumber(-360, 360))), math.rad((Random.new():NextNumber(-360, 360))), (math.rad((Random.new():NextNumber(-360, 360)))))
+
+				for _, descendant in pairs(part:GetDescendants()) do
+					if descendant:IsA("ParticleEmitter") then
+						VisualEffectsUtil.emit(descendant)
+					end
+				end
+
+				SoundHandler.playSound({
+					soundObject = part.SlashSound
+				})
+				task.wait(0.1)
+			end
+
+			Torso.Anchored = false
+			KillEffectsUtilClient.enableRagdoll(character)
+			LimbDismembermentHandlerClient.handleLimbDismemberment(nil, character, { "Head" }, "detach")
+			LimbDismembermentHandlerClient.handleLimbDismemberment(nil, character, { "Left Arm" }, "detach")
+			LimbDismembermentHandlerClient.handleLimbDismemberment(nil, character, { "Right Arm" }, "detach")
+		end
+	}
+end

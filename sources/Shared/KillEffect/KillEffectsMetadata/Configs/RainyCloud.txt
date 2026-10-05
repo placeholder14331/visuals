@@ -1,0 +1,38 @@
+local RunService = game:GetService("RunService")
+local RainyCloud = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.RainyCloud
+
+return function()
+	return {
+		displayName = "Rainy Cloud",
+		icon = "rbxassetid://11896863558",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "uncommon",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+
+			KillEffectsUtilClient.enableRagdoll(character)
+
+			local clone = RainyCloud.RainyCloud:Clone()
+
+			clone.Parent = character
+
+			local connection = nil
+
+			connection = RunService.Heartbeat:Connect(function()
+				debug.profilebegin("heartbeat_rainycloud")
+
+				if not clone:IsDescendantOf(game) then
+					connection:Disconnect()
+
+					return
+				end
+
+				clone.CFrame = CFrame.new(HumanoidRootPart.Position + Vector3.new(0, 8, 0))
+				debug.profileend()
+			end)
+		end
+	}
+end

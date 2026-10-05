@@ -1,0 +1,55 @@
+local TweenService = game:GetService("TweenService")
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local Cross = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Cross
+
+return function()
+	return {
+		displayName = "Cross",
+		icon = "rbxassetid://107649920616790",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local maid = Maid.new()
+
+			task.delay(6, function()
+				maid:Destroy()
+			end)
+			HumanoidRootPart.Anchored = true
+
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local clone = Cross.Part:Clone()
+
+			maid:GiveTask(clone)
+			clone.CFrame = CFrame.new(position + Vector3.new(0, 50, 0)) * CFrame.Angles(0, math.rad((Random.new():NextNumber(-360, 360))), 0)
+			clone.Parent = workspace.EffectsJunk
+
+			local clone2 = Cross.AttachmentPart.Ground:Clone()
+
+			maid:GiveTask(clone2)
+			clone2.Parent = workspace.Terrain
+			clone2.WorldCFrame = CFrame.new(position)
+
+			local tween = TweenService:Create(clone, TweenInfo.new(0.25, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
+				CFrame = CFrame.new(position) * clone.CFrame.Rotation
+			})
+
+			tween:Play()
+			tween.Completed:Once(function()
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+				VisualEffectsUtil.emitObject(clone2, nil, true)
+
+				for _, child in pairs(clone:GetChildren()) do
+					if child:IsA("ParticleEmitter") then
+						child.Enabled = false
+					end
+				end
+			end)
+		end
+	}
+end

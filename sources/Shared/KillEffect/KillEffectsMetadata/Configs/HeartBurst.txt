@@ -1,0 +1,113 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local ForgeVFX = require(ReplicatedStorage.Packages.ForgeVFX)
+local Maid = require(ReplicatedStorage.Shared.Vendor.Maid)
+local SoundHandler = require(ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local CaseIds = require(ReplicatedStorage.Shared.Source.Case.CaseIds)
+local HeartBurst = ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.HeartBurst
+
+return function()
+	return {
+		displayName = "Heart Burst",
+		icon = "rbxassetid://87909394967157",
+		vaulted = false,
+		refundIfVaulted = false,
+		inItemShop = true,
+		rarity = "epic",
+		caseIds = { CaseIds.valentines2026 },
+		willHaveVictimAnimation = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local maid = Maid.new()
+			local Humanoid = character.Humanoid
+			local HumanoidRootPart = character.HumanoidRootPart
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position2 = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local position = part and part.Normal or Vector3.new(0, 1, 0)
+
+			HumanoidRootPart.Anchored = true
+			HumanoidRootPart.CFrame = CFrame.fromMatrix(position2 + Vector3.new(0, 2.5, 0), HumanoidRootPart.CFrame.RightVector, position)
+
+			local clone = HeartBurst.BurstHighlight:Clone()
+
+			clone.Enabled = true
+			clone.FillTransparency = 1
+			clone.Parent = character
+			maid:GiveTask(clone)
+			maid:GiveTask(SoundHandler.playSound({
+				soundObject = HeartBurst.Sound:Clone(),
+				parent = character.PrimaryPart
+			}))
+
+			local track = Humanoid.Animator:LoadAnimation(HeartBurst.Animation)
+			local v18 = track.Length > 0 and track.Length or 4.25
+
+			maid:GiveTask(track:GetMarkerReachedSignal("Event1"):Connect(function()
+				local clone2 = HeartBurst.HeartPulsateStart:Clone()
+
+				clone2.CFrame = HumanoidRootPart.CFrame
+				clone2.Parent = workspace.EffectsJunk
+
+				local clone3 = HeartBurst.StartDust:Clone()
+
+				clone3:PivotTo(HumanoidRootPart.CFrame)
+				clone3.Parent = workspace.EffectsJunk
+				maid:GiveTask(clone2)
+				maid:GiveTask(clone3)
+				ForgeVFX.emit(clone2)
+				ForgeVFX.emit(clone3)
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("Event2"):Connect(function()
+				local clone4 = HeartBurst.HeartEnergy:Clone()
+
+				clone4.Parent = character.Torso
+				maid:GiveTask(clone4)
+				ForgeVFX.emit(clone4)
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("Event3"):Connect(function()
+				local clone5 = HeartBurst.ChargeGlow:Clone()
+
+				clone5.Parent = character.Torso
+
+				local tween = TweenService:Create(clone, TweenInfo.new(1), {
+					FillTransparency = 0.3
+				})
+
+				maid:GiveTask(clone5)
+				maid:GiveTask(tween)
+				ForgeVFX.emit(clone5)
+				clone.FillColor = Color3.fromRGB(229, 80, 255)
+				tween:Play()
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("Event4"):Connect(function()
+				local clone6 = HeartBurst.InwardsBezier:Clone()
+
+				clone6.CFrame = HumanoidRootPart.CFrame
+				clone6.Parent = workspace.EffectsJunk
+
+				local tween = TweenService:Create(clone, TweenInfo.new(1), {
+					FillTransparency = 0.5
+				})
+
+				maid:GiveTask(clone6)
+				maid:GiveTask(tween)
+				ForgeVFX.emit(clone6)
+				tween:Play()
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("Event5"):Connect(function()
+				local clone7 = HeartBurst.Impact:Clone()
+
+				clone7.CFrame = HumanoidRootPart.CFrame
+				clone7.Parent = workspace.EffectsJunk
+				maid:GiveTask(clone7)
+				ForgeVFX.emit(clone7)
+				clone.FillColor = Color3.fromRGB(255, 35, 35)
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+			end))
+			task.delay(v18, function()
+				maid:Destroy()
+			end)
+			track:Play()
+		end
+	}
+end

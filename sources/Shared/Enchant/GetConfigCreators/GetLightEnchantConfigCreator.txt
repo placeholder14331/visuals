@@ -1,0 +1,45 @@
+local Light = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.Light
+
+return function(config)
+	local color = config.color
+	local isDarkColor = config.isDarkColor
+
+	return function()
+		return {
+			displayName = config.displayName,
+			icon = config.icon,
+			apply = function(target)
+				local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+				local function onVisualCreated(visual)
+					if visual:IsA("ParticleEmitter") then
+						if color then
+							if typeof(color) == "ColorSequence" then
+								visual.Color = color
+							else
+								visual.Color = ColorSequence.new({
+									ColorSequenceKeypoint.new(0, color),
+									ColorSequenceKeypoint.new(1, color)
+								})
+							end
+						end
+
+						if isDarkColor then
+							visual.LightEmission = 0
+						end
+					end
+				end
+
+				EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+					EnchantsUtil.applyVisualsToPart(part, {
+						scale = part.Size.Magnitude / 7
+					}, Light, onVisualCreated)
+				end)
+			end,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = "rare",
+			inItemShop = true
+		}
+	end
+end

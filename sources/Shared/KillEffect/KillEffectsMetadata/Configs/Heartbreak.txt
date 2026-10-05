@@ -1,0 +1,25 @@
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Heartbreak = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Heartbreak
+
+return function()
+	return {
+		displayName = "Heartbreak",
+		icon = "rbxassetid://13515775929",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		willCharacterDisappear = true,
+		apply = function(character)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local clone = Heartbreak.Part:Clone()
+
+			task.delay(4.5, function()
+				clone:Destroy()
+			end)
+			clone.CFrame = HumanoidRootPart.CFrame + Vector3.new(0, -3 + clone.Size.Y / 2, 0)
+			VisualEffectsUtil.emitObject(clone)
+			clone.Parent = workspace.EffectsJunk
+		end
+	}
+end

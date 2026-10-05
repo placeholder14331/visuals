@@ -1,0 +1,30 @@
+local Tornadoes = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Tornadoes
+
+return function(p1)
+	local prefabName = p1.prefabName
+	local displayNameAppend = p1.displayNameAppend
+	local iconId = p1.iconId
+	local variants = p1.variants
+
+	return function()
+		return {
+			displayName = string.format("Tornado%s", displayNameAppend),
+			icon = iconId,
+			variants = variants,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = "legendary",
+			inItemShop = true,
+			willCharacterDisappear = true,
+			apply = function(character)
+				local clone = Tornadoes[prefabName]:Clone()
+
+				task.delay(4.5, function()
+					clone:Destroy()
+				end)
+				clone.Position = character.HumanoidRootPart.Position
+				clone.Parent = workspace.EffectsJunk
+			end
+		}
+	end
+end

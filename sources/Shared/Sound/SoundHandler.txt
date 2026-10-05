@@ -1,0 +1,235 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local SoundService = game:GetService("SoundService")
+local Logger = require(ReplicatedStorage.Shared.Source.Log.Logger)
+local Main = SoundService.Main
+local BypassEffects = SoundService.BypassEffects
+local t1 = {}
+local logger = Logger.new(script.Name)
+local module = {
+	restoreContent = function(none)
+		if none.AudioContent ~= Content.none then
+			return none
+		end
+
+		local id = none:GetAttribute("id")
+
+		if id then
+			none.AudioContent = Content.fromUri(id)
+		end
+
+		return none
+	end,
+	setVolumeMult = function(p2)
+		local amount = math.clamp(p2, 0, 3)
+
+		SoundService.Main.Volume = amount
+	end,
+	setMusicVolumeMult = function(p3)
+		local amount2 = math.clamp(p3, 0, 3)
+
+		SoundService.Main.Music.Volume = amount2
+	end,
+	getMainSoundGroup = function()
+		return Main
+	end,
+	getBypassEffectsSoundGroup = function()
+		return BypassEffects
+	end,
+	getRandomSoundFromFolder = function(container)
+		local t2 = {}
+
+		for _, child in container:GetChildren() do
+			if child:IsA("Sound") then
+				table.insert(t2, child)
+			end
+		end
+
+		return #t2 > 0 and t2[math.random(1, #t2)] or nil
+	end
+}
+
+function module.createSoundPool(template, p6)
+	module.restoreContent(template)
+
+	if t1[template.SoundId] then
+		return
+	end
+
+	t1[template.SoundId] = {}
+
+	for i = 1, p6 do
+		t1[template.SoundId][i] = template:Clone()
+	end
+end
+function module.returnToSoundPool(instance)
+	instance.Parent = nil
+	table.insert(t1[instance.SoundId], instance)
+end
+function module.playSound(p8)
+	local soundObject = p8.soundObject
+
+	if not soundObject then
+		return nil
+	end
+
+	local parent = p8.parent or soundObject.Parent
+
+	if not parent then
+		return soundObject
+	end
+
+	local duration = p8.duration
+	local speed = p8.speed
+	local playType = p8.playType
+
+	if playType == nil then
+		playType = "destroy"
+	end
+
+	local shouldCloneSoundObject = p8.shouldCloneSoundObject
+
+	if shouldCloneSoundObject == nil then
+		shouldCloneSoundObject = playType == "destroy" or playType == "destroyAfter"
+	end
+
+	if RunService:IsStudio() then
+		module.restoreContent(soundObject)
+	end
+
+	local v31 = false
+	local instance2
+
+	if p8.usePool then
+		playType = "noDestroy"
+		instance2 = table.remove(t1[soundObject.SoundId], 1)
+	elseif shouldCloneSoundObject then
+		instance2 = soundObject:Clone()
+		v31 = true
+	else
+		instance2 = soundObject
+	end
+
+	module.restoreContent(instance2)
+
+	if not instance2 then
+		logger:Warn(`Failed to get pooled sound '{ soundObject.SoundId }', cloning instead!`)
+		instance2 = soundObject:Clone()
+	end
+
+	if p8.tags then
+		for _, v34 in p8.tags do
+			instance2:AddTag(v34)
+		end
+	end
+
+	local Attachment = nil
+
+	if typeof(parent) == "Vector3" then
+		Attachment = Instance.new("Attachment")
+		Attachment.WorldPosition = parent
+
+		if not pcall(function()
+			instance2.Parent = Attachment
+		end) then
+			Attachment:Destroy()
+
+			if v31 then
+				instance2:Destroy()
+			end
+
+			return soundObject
+		end
+
+		Attachment.Parent = workspace.Terrain
+		instance2.AncestryChanged:Connect(function()
+			if not instance2:IsDescendantOf(game) then
+				Attachment:Destroy()
+			end
+		end)
+	elseif parent and parent ~= instance2.Parent then
+		if not pcall(function()
+			instance2.Parent = parent
+		end) then
+			if v31 then
+				instance2:Destroy()
+			end
+
+			return soundObject
+		end
+	elseif parent and playType == "local" and parent == instance2.Parent then
+		instance2.Parent = SoundService
+	end
+
+	local props = p8.props
+
+	if props then
+		for k, v in pairs(props) do
+			instance2[k] = v
+		end
+	end
+
+	if not instance2.SoundGroup then
+		instance2.SoundGroup = Main
+	end
+
+	if duration then
+		instance2.PlaybackSpeed = instance2.TimeLength / duration
+	end
+
+	if speed then
+		instance2.PlaybackSpeed = speed
+	end
+
+	if p8.modifyRealSoundObject then
+		p8.modifyRealSoundObject(instance2)
+	end
+
+	if p8.usePool then
+		instance2:Play()
+
+		local connection = nil
+		local connection2 = nil
+
+		connection2 = instance2.Stopped:Once(function()
+			module.returnToSoundPool(instance2)
+			connection:Disconnect()
+			connection2:Disconnect()
+		end)
+		connection = instance2.Stopped:Once(function()
+			module.returnToSoundPool(instance2)
+			connection:Disconnect()
+			connection2:Disconnect()
+		end)
+	elseif playType == "destroy" then
+		instance2.PlayOnRemove = true
+		instance2:Destroy()
+	elseif playType == "destroyAfter" then
+		instance2:Play()
+
+		local connection = nil
+		local connection3 = nil
+
+		connection = instance2.Ended:Once(function()
+			instance2:Destroy()
+			connection:Disconnect()
+			connection3:Disconnect()
+		end)
+		connection3 = instance2.Stopped:Once(function()
+			instance2:Destroy()
+			connection:Disconnect()
+			connection3:Disconnect()
+		end)
+	elseif playType == "noDestroy" then
+		instance2:Play()
+	elseif playType == "loop" then
+		instance2.Looped = true
+		instance2:Play()
+	elseif playType == "local" then
+		SoundService:PlayLocalSound(instance2)
+	end
+
+	return instance2, Attachment
+end
+
+return module

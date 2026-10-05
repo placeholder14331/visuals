@@ -1,0 +1,52 @@
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local AnimationUtil = require(game.ReplicatedStorage.Shared.Source.Animation.AnimationUtil)
+local ShadowTendrils = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.ShadowTendrils
+local cFrame = CFrame.new(0, -2.5, 0.8) * CFrame.fromOrientation(0, 1.57079633, 0)
+
+return function()
+	return {
+		displayName = "Shadow Tendrils",
+		icon = "rbxassetid://13515774504",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		willHaveVictimAnimation = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Animator = character.Humanoid.Animator
+			local maid = Maid.new()
+
+			task.delay(4.5, function()
+				maid:Destroy()
+			end)
+			HumanoidRootPart.Anchored = true
+
+			local clone = ShadowTendrils.Tentacle:Clone()
+
+			maid:GiveTask(clone)
+			clone:PivotTo(HumanoidRootPart.CFrame * cFrame)
+			clone.Parent = workspace.EffectsJunk
+			maid:GiveTask(function()
+				if character:IsDescendantOf(game) then
+					KillEffectsUtilClient.makeCharacterDisappear(character)
+				end
+			end)
+
+			local track = clone.AnimationController:LoadAnimation(ShadowTendrils.Animation)
+
+			track:Play()
+
+			local track2 = Animator:LoadAnimation(ShadowTendrils.VictimAnimation)
+
+			track2:Play()
+			maid:GiveTask(track.Stopped:Once(function()
+				AnimationUtil.freezeAnimationAtPercentage(track, 99.99)
+			end))
+			maid:GiveTask(track2.Stopped:Once(function()
+				AnimationUtil.freezeAnimationAtPercentage(track2, 99.99)
+			end))
+		end
+	}
+end

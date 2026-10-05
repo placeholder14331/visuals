@@ -1,0 +1,11 @@
+return function()
+	return {
+		displayName = "None",
+		icon = "rbxassetid://9726088960",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "default",
+		inItemShop = false,
+		caseIds = {}
+	}
+end

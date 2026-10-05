@@ -1,0 +1,22 @@
+local color3 = Color3.fromRGB(82, 124, 174)
+
+return function()
+	return {
+		displayName = "Ice",
+		icon = "rbxassetid://9548567738",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "uncommon",
+		inItemShop = true,
+		apply = function(character)
+			require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient).transformCharacter(character, {
+				modifyInstance = function(part)
+					if part:IsA("BasePart") then
+						part.Material = Enum.Material.Ice
+						part.Color = color3
+					end
+				end
+			})
+		end
+	}
+end

@@ -1,0 +1,21 @@
+local Love = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.Love
+
+return function()
+	return {
+		displayName = "Love",
+		icon = "rbxassetid://100973399500535",
+		apply = function(target)
+			local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+			EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+				EnchantsUtil.applyVisualsToPart(part, {
+					scale = part.Size.Magnitude / 4
+				}, Love)
+			end)
+		end,
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true
+	}
+end

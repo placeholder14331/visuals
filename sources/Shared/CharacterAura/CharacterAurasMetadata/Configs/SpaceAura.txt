@@ -1,0 +1,6 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetBodyCharacterAuraConfigCreator)({
+	fileName = "SpaceAura",
+	displayName = "Space",
+	icon = "rbxassetid://11873925308",
+	rarity = "rare"
+})

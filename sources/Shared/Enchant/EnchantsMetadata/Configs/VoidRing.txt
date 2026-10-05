@@ -1,0 +1,21 @@
+local VoidRing = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.VoidRing
+
+return function()
+	return {
+		displayName = "Void Ring",
+		icon = "rbxassetid://9726015751",
+		apply = function(target)
+			local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+			EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+				EnchantsUtil.applyVisualsToPart(part, {
+					scale = part.Size.Magnitude / 7
+				}, VoidRing)
+			end)
+		end,
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		inItemShop = true
+	}
+end

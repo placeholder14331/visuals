@@ -1,0 +1,7 @@
+local t1 = {
+	textFontOptionsForCustomCosmetics = Enum.Font:GetEnumItems()
+}
+
+table.remove(t1.textFontOptionsForCustomCosmetics, #t1.textFontOptionsForCustomCosmetics)
+
+return t1

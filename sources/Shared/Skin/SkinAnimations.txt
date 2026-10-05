@@ -1,0 +1,118 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local module = {}
+
+local function connectInstanceToInterval(p1, p2, p3)
+	local timestamp = tick()
+	local u10 = nil
+
+	local function disconnectUpdateConn()
+		if u10 then
+			u10:Disconnect()
+			u10 = nil
+		end
+	end
+	local function connectUpdateConn()
+		if u10 then
+			return
+		end
+
+		u10 = RunService.RenderStepped:Connect(function()
+			debug.profilebegin("render_skinAnim")
+
+			local startedAt3 = tick() - timestamp
+
+			if startedAt3 >= p3 then
+				timestamp = tick()
+				p2(startedAt3)
+			end
+
+			debug.profileend()
+		end)
+	end
+	local function updateUpdateConn()
+		local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
+
+		if p1:IsDescendantOf(workspace) or PlayerGui and p1:IsDescendantOf(PlayerGui) then
+			if u10 then
+				return
+			end
+
+			u10 = RunService.RenderStepped:Connect(function()
+				debug.profilebegin("render_skinAnim")
+
+				local startedAt2 = tick() - timestamp
+
+				if startedAt2 >= p3 then
+					timestamp = tick()
+					p2(startedAt2)
+				end
+
+				debug.profileend()
+			end)
+
+			return
+		end
+
+		if u10 then
+			u10:Disconnect()
+			u10 = nil
+		end
+	end
+
+	local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
+
+	if p1:IsDescendantOf(workspace) or PlayerGui and p1:IsDescendantOf(PlayerGui) then
+		if not u10 then
+			u10 = RunService.RenderStepped:Connect(function()
+				debug.profilebegin("render_skinAnim")
+
+				local startedAt = tick() - timestamp
+
+				if startedAt >= p3 then
+					timestamp = tick()
+					p2(startedAt)
+				end
+
+				debug.profileend()
+			end)
+		end
+	elseif u10 then
+		u10:Disconnect()
+		u10 = nil
+	end
+
+	p1.AncestryChanged:Connect(updateUpdateConn)
+end
+
+function module.forwardSlide(p4, p5, p6)
+	if p5 then
+		return
+	end
+
+	if not p4:IsA("Texture") then
+		return
+	end
+
+	local animationSpeed = p6.animationSpeed or 1
+
+	connectInstanceToInterval(p4, function(p7)
+		local v25 = p4
+
+		v25.OffsetStudsU = v25.OffsetStudsU + -p7 * 0.5 * animationSpeed
+	end, 0.08)
+end
+function module.rainbow(part, p9)
+	if not part:IsA("BasePart") then
+		return
+	end
+
+	local v21 = not p9 and 0.08 or 1
+
+	connectInstanceToInterval(part, function()
+		part.Color = Color3.fromHSV(tick() % 20 / 20, 1, 1)
+	end, v21)
+end
+
+return module

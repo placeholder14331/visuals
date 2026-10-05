@@ -1,0 +1,85 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RoduxStore = require(ReplicatedStorage.Shared.Source.Rodux.RoduxStore)
+local SoundHandler = require(ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local Maid = require(ReplicatedStorage.Shared.Vendor.Maid)
+local Events = script.Events
+local module = {
+	_playSound = function(playSound)
+		local soundSource = playSound.soundSource
+		local soundParent = playSound.soundParent
+		local v10 = nil
+
+		if not soundSource then
+			return
+		end
+
+		if not RoduxStore.store:getState().settingsClient.EnableWeaponVL then
+			return
+		end
+
+		if typeof(soundSource) == "function" then
+			v10 = soundSource(playSound)
+		elseif soundSource:IsA("Sound") then
+			v10 = soundSource
+		elseif soundSource:IsA("Folder") then
+			v10 = soundSource
+		end
+
+		if v10 and v10:IsA("Folder") then
+			v10 = SoundHandler.getRandomSoundFromFolder(v10)
+		end
+
+		if v10 then
+			playSound.maid.SoundObject = SoundHandler.playSound({
+				playType = "destroyAfter",
+				shouldCloneSoundObject = true,
+				soundObject = v10,
+				parent = soundParent,
+				props = {
+					Volume = 3
+				}
+			})
+		end
+	end
+}
+
+function module.hook(p2, p3)
+	local _character = p2._character
+	local tool = p2.tool
+	local _maid = p2._maid
+	local maid = Maid.createInstanceMaid(_character)
+
+	for v17, v18 in p3 do
+		local v19 = Events[v17]
+		local v20 = v19 and require(v19)
+
+		if v20 then
+			local v21 = v20(p2)
+
+			if v21 and v21.signal then
+				maid:GiveTask(v21.signal:Connect(function(...)
+					if tool.Parent ~= workspace.EffectsJunk and tool.Parent ~= _character then
+						return
+					end
+
+					if v21.condition and not v21.condition(p2, ...) then
+						return
+					end
+
+					local context = v21.context and v21.context(...) or {}
+
+					context.soundSource = context.sound or v18
+					context.soundParent = context.soundParent or p2.tool.Contents.Handle
+					context.maid = maid
+					module._playSound(context)
+				end))
+			end
+		end
+	end
+
+	_maid:GiveTask(p2.tool.Unequipped:Connect(function()
+		maid.SoundObject = nil
+	end))
+end
+
+return module

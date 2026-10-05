@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetPhoenixCharacterAuraConfigCreator)({
+	prefabName = "LightBlue",
+	displayName = "Phoenix (Light Blue)",
+	icon = "rbxassetid://11877215766"
+})

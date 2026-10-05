@@ -1,0 +1,22 @@
+local Witch = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.Witch
+
+return function()
+	return {
+		displayName = "Witch",
+		icon = "rbxassetid://11897708720",
+		apply = function(target)
+			local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+			EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+				EnchantsUtil.applyVisualsToPart(part, {
+					scale = part.Size.Magnitude / 3
+				}, Witch)
+			end)
+		end,
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		caseIds = nil
+	}
+end

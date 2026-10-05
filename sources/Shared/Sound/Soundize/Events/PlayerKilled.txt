@@ -1,0 +1,17 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local DamageHandler = require(ReplicatedStorage.Shared.Source.Damage.DamageHandler)
+
+return function(_)
+	return {
+		signal = DamageHandler.onPlayerKilledSignal,
+		condition = function(playerKiller, p3)
+			return playerKiller._player == p3.playerKiller
+		end,
+		context = function(...)
+			return {
+				type = "playerKilled",
+				deathConfig = ...
+			}
+		end
+	}
+end

@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.KillEffect.GetConfigCreators.GetFireworkKillEffectConfigCreator)({
+	prefabName = "Moon",
+	displayNameAppend = " (Moon)",
+	iconId = "rbxassetid://11896864086"
+})

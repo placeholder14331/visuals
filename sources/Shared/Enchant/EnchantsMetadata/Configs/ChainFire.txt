@@ -1,0 +1,21 @@
+local ChainFire = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.ChainFire
+
+return function()
+	return {
+		displayName = "Chain Fire",
+		icon = "rbxassetid://132393239042579",
+		apply = function(target)
+			local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+			EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+				EnchantsUtil.applyVisualsToPart(part, {
+					scale = part.Size.Magnitude / 4
+				}, ChainFire)
+			end)
+		end,
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true
+	}
+end

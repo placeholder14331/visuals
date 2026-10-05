@@ -1,0 +1,49 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CharacterAuraUtil = require(ReplicatedStorage.Shared.Source.CharacterAura.CharacterAuraUtil)
+local Valentines = ReplicatedStorage.Shared.Assets.Cosmetics.CharacterAuras.Valentines
+local cFrame = CFrame.Angles(0, 3.1415927, 0)
+local cFrame2 = CFrame.new(0, 0, 0.206)
+
+return function(config)
+	local prefabName = Valentines[config.prefabName]
+	local canObtain = config.canObtain == nil
+	local rarity2 = config.rarity or "legendary"
+
+	return function()
+		return {
+			displayName = config.displayName,
+			icon = config.icon,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = rarity2,
+			inItemShop = canObtain,
+			caseIds = not canObtain and {} or nil,
+			apply = function(character)
+				local clone = prefabName.DetailWorld:Clone()
+
+				CharacterAuraUtil.onCharacterAuraInstanceCreated(clone)
+
+				local clone2 = prefabName.WingsRoot:Clone()
+
+				CharacterAuraUtil.onCharacterAuraInstanceCreated(clone2)
+
+				local Weld = Instance.new("Weld")
+
+				Weld.Part0 = character.HumanoidRootPart
+				Weld.Part1 = clone
+				Weld.Parent = Weld.Part0
+
+				local Weld2 = Instance.new("Weld")
+
+				Weld2.Part0 = character.Torso
+				Weld2.Part1 = clone2
+				Weld2.C0 = cFrame
+				Weld2.C1 = cFrame2
+				Weld2.Parent = Weld2.Part0
+				clone.Parent = character.HumanoidRootPart
+				clone2.Parent = character.Torso
+				CharacterAuraUtil.applyFromDummy(prefabName.aw, character)
+			end
+		}
+	end
+end

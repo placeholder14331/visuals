@@ -1,0 +1,34 @@
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Deleted = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Deleted
+
+return function()
+	return {
+		displayName = "Deleted",
+		icon = "rbxassetid://11692799495",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		willCharacterDisappear = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local clone = Deleted.Deleted:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone.CFrame = CFrame.new(position)
+			clone.Anchored = true
+			clone.Parent = workspace.EffectsJunk
+
+			for _, descendant in pairs(clone:GetDescendants()) do
+				if descendant:IsA("ParticleEmitter") then
+					VisualEffectsUtil.emit(descendant)
+				end
+			end
+		end
+	}
+end

@@ -1,0 +1,34 @@
+local Skulls = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.Skulls
+
+return function(config)
+	local color = config.color
+
+	return function()
+		return {
+			displayName = config.displayName,
+			icon = config.icon,
+			apply = function(target)
+				local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+				local function onVisualCreated(visual)
+					if visual:IsA("ParticleEmitter") and color then
+						visual.Color = ColorSequence.new({
+							ColorSequenceKeypoint.new(0, color),
+							ColorSequenceKeypoint.new(1, color)
+						})
+					end
+				end
+
+				EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+					EnchantsUtil.applyVisualsToPart(part, {
+						scale = part.Size.Magnitude / 7
+					}, Skulls, onVisualCreated)
+				end)
+			end,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = "rare",
+			inItemShop = true
+		}
+	end
+end

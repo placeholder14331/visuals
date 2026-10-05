@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetPebblesSkinConfigCreator)({
+	displayName = "Toxic Magma",
+	textureColor = Color3.fromRGB(100, 221, 23),
+	partColor = Color3.fromRGB(29, 0, 46)
+})

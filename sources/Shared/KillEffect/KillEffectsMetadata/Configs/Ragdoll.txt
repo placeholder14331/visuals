@@ -1,0 +1,14 @@
+return function()
+	return {
+		displayName = "Ragdoll",
+		icon = "rbxassetid://9552340190",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "default",
+		inItemShop = false,
+		caseIds = {},
+		apply = function(character)
+			require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient).enableRagdoll(character)
+		end
+	}
+end

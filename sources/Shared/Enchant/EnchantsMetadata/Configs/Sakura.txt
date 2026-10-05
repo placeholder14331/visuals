@@ -1,0 +1,22 @@
+local Sakura = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.Sakura
+
+return function()
+	return {
+		displayName = "Sakura",
+		icon = "rbxassetid://11669335650",
+		apply = function(target)
+			local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+			EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+				EnchantsUtil.applyVisualsToPart(part, {
+					scale = part.Size.Magnitude / 4
+				}, Sakura)
+			end)
+		end,
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "uncommon",
+		inItemShop = true,
+		caseIds = nil
+	}
+end

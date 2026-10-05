@@ -1,0 +1,21 @@
+local Galaxy = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.Galaxy
+
+return function()
+	return {
+		displayName = "Galaxy",
+		icon = "rbxassetid://9726015372",
+		apply = function(target)
+			local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+			EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+				EnchantsUtil.applyVisualsToPart(part, {
+					scale = part.Size.Magnitude / 5
+				}, Galaxy)
+			end)
+		end,
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true
+	}
+end

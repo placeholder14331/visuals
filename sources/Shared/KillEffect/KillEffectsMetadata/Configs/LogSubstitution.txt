@@ -1,0 +1,34 @@
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local LogSubstitution = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.LogSubstitution
+
+return function()
+	return {
+		displayName = "Log Substitution",
+		icon = "rbxassetid://140110348178791",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		inItemShop = true,
+		willCharacterDisappear = true,
+		apply = function(character)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local clone = LogSubstitution.Log:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone.CFrame = CFrame.new(HumanoidRootPart.Position)
+			clone.Parent = workspace.EffectsJunk
+			clone:ApplyImpulse(clone.AssemblyMass * Vector3.new(0, Random.new():NextNumber(62, 68), 0))
+
+			local Attachment = clone.Attachment
+
+			task.delay(4, function()
+				Attachment:Destroy()
+			end)
+			Attachment.Parent = workspace.Terrain
+			Attachment.WorldCFrame = HumanoidRootPart.CFrame
+			VisualEffectsUtil.emitObject(Attachment)
+		end
+	}
+end

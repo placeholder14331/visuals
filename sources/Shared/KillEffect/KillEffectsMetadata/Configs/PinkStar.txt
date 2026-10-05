@@ -1,0 +1,35 @@
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local PinkStar = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.PinkStar
+
+return function()
+	return {
+		displayName = "Sparkle",
+		icon = "rbxassetid://11896863324",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		willCharacterDisappear = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local clone = PinkStar.PinkStar:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone.Anchored = true
+			clone.CFrame = CFrame.new(position)
+
+			for _, descendant in pairs(clone:GetDescendants()) do
+				if descendant:IsA("ParticleEmitter") then
+					VisualEffectsUtil.emit(descendant)
+				end
+			end
+
+			clone.Parent = workspace.EffectsJunk
+		end
+	}
+end

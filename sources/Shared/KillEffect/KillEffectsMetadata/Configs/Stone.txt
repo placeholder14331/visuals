@@ -1,0 +1,20 @@
+return function()
+	return {
+		displayName = "Stone",
+		icon = "rbxassetid://9548722108",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "uncommon",
+		inItemShop = true,
+		apply = function(character)
+			require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient).transformCharacter(character, {
+				modifyInstance = function(part)
+					if part:IsA("BasePart") then
+						part.Material = Enum.Material.Slate
+						part.Color = Color3.fromRGB(99, 95, 98)
+					end
+				end
+			})
+		end
+	}
+end

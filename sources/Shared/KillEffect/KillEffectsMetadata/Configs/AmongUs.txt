@@ -1,0 +1,53 @@
+local AmongUs = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.AmongUs
+local t1 = {
+	Torso = true,
+	Humanoid = true,
+	["Left Leg"] = true,
+	["Right Leg"] = true,
+	Pants = true
+}
+
+return function()
+	return {
+		displayName = "sus",
+		icon = "rbxassetid://11682508277",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+			local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local Torso = character.Torso
+
+			KillEffectsUtilClient.makeCharacterDisappear(character, nil, {
+				anchorHrp = false,
+				namesToKeep = t1
+			})
+			Torso.Transparency = 1
+
+			local clone = AmongUs.AmongUs:Clone()
+
+			clone.Parent = character
+
+			local Weld = Instance.new("Weld")
+
+			Weld.Part0 = Torso
+			Weld.Part1 = clone.PrimaryPart
+			Weld.C0 = CFrame.new(0, -0.66, 0)
+			Weld.Parent = Torso
+
+			for _, descendant in pairs(clone.Flesh.Attachment:GetDescendants()) do
+				if descendant:IsA("ParticleEmitter") then
+					VisualEffectsUtil.emit(descendant)
+				end
+			end
+
+			SoundHandler.playSound({
+				playType = "noDestroy",
+				soundObject = clone.Flesh.Sound
+			})
+		end
+	}
+end

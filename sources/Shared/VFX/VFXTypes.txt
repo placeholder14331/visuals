@@ -1,0 +1,13 @@
+return table.freeze({
+	Unknown = "vfx_type_unknown",
+	Idle = "vfx_type_idle",
+	Shield = "vfx_type_shield",
+	Ranged = "vfx_type_ranged",
+	Melee = "vfx_type_melee",
+	Utility = "vfx_type_utility",
+	Skill = "vfx_type_skill",
+	KillEffect = "vfx_type_killeffect",
+	Flourish = "vfx_type_flourish",
+	Finisher = "vfx_type_finisher",
+	Glorykill = "vfx_type_glorykill"
+})

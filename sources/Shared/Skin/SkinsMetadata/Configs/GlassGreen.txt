@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetGlassSkinConfigCreator)({
+	displayName = "Glass (Green)",
+	color = Color3.fromRGB(0, 255, 0)
+})

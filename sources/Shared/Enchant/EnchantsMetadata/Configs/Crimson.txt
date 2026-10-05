@@ -1,0 +1,22 @@
+local Crimson = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.Crimson
+
+return function()
+	return {
+		displayName = "Crimson",
+		icon = "rbxassetid://11868564732",
+		apply = function(target)
+			local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+			EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+				EnchantsUtil.applyVisualsToPart(part, {
+					scale = part.Size.Magnitude / 4
+				}, Crimson)
+			end)
+		end,
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		caseIds = nil
+	}
+end

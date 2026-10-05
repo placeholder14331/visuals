@@ -1,0 +1,27 @@
+local Rodux = require(game.ReplicatedStorage.Shared.Vendor.Rodux)
+local TableUtil = require(game.ReplicatedStorage.Shared.Vendor.Table.TableUtil)
+local module = {}
+local t2 = {
+	isRagdolled = false,
+	ragdollDurationMult = 1
+}
+
+module.reducer = Rodux.createReducer(t2, {
+	RAGDOLL_IS_RAGDOLLED_CHANGE = function(p1, p2)
+		local shallowCopyTable = TableUtil.shallowCopyTable(p1)
+
+		shallowCopyTable.isRagdolled = p2.payload
+
+		return shallowCopyTable
+	end,
+	RAGDOLL_RAGDOLL_DURATION_MULT_MULTIPLY = function(p3, p4)
+		local shallowCopyTable2 = TableUtil.shallowCopyTable(p3)
+
+		shallowCopyTable2.ragdollDurationMult = shallowCopyTable2.ragdollDurationMult * p4.payload
+
+		return shallowCopyTable2
+	end
+})
+module.key = "ragdoll"
+
+return module

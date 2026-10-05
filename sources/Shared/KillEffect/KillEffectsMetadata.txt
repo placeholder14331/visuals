@@ -1,0 +1,55 @@
+local KillEffectsInOrder = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectsInOrder)
+local ThingUtil = require(game.ReplicatedStorage.Shared.Source.Thing.ThingUtil)
+local KillEffectConstants = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectConstants)
+local CaseIds = require(game.ReplicatedStorage.Shared.Source.Case.CaseIds)
+local Configs = script.Configs
+local module = {}
+
+ThingUtil.insertConfigs({
+	handleCosmeticVariants = true,
+	handleCosmeticDefaults = true,
+	cosmeticType = "killEffects",
+	tblToInsert = module,
+	configsToInsertInOrder = KillEffectsInOrder,
+	configsFolder = Configs,
+	singleVariantConfigCallback = function(config2)
+		if not config2.aetherPrice then
+			local n1 = 1e999
+
+			if config2.rarity == "legendary" then
+				n1 = KillEffectConstants.VARIANT_LEGENDARY_PRICE
+			elseif config2.rarity == "epic" then
+				n1 = KillEffectConstants.VARIANT_EPIC_PRICE
+			elseif config2.rarity == "rare" then
+				n1 = KillEffectConstants.VARIANT_RARE_PRICE
+			elseif config2.rarity == "uncommon" then
+				n1 = KillEffectConstants.VARIANT_UNCOMMON_PRICE
+			end
+
+			config2.aetherPrice = n1
+		end
+	end,
+	singleConfigCallback = function(config)
+		if not config.aetherPrice then
+			local n2 = 1e999
+
+			if config.rarity == "legendary" then
+				n2 = KillEffectConstants.LEGENDARY_PRICE
+			elseif config.rarity == "epic" then
+				n2 = KillEffectConstants.EPIC_PRICE
+			elseif config.rarity == "rare" then
+				n2 = KillEffectConstants.RARE_PRICE
+			elseif config.rarity == "uncommon" then
+				n2 = KillEffectConstants.UNCOMMON_PRICE
+			end
+
+			config.aetherPrice = n2
+		end
+
+		if not config.caseIds then
+			config.caseIds = { CaseIds.killEffects }
+		end
+	end
+})
+
+return module

@@ -1,0 +1,69 @@
+local RunService = game:GetService("RunService")
+local LightningBolt = require(game.ReplicatedStorage.Shared.Vendor.LightningBolt)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Thunderstorm = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Thunderstorm
+
+return function()
+	return {
+		displayName = "Lightning",
+		icon = "rbxassetid://102299322643298",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local maid = Maid.new()
+
+			task.delay(4.5, function()
+				maid:Destroy()
+			end)
+
+			local HumanoidRootPart = character.HumanoidRootPart
+			local clone = Thunderstorm.Part:Clone()
+
+			maid:GiveTask(clone)
+			clone.Parent = workspace.EffectsJunk
+			maid:GiveTask(RunService.Heartbeat:Connect(function()
+				debug.profilebegin("heartbeat_thunderstorm")
+				clone.CFrame = CFrame.new(HumanoidRootPart.Position)
+				debug.profileend()
+			end))
+
+			local lightningBolt = LightningBolt.new(clone.Mid.A0, clone.Mid.A1, 5)
+
+			task.delay(0.5, function()
+				lightningBolt:DestroyDissipate(0.1)
+			end)
+			lightningBolt.PulseSpeed = 10
+
+			local getEmitCountOptimizeMult = VisualEffectsUtil.getEmitCountOptimizeMult(clone)
+
+			for _, child in clone:GetChildren() do
+				if child:IsA("ParticleEmitter") then
+					VisualEffectsUtil.emit(child, nil, getEmitCountOptimizeMult)
+				end
+			end
+
+			for _, child in clone.Mid:GetChildren() do
+				if child:IsA("ParticleEmitter") then
+					VisualEffectsUtil.emit(child, nil, getEmitCountOptimizeMult)
+				end
+			end
+
+			for _, child in clone.Attachment2:GetChildren() do
+				VisualEffectsUtil.emit(child, nil, getEmitCountOptimizeMult)
+			end
+
+			KillEffectsUtilClient.transformCharacter(character, {
+				modifyInstance = function(part)
+					if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+						part.Material = Enum.Material.Pebble
+						part.Color = Color3.fromRGB(61, 63, 71)
+					end
+				end
+			})
+		end
+	}
+end

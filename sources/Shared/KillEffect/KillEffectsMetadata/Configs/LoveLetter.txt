@@ -1,0 +1,95 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local ForgeVFX = require(ReplicatedStorage.Packages.ForgeVFX)
+local Maid = require(ReplicatedStorage.Shared.Vendor.Maid)
+local SoundHandler = require(ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local VisualEffectsUtil = require(ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local CaseIds = require(ReplicatedStorage.Shared.Source.Case.CaseIds)
+local LoveLetter = ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.LoveLetter
+
+return function()
+	return {
+		displayName = "Love Letter",
+		icon = "rbxassetid://80152743372412",
+		vaulted = false,
+		refundIfVaulted = false,
+		inItemShop = true,
+		rarity = "legendary",
+		caseIds = { CaseIds.valentines2026 },
+		willHaveVictimAnimation = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local maid = Maid.new()
+			local Humanoid = character.Humanoid
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Torso = character.Torso
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local position2 = part and part.Normal or Vector3.new(0, 1, 0)
+
+			HumanoidRootPart.Anchored = true
+			HumanoidRootPart.CFrame = CFrame.fromMatrix(position + Vector3.new(0, 2.5, 0), HumanoidRootPart.CFrame.RightVector, position2)
+
+			local clone = LoveLetter.Pillar:Clone()
+
+			clone:PivotTo(HumanoidRootPart.CFrame * CFrame.new(0.048614502, -2.9980679, -0.7463379, 0, 0, 1, -1, 0, 0, 0, -1, 0))
+			clone.Parent = workspace.EffectsJunk
+			maid:GiveTask(clone)
+
+			local clone2 = LoveLetter.Letter:Clone()
+
+			clone2.RootPart.Anchored = true
+			clone2:PivotTo(HumanoidRootPart.CFrame * CFrame.new(0, -2.08, -1.35) * CFrame.Angles(0, 3.1415927, 0))
+			clone2.Parent = workspace.EffectsJunk
+			maid.letter = clone2
+
+			local clone3 = LoveLetter.RotatingTrails:Clone()
+
+			clone3:PivotTo(HumanoidRootPart.CFrame * CFrame.new(-2.85, 2.8, -1.21) * CFrame.Angles(1.57079633, 0, 0))
+			clone3.Parent = workspace.EffectsJunk
+			maid:GiveTask(clone3)
+			maid:GiveTask(SoundHandler.playSound({
+				soundObject = LoveLetter.Sound:Clone(),
+				parent = character.PrimaryPart
+			}))
+
+			local track = Humanoid.Animator:LoadAnimation(LoveLetter.AnimationVictim)
+			local track2 = clone2.AnimationController:LoadAnimation(LoveLetter.AnimationLetter)
+
+			maid:GiveTask(RunService.Heartbeat:Connect(function()
+				local ShrinkBeam = clone.ShrinkBeam
+
+				ShrinkBeam.CFrame = CFrame.new(ShrinkBeam.Position.X, Torso.Position.Y, ShrinkBeam.Position.Z) * ShrinkBeam.CFrame.Rotation
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("Event1"):Connect(function()
+				local clone4 = LoveLetter.RayLatch:Clone()
+
+				clone4.CFrame = HumanoidRootPart.CFrame * CFrame.new(0, -2.5, -1)
+				clone4.Parent = workspace.EffectsJunk
+				maid:GiveTask(clone4)
+				ForgeVFX.emit(clone4)
+				ForgeVFX.emit(clone3)
+				ForgeVFX.emit(clone2.Envelope.Ground)
+				ForgeVFX.emit(clone2.Envelope.Inwards)
+				ForgeVFX.emit(clone.ShrinkBeam)
+				VisualEffectsUtil.toggleObject(clone.ShrinkBeam.Base, true)
+			end))
+			maid:GiveTask(track:GetMarkerReachedSignal("Event2"):Connect(function()
+				local clone5 = LoveLetter.Impact:Clone()
+
+				clone5.CFrame = clone2.Envelope.Inwards.CFrame
+				clone5.Parent = workspace.EffectsJunk
+				maid:GiveTask(clone5)
+				ForgeVFX.emit(clone5)
+				VisualEffectsUtil.toggleObject(clone.ShrinkBeam.Base, false)
+				maid.letter = nil
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+			end))
+			maid:GiveTask(task.delay(4.25, function()
+				maid:Destroy()
+			end))
+			track:Play()
+			track2:Play()
+		end
+	}
+end

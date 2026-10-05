@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetForcefieldSkinConfigCreator)({
+	displayName = "Forcefield (White)",
+	color = Color3.fromRGB(255, 255, 255)
+})

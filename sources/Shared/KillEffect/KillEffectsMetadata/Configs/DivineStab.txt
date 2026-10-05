@@ -1,0 +1,61 @@
+local TweenService = game:GetService("TweenService")
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local KillEffectUtil = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectUtil)
+local DivineStab = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.DivineStab
+local createPartCacheFromTemplate = KillEffectUtil.createPartCacheFromTemplate(DivineStab.Sword, 16)
+
+return function()
+	return {
+		displayName = "Divine Stab",
+		icon = "rbxassetid://89376843214722",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local CharacterConstantsClient = require(game.ReplicatedStorage.Client.Source.Character.CharacterConstantsClient)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local maid = Maid.new()
+
+			task.delay(CharacterConstantsClient.FAKE_CHARACTER_DESTROY_DELAY, function()
+				maid:Destroy()
+			end)
+
+			for _ = 1, 4 do
+				local position2 = character.Torso.Position + Vector3.new(Random.new():NextNumber(-1, 1), Random.new():NextNumber(-1, 1), Random.new():NextNumber(-1, 1))
+				local pose = CFrame.lookAt(character.HumanoidRootPart.Position + Vector3.new(Random.new():NextNumber(-15, 15), Random.new():NextNumber(-15, 15), Random.new():NextNumber(-15, 15)), position2) * CFrame.Angles(0, 1.57079633, 0)
+				local Part = createPartCacheFromTemplate:GetPart()
+
+				maid:GiveTask(function()
+					createPartCacheFromTemplate:ReturnPart(Part)
+				end)
+				Part.Anchored = false
+
+				local Weld = Instance.new("Weld")
+
+				maid:GiveTask(Weld)
+				Weld.Part0 = character.Torso
+				Weld.Part1 = Part
+				Weld.C1 = Weld.Part0.CFrame:ToObjectSpace(pose):Inverse()
+				Weld.Parent = character.Torso
+				TweenService:Create(Weld, TweenInfo.new(0.2, Enum.EasingStyle.Linear), {
+					C1 = Weld.Part0.CFrame:ToObjectSpace(CFrame.new(position2) * CFrame.Angles(pose:ToEulerAnglesXYZ())):Inverse()
+				}):Play()
+			end
+
+			local clone = DivineStab.Floor:Clone()
+
+			maid:GiveTask(clone)
+			clone.Parent = workspace.EffectsJunk
+			task.delay(0.125, function()
+				local part = KillEffectsUtilClient.getCharacterFloor(character)
+				local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+
+				clone.CFrame = CFrame.new(position)
+				VisualEffectsUtil.emitObject(clone, nil, true)
+			end)
+		end
+	}
+end

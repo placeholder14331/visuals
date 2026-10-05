@@ -1,0 +1,22 @@
+local GlacialRift = game.ReplicatedStorage.Shared.Assets.Cosmetics.Enchants.GlacialRift
+
+return function()
+	return {
+		displayName = "Glacial Rift",
+		icon = "rbxassetid://96656563529014",
+		apply = function(target)
+			local EnchantsUtil = require(game.ReplicatedStorage.Shared.Source.Enchant.EnchantsUtil)
+
+			EnchantsUtil.runCallbackOnTaggedEnchantParts(target, function(part)
+				EnchantsUtil.applyVisualsToPart(part, {
+					scale = part.Size.Magnitude / 4
+				}, GlacialRift)
+			end)
+		end,
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		caseIds = { "case16" },
+		inItemShop = true
+	}
+end

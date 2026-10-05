@@ -1,0 +1,604 @@
+local t1 = {
+	typeConfigs = {
+		bundles = {
+			displayName = "Bundle",
+			displayNamePlural = "Bundles",
+			displayNameUnsure = "Bundle(s)",
+			ownedThingsId = "OwnedBundles",
+			tempOwnedThingsId = "TempOwnedBundles",
+			order = 1,
+			individualCosmeticTypes = {
+				"bundleHead",
+				"bundleHead2",
+				"bundleBody",
+				"bundleBack"
+			},
+			starterThings = { "bundle1" },
+			configsModulePath = game.ReplicatedStorage.Shared.Source.Bundle.BundlesConfigs
+		},
+		skins = {
+			displayName = "Skin",
+			displayNamePlural = "Skins",
+			displayNameUnsure = "Skin(s)",
+			ownedThingsId = "OwnedSkins",
+			tempOwnedThingsId = "TempOwnedSkins",
+			order = 2,
+			individualCosmeticTypes = { "skins" },
+			starterThings = { "skin1" },
+			configsModulePath = game.ReplicatedStorage.Shared.Source.Skin.SkinsMetadata
+		},
+		enchants = {
+			displayName = "Enchant",
+			displayNamePlural = "Enchants",
+			displayNameUnsure = "Enchant(s)",
+			ownedThingsId = "OwnedEnchants",
+			tempOwnedThingsId = "TempOwnedEnchants",
+			order = 3,
+			individualCosmeticTypes = {
+				"enchants",
+				"parryShieldEnchants"
+			},
+			starterThings = { "enchant1" },
+			configsModulePath = game.ReplicatedStorage.Shared.Source.Enchant.EnchantsMetadata
+		},
+		killEffects = {
+			displayName = "Kill Effect",
+			displayNamePlural = "Kill Effects",
+			displayNameUnsure = "Kill Effect(s)",
+			ownedThingsId = "OwnedKillEffects",
+			tempOwnedThingsId = "TempOwnedKillEffects",
+			order = 4,
+			individualCosmeticTypes = { "killEffects" },
+			starterThings = {
+				"killEffect1",
+				"killEffect50"
+			},
+			configsModulePath = game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectsMetadata
+		},
+		characterAura = {
+			displayName = "Char. Aura",
+			displayNamePlural = "Char. Auras",
+			displayNameUnsure = "Char. Aura(s)",
+			ownedThingsId = "OwnedCharacterAuras",
+			tempOwnedThingsId = "TempOwnedCharacterAuras",
+			order = 5,
+			individualCosmeticTypes = { "characterAura" },
+			starterThings = { "characterAura1" },
+			configsModulePath = game.ReplicatedStorage.Shared.Source.CharacterAura.CharacterAurasMetadata
+		},
+		chatTag = {
+			displayName = "Chat Tag",
+			displayNamePlural = "Chat Tags",
+			displayNameUnsure = "Chat Tag(s)",
+			replicateOwnedThingsToOtherClients = true,
+			ownedThingsId = "OwnedChatTags",
+			tempOwnedThingsId = "TempOwnedChatTags",
+			order = 6,
+			individualCosmeticTypes = { "chatTag" },
+			starterThings = { "chatTag1" },
+			configsModulePath = game.ReplicatedStorage.Shared.Source.ChatTag.ChatTagsMetadata
+		},
+		overheadTag = {
+			displayName = "Head Tag",
+			displayNamePlural = "Head Tags",
+			displayNameUnsure = "Head Tag(s)",
+			ownedThingsId = "OwnedOverheadTags",
+			tempOwnedThingsId = "TempOwnedOverheadTags",
+			order = 7,
+			individualCosmeticTypes = { "overheadTag" },
+			starterThings = { "overheadTag1" },
+			configsModulePath = game.ReplicatedStorage.Shared.Source.OverheadTag.OverheadTagsMetadata
+		},
+		parryShield = {
+			displayName = "Parry Shield",
+			displayNamePlural = "Parry Shields",
+			displayNameUnsure = "Parry Shield(s)",
+			ownedThingsId = "OwnedParryShields",
+			tempOwnedThingsId = "TempOwnedParryShields",
+			extraThingDataId = "ExtraParryShieldsData",
+			order = 8,
+			individualCosmeticTypes = { "parryShield" },
+			starterThings = {
+				"parryShield1",
+				"parryShield21"
+			},
+			configsModulePath = game.ReplicatedStorage.Shared.Source.ParryShield.ParryShieldConfigs,
+			idsModulePath = game.ReplicatedStorage.Shared.Source.ParryShield.ParryShieldIds
+		},
+		emote = {
+			displayName = "Emote",
+			displayNamePlural = "Emotes",
+			displayNameUnsure = "Emote(s)",
+			ownedThingsId = "OwnedEmotes",
+			tempOwnedThingsId = "TempOwnedEmotes",
+			order = 9,
+			individualCosmeticTypes = {
+				"emote1",
+				"emote2",
+				"emote3",
+				"emote4",
+				"emote5",
+				"emote6"
+			},
+			starterThings = {
+				"emote28",
+				"emote21",
+				"emote1"
+			},
+			configsModulePath = game.ReplicatedStorage.Shared.Source.Emote.EmotesMetadata
+		},
+		emoteIcon = {
+			displayName = "Emote Icon",
+			displayNamePlural = "Emote Icons",
+			displayNameUnsure = "Emote Icon(s)",
+			ownedThingsId = "OwnedEmoteIcons",
+			tempOwnedThingsId = "TempOwnedEmoteIcons",
+			order = 10,
+			individualCosmeticTypes = {
+				"emoteIcon1",
+				"emoteIcon2",
+				"emoteIcon3",
+				"emoteIcon4",
+				"emoteIcon5",
+				"emoteIcon6"
+			},
+			starterThings = { "emoteIcon1" },
+			configsModulePath = game.ReplicatedStorage.Shared.Source.EmoteIcon.EmoteIconConfigs
+		},
+		variants = {
+			displayName = "Variant",
+			displayNamePlural = "Variants",
+			displayNameUnsure = "Variant(s)",
+			ownedThingsId = "OwnedVariants",
+			tempOwnedThingsId = "TempOwnedVariants",
+			showUnowned = true,
+			canBuyDirectly = true,
+			order = 11,
+			individualCosmeticTypes = { "variants" },
+			starterThings = { "none" },
+			configsModulePath = game.ReplicatedStorage.Shared.Source.Variant.VariantMetadata
+		}
+	}
+}
+
+local function getEmoteIndividualTypeInfo(p1, p2)
+	return {
+		thingType = "emote",
+		defaultValue = nil,
+		displayName = "Emote " .. tostring(p1),
+		displayNamePlural = "Emote " .. tostring(p1),
+		equippedThingId = "EquippedEmote" .. tostring(p1),
+		order = p2
+	}
+end
+local function getEmoteIconIndividualTypeInfo(p3, p4)
+	return {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		displayName = "Emote Icon " .. tostring(p3),
+		displayNamePlural = "Emote Icon " .. tostring(p3),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(p3),
+		order = p4
+	}
+end
+
+t1.individualTypeConfigs = {
+	bundleHead = {
+		displayName = "Bundle Head 1",
+		displayNamePlural = "Bundle Heads 1",
+		thingType = "bundles",
+		bundleType = "head",
+		equippedThingId = "EquippedBundleHead",
+		defaultValue = "bundle1",
+		order = 1
+	},
+	bundleHead2 = {
+		displayName = "Bundle Head 2",
+		displayNamePlural = "Bundle Heads 2",
+		thingType = "bundles",
+		bundleType = "head",
+		equippedThingId = "EquippedBundleHead2",
+		defaultValue = "bundle1",
+		order = 2
+	},
+	bundleBody = {
+		displayName = "Bundle Body",
+		displayNamePlural = "Bundle Bodies",
+		thingType = "bundles",
+		bundleType = "body",
+		equippedThingId = "EquippedBundleBody",
+		defaultValue = "bundle1",
+		order = 3
+	},
+	bundleBack = {
+		displayName = "Bundle Back",
+		displayNamePlural = "Bundle Backs",
+		thingType = "bundles",
+		bundleType = "back",
+		equippedThingId = "EquippedBundleBack",
+		defaultValue = "bundle1",
+		order = 4
+	},
+	skins = {
+		displayName = "Skin",
+		displayNamePlural = "Skins",
+		thingType = "skins",
+		replicateEquippedThingToOtherClients = true,
+		equippedThingId = "EquippedSkin",
+		defaultValue = "skin1",
+		order = 5,
+		itemTypesLinkedTo = {
+			weapon = true,
+			utility = true
+		}
+	},
+	enchants = {
+		displayName = "Enchant",
+		displayNamePlural = "Enchants",
+		thingType = "enchants",
+		replicateEquippedThingToOtherClients = true,
+		equippedThingId = "EquippedEnchant",
+		defaultValue = "enchant1",
+		order = 6,
+		itemTypesLinkedTo = {
+			weapon = true,
+			utility = true
+		}
+	},
+	killEffects = {
+		displayName = "Kill Effect",
+		displayNamePlural = "Kill Effects",
+		thingType = "killEffects",
+		equippedThingId = "EquippedKillEffect",
+		defaultValue = "killEffect1",
+		order = 7
+	},
+	characterAura = {
+		displayName = "Char. Aura",
+		displayNamePlural = "Char. Auras",
+		thingType = "characterAura",
+		equippedThingId = "EquippedCharacterAura",
+		defaultValue = "characterAura1",
+		order = 8
+	},
+	parryShield = {
+		displayName = "Parry Shield",
+		displayNamePlural = "Parry Shields",
+		thingType = "parryShield",
+		replicateEquippedThingToOtherClients = true,
+		equippedThingId = "EquippedParryShield",
+		defaultValue = "parryShield21",
+		order = 9
+	},
+	parryShieldEnchants = {
+		displayName = "Enchant",
+		displayNamePlural = "Enchants",
+		thingType = "enchants",
+		replicateEquippedThingToOtherClients = true,
+		equippedThingId = "EquippedEnchant",
+		defaultValue = "enchant1",
+		order = 1,
+		cosmeticTypesLinkedTo = {
+			parryShield = true
+		}
+	},
+	chatTag = {
+		displayName = "Chat Tag",
+		displayNamePlural = "Chat Tags",
+		thingType = "chatTag",
+		replicateEquippedThingToOtherClients = true,
+		equippedThingId = "EquippedChatTag",
+		defaultValue = "chatTag1",
+		order = 11
+	},
+	overheadTag = {
+		displayName = "Overhead Tag",
+		displayNamePlural = "Overhead Tags",
+		thingType = "overheadTag",
+		equippedThingId = "EquippedOverheadTag",
+		defaultValue = "overheadTag1",
+		order = 12
+	},
+	variants = {
+		displayName = "Variant",
+		displayNamePlural = "Variants",
+		thingType = "variants",
+		replicateEquippedThingToOtherClients = true,
+		equippedThingId = "EquippedVariant",
+		defaultValue = "none",
+		order = 13,
+		itemTypesLinkedTo = {
+			weapon = true
+		}
+	},
+	emote1 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 1,
+		displayName = "Emote " .. tostring(1),
+		displayNamePlural = "Emote " .. tostring(1),
+		equippedThingId = "EquippedEmote" .. tostring(1)
+	},
+	emote2 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 2,
+		displayName = "Emote " .. tostring(2),
+		displayNamePlural = "Emote " .. tostring(2),
+		equippedThingId = "EquippedEmote" .. tostring(2)
+	},
+	emote3 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 3,
+		displayName = "Emote " .. tostring(3),
+		displayNamePlural = "Emote " .. tostring(3),
+		equippedThingId = "EquippedEmote" .. tostring(3)
+	},
+	emote4 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 4,
+		displayName = "Emote " .. tostring(4),
+		displayNamePlural = "Emote " .. tostring(4),
+		equippedThingId = "EquippedEmote" .. tostring(4)
+	},
+	emote5 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 5,
+		displayName = "Emote " .. tostring(5),
+		displayNamePlural = "Emote " .. tostring(5),
+		equippedThingId = "EquippedEmote" .. tostring(5)
+	},
+	emote6 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 6,
+		displayName = "Emote " .. tostring(6),
+		displayNamePlural = "Emote " .. tostring(6),
+		equippedThingId = "EquippedEmote" .. tostring(6)
+	},
+	emote7 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 7,
+		displayName = "Emote " .. tostring(7),
+		displayNamePlural = "Emote " .. tostring(7),
+		equippedThingId = "EquippedEmote" .. tostring(7)
+	},
+	emote8 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 8,
+		displayName = "Emote " .. tostring(8),
+		displayNamePlural = "Emote " .. tostring(8),
+		equippedThingId = "EquippedEmote" .. tostring(8)
+	},
+	emote9 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 9,
+		displayName = "Emote " .. tostring(9),
+		displayNamePlural = "Emote " .. tostring(9),
+		equippedThingId = "EquippedEmote" .. tostring(9)
+	},
+	emote10 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 10,
+		displayName = "Emote " .. tostring(10),
+		displayNamePlural = "Emote " .. tostring(10),
+		equippedThingId = "EquippedEmote" .. tostring(10)
+	},
+	emote11 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 11,
+		displayName = "Emote " .. tostring(11),
+		displayNamePlural = "Emote " .. tostring(11),
+		equippedThingId = "EquippedEmote" .. tostring(11)
+	},
+	emote12 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 12,
+		displayName = "Emote " .. tostring(12),
+		displayNamePlural = "Emote " .. tostring(12),
+		equippedThingId = "EquippedEmote" .. tostring(12)
+	},
+	emote13 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 13,
+		displayName = "Emote " .. tostring(13),
+		displayNamePlural = "Emote " .. tostring(13),
+		equippedThingId = "EquippedEmote" .. tostring(13)
+	},
+	emote14 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 14,
+		displayName = "Emote " .. tostring(14),
+		displayNamePlural = "Emote " .. tostring(14),
+		equippedThingId = "EquippedEmote" .. tostring(14)
+	},
+	emote15 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 15,
+		displayName = "Emote " .. tostring(15),
+		displayNamePlural = "Emote " .. tostring(15),
+		equippedThingId = "EquippedEmote" .. tostring(15)
+	},
+	emote16 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 16,
+		displayName = "Emote " .. tostring(16),
+		displayNamePlural = "Emote " .. tostring(16),
+		equippedThingId = "EquippedEmote" .. tostring(16)
+	},
+	emote17 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 17,
+		displayName = "Emote " .. tostring(17),
+		displayNamePlural = "Emote " .. tostring(17),
+		equippedThingId = "EquippedEmote" .. tostring(17)
+	},
+	emote18 = {
+		thingType = "emote",
+		defaultValue = nil,
+		order = 18,
+		displayName = "Emote " .. tostring(18),
+		displayNamePlural = "Emote " .. tostring(18),
+		equippedThingId = "EquippedEmote" .. tostring(18)
+	},
+	emoteIcon1 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 1,
+		displayName = "Emote Icon " .. tostring(1),
+		displayNamePlural = "Emote Icon " .. tostring(1),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(1)
+	},
+	emoteIcon2 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 2,
+		displayName = "Emote Icon " .. tostring(2),
+		displayNamePlural = "Emote Icon " .. tostring(2),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(2)
+	},
+	emoteIcon3 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 3,
+		displayName = "Emote Icon " .. tostring(3),
+		displayNamePlural = "Emote Icon " .. tostring(3),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(3)
+	},
+	emoteIcon4 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 4,
+		displayName = "Emote Icon " .. tostring(4),
+		displayNamePlural = "Emote Icon " .. tostring(4),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(4)
+	},
+	emoteIcon5 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 5,
+		displayName = "Emote Icon " .. tostring(5),
+		displayNamePlural = "Emote Icon " .. tostring(5),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(5)
+	},
+	emoteIcon6 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 6,
+		displayName = "Emote Icon " .. tostring(6),
+		displayNamePlural = "Emote Icon " .. tostring(6),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(6)
+	},
+	emoteIcon7 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 7,
+		displayName = "Emote Icon " .. tostring(7),
+		displayNamePlural = "Emote Icon " .. tostring(7),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(7)
+	},
+	emoteIcon8 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 8,
+		displayName = "Emote Icon " .. tostring(8),
+		displayNamePlural = "Emote Icon " .. tostring(8),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(8)
+	},
+	emoteIcon9 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 9,
+		displayName = "Emote Icon " .. tostring(9),
+		displayNamePlural = "Emote Icon " .. tostring(9),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(9)
+	},
+	emoteIcon10 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 10,
+		displayName = "Emote Icon " .. tostring(10),
+		displayNamePlural = "Emote Icon " .. tostring(10),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(10)
+	},
+	emoteIcon11 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 11,
+		displayName = "Emote Icon " .. tostring(11),
+		displayNamePlural = "Emote Icon " .. tostring(11),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(11)
+	},
+	emoteIcon12 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 12,
+		displayName = "Emote Icon " .. tostring(12),
+		displayNamePlural = "Emote Icon " .. tostring(12),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(12)
+	},
+	emoteIcon13 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 13,
+		displayName = "Emote Icon " .. tostring(13),
+		displayNamePlural = "Emote Icon " .. tostring(13),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(13)
+	},
+	emoteIcon14 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 14,
+		displayName = "Emote Icon " .. tostring(14),
+		displayNamePlural = "Emote Icon " .. tostring(14),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(14)
+	},
+	emoteIcon15 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 15,
+		displayName = "Emote Icon " .. tostring(15),
+		displayNamePlural = "Emote Icon " .. tostring(15),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(15)
+	},
+	emoteIcon16 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 16,
+		displayName = "Emote Icon " .. tostring(16),
+		displayNamePlural = "Emote Icon " .. tostring(16),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(16)
+	},
+	emoteIcon17 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 17,
+		displayName = "Emote Icon " .. tostring(17),
+		displayNamePlural = "Emote Icon " .. tostring(17),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(17)
+	},
+	emoteIcon18 = {
+		thingType = "emoteIcon",
+		defaultValue = nil,
+		order = 18,
+		displayName = "Emote Icon " .. tostring(18),
+		displayNamePlural = "Emote Icon " .. tostring(18),
+		equippedThingId = "EquippedEmoteIcon" .. tostring(18)
+	}
+}
+
+return t1

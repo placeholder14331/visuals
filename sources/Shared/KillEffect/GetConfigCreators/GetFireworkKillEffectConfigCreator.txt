@@ -1,0 +1,87 @@
+local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local KillEffects = game.ReplicatedStorage.Shared.Assets.Sounds.KillEffects
+local Firework = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Firework.Firework
+
+KillEffects.FireworksWhistle.Volume = 2
+KillEffects.Fireworks.Volume = 2
+
+return function(config)
+	local prefabName = config.prefabName
+	local displayNameAppend = config.displayNameAppend
+	local iconId = config.iconId
+	local variants = config.variants
+	local rarity2 = config.rarity or "epic"
+
+	return function()
+		return {
+			displayName = string.format("Firework%s", displayNameAppend),
+			icon = iconId,
+			variants = variants,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = rarity2,
+			inItemShop = true,
+			apply = function(character)
+				local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+				local HumanoidRootPart = character.HumanoidRootPart
+				local v14 = "Patterns (" .. prefabName .. ")"
+				local clone = Firework.Firework:Clone()
+
+				task.delay(3, function()
+					clone:Destroy()
+				end)
+
+				local Weld = Instance.new("Weld")
+
+				Weld.Part0 = HumanoidRootPart
+				Weld.Part1 = clone.Bands
+				Weld.C0 = CFrame.new(0, 0, 1)
+				Weld.Parent = clone
+				clone.Parent = workspace.EffectsJunk
+
+				local Attachment = Instance.new("Attachment")
+
+				Attachment.Parent = HumanoidRootPart
+
+				local LinearVelocity = Instance.new("LinearVelocity")
+
+				LinearVelocity.Attachment0 = Attachment
+				LinearVelocity.MaxForce = 100000
+				LinearVelocity.VectorVelocity = Vector3.new(0, 70, 0)
+				LinearVelocity.Parent = HumanoidRootPart
+				KillEffectsUtilClient.enableRagdoll(character)
+				SoundHandler.playSound({
+					soundObject = KillEffects.FireworksWhistle,
+					parent = HumanoidRootPart
+				})
+				task.wait(0.75)
+
+				local clone2 = Firework.ExplosionAttachments:Clone()
+
+				task.delay(3, function()
+					clone2:Destroy()
+				end)
+				clone2.Anchored = true
+				clone2.Transparency = 1
+				clone2.CFrame = HumanoidRootPart.CFrame
+				clone2.Parent = workspace.EffectsJunk
+				SoundHandler.playSound({
+					soundObject = KillEffects.Fireworks,
+					parent = HumanoidRootPart
+				})
+
+				for _, child in pairs(clone2["1"]:GetChildren()) do
+					VisualEffectsUtil.emit(child)
+				end
+
+				local clone3 = Firework.Custom[v14]:Clone()
+
+				VisualEffectsUtil.emit(clone3)
+				clone3.Parent = clone2.Details
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+				clone:Destroy()
+			end
+		}
+	end
+end

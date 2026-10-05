@@ -1,0 +1,69 @@
+local TweenService = game:GetService("TweenService")
+local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Assets = game.ReplicatedStorage.Shared.Assets
+local TNT = Assets.Cosmetics.KillEffects.TNT
+local KillEffects = Assets.Sounds.KillEffects
+
+KillEffects.TNTFuse.Volume = 1.25
+
+return function()
+	return {
+		displayName = "TNT",
+		icon = "rbxassetid://11691777235",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local KnockbackHandler = require(game.ReplicatedStorage.Shared.Source.Knockback.KnockbackHandler)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or character.HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = TNT.TNT:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone:SetPrimaryPartCFrame(CFrame.new(HumanoidRootPart.Position + Vector3.new(Random.new():NextNumber(-5, 5), 20, Random.new():NextNumber(-5, 5))) * CFrame.Angles(0, math.rad((Random.new():NextNumber(-360, 360))), 0))
+			clone.Parent = workspace.EffectsJunk
+
+			local PrimaryPart = clone.PrimaryPart
+
+			TweenService:Create(PrimaryPart, TweenInfo.new(0.5, Enum.EasingStyle.Bounce), {
+				CFrame = CFrame.new(PrimaryPart.Position.X, position.Y + PrimaryPart.Size.Y / 2, PrimaryPart.Position.Z) * PrimaryPart.CFrame.Rotation
+			}):Play()
+			SoundHandler.playSound({
+				soundObject = KillEffects.TNTFuse,
+				parent = HumanoidRootPart
+			})
+
+			for i = 10, 1, -1 do
+				PrimaryPart.Highlight.Enabled = i % 2 == 0
+				task.wait(i / 50)
+			end
+
+			SoundHandler.playSound({
+				playType = "noDestroy",
+				soundObject = clone.cube.ExplosionSound
+			})
+			PrimaryPart.Transparency = 1
+
+			for _, child in pairs(PrimaryPart:GetChildren()) do
+				if child:IsA("ParticleEmitter") then
+					VisualEffectsUtil.emit(child)
+				end
+			end
+
+			HumanoidRootPart.Anchored = false
+			KnockbackHandler.knockbackCharacterPart(character, HumanoidRootPart, {
+				velocity = (HumanoidRootPart.Position - PrimaryPart.Position).Unit * 150 + Vector3.new(0, 150, 0)
+			})
+			KillEffectsUtilClient.enableRagdoll(character)
+		end
+	}
+end

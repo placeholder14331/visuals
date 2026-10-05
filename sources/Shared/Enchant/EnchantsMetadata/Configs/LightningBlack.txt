@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetLightningEnchantConfigCreator)({
+	displayName = "Black Lightning",
+	icon = "rbxassetid://9612757829",
+	color = Color3.fromRGB(0, 0, 0)
+})

@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetCubicSkinConfigCreator)({
+	displayName = "Cubic Sky",
+	partColor = Color3.new(0, 1, 1)
+})

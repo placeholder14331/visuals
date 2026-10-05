@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetCosmicCharacterAuraConfigCreator)({
+	displayName = "Cosmic Shield",
+	icon = "rbxassetid://71393789996089"
+})

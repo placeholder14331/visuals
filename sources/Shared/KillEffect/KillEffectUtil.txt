@@ -1,0 +1,46 @@
+local RunService = game:GetService("RunService"):IsClient()
+local PartCache = require(game.ReplicatedStorage.Shared.Vendor.PartCache)
+local module = {
+	configureContainer = function(container)
+		local descendants = container:GetDescendants()
+
+		table.insert(descendants, container)
+
+		for _, part in descendants do
+			if part:IsA("BasePart") then
+				part.CollisionGroup = "killEffect"
+				part.CanQuery = false
+				part.CastShadow = false
+				part.CanTouch = false
+				part.Massless = true
+			end
+		end
+	end
+}
+
+function module.cloneTemplate(template, p3)
+	if not RunService then
+		return
+	end
+
+	local clone = template:Clone()
+
+	module.configureContainer(clone)
+
+	if p3 then
+		p3(clone)
+	end
+
+	return clone
+end
+function module.createPartCacheFromTemplate(p4, p5)
+	if not RunService then
+		return
+	end
+
+	module.configureContainer(p4)
+
+	return PartCache.new(p4, p5, workspace.EffectsJunk.PartCache)
+end
+
+return module

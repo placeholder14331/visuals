@@ -1,0 +1,51 @@
+local TweenService = game:GetService("TweenService")
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local TrafficCone = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.TrafficCone
+
+return function()
+	return {
+		displayName = "Traffic Cone",
+		icon = "rbxassetid://127621236443963",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local maid = Maid.new()
+
+			task.delay(4, function()
+				maid:Destroy()
+			end)
+
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = TrafficCone.Cone:Clone()
+
+			maid:GiveTask(clone)
+			clone.CFrame = CFrame.new(position + Vector3.new(0, 100, 0))
+			clone.Parent = workspace.EffectsJunk
+
+			local clone2 = TrafficCone.Part.Attachment:Clone()
+
+			maid:GiveTask(clone2)
+			clone2.WorldPosition = position
+			clone2.Parent = workspace.Terrain
+
+			local tween = TweenService:Create(clone, TweenInfo.new(0.25, Enum.EasingStyle.Linear), {
+				CFrame = CFrame.new(position + Vector3.new(0, clone.Size.Y / 2, 0))
+			})
+
+			tween:Play()
+			tween.Completed:Once(function()
+				VisualEffectsUtil.emitObject(clone2, nil, true)
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+			end)
+		end
+	}
+end

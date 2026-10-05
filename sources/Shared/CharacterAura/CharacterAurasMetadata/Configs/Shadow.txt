@@ -1,0 +1,6 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetBodyCharacterAuraConfigCreator)({
+	fileName = "Shadow",
+	displayName = "Shadow",
+	icon = "rbxassetid://11873925472",
+	rarity = "legendary"
+})

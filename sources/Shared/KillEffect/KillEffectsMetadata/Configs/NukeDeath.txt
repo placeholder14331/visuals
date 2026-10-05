@@ -1,0 +1,66 @@
+local TweenService = game:GetService("TweenService")
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Nuke = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Nuke
+
+return function()
+	return {
+		displayName = "Nuke",
+		icon = "rbxassetid://11896863678",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Torso = character.Torso
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = Nuke.Nuke:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position2 = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+
+			clone:SetPrimaryPartCFrame(CFrame.new(position2))
+			VisualEffectsUtil.emit(clone.Part.Attachment.Mark, 1)
+
+			local position = HumanoidRootPart.Position + Vector3.new(0, 50, 0)
+			local HumanoidRootPartPosition = HumanoidRootPart.Position
+			local Nuke2 = clone.Nuke
+
+			task.delay(4, function()
+				Nuke2:Destroy()
+			end)
+			Nuke2.CFrame = CFrame.new(position) * CFrame.Angles(3.1415927, 0, 0)
+			Nuke2.Parent = workspace.EffectsJunk
+			clone.Parent = workspace.EffectsJunk
+
+			local tween = TweenService:Create(Nuke2, TweenInfo.new(0.5, Enum.EasingStyle.Linear), {
+				Position = HumanoidRootPartPosition
+			})
+
+			tween:Play()
+			tween.Completed:Once(function()
+				for _, descendant in pairs(clone.Particles:GetDescendants()) do
+					if descendant:IsA("ParticleEmitter") then
+						VisualEffectsUtil.emit(descendant)
+					end
+				end
+
+				SoundHandler.playSound({
+					playType = "noDestroy",
+					soundObject = clone.ExplosionSound,
+					parent = Torso
+				})
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+				Nuke2:Destroy()
+			end)
+		end
+	}
+end

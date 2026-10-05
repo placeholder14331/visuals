@@ -1,0 +1,220 @@
+local CollectionService = game:GetService("CollectionService")
+local LocalPlayer = game.Players.LocalPlayer
+local v3 = LocalPlayer and LocalPlayer.PlayerGui
+local CollectionServiceUtil = require(game.ReplicatedStorage.Shared.Source.CollectionService.CollectionServiceUtil)
+local SkinAnimations = require(game.ReplicatedStorage.Shared.Source.Skin.SkinAnimations)
+local Promise = require(game.ReplicatedStorage.Packages.Promise)
+local module = {
+	STILL_SKINS_ATTRIBUTE = "StillSkins",
+	LIVE_SKINS_ATTRIBUTE = "LiveSkins"
+}
+
+local function getIsUnderLiveSkins(instance)
+	local p1Parent = instance.Parent
+
+	while p1Parent do
+		if p1Parent:GetAttribute(module.LIVE_SKINS_ATTRIBUTE) == true then
+			return true
+		end
+
+		p1Parent = p1Parent.Parent
+	end
+
+	return false
+end
+
+function module.applyAnimation(instance2, p3, p4)
+	if instance2:GetAttribute("OnlyAllowStaticSkins") then
+		return
+	end
+
+	local u16 = p3 or "forwardSlide"
+
+	task.spawn(function()
+		local g37 = nil
+		local g40 = nil
+		local v39 = nil
+		local v41 = nil
+
+		if not instance2:IsDescendantOf(game) then
+			Promise.fromEvent(instance2.AncestryChanged, function()
+				return instance2:IsDescendantOf(game)
+			end):expect()
+		end
+
+		local LayerCollector = instance2:FindFirstAncestorWhichIsA("LayerCollector")
+
+		repeat
+			if g37 or (not LocalPlayer.Backpack or not instance2:IsDescendantOf(LocalPlayer.Backpack)) and ((not LocalPlayer.Character or not instance2:IsDescendantOf(LocalPlayer.Character)) and not instance2:IsDescendantOf(v3)) then
+				if not g37 then
+					local p2Parent = instance2.Parent
+
+					while p2Parent do
+						if p2Parent:GetAttribute(module.LIVE_SKINS_ATTRIBUTE) == true then
+							v39 = true
+							g40 = true
+						end
+
+						if g40 then
+							break
+						end
+
+						p2Parent = p2Parent.Parent
+					end
+
+					if not g40 then
+						v39 = false
+					end
+
+					g40 = false
+					v41 = not v39
+				end
+
+				if g37 or v41 then
+					g37 = false
+
+					if SkinAnimations[u16] then
+						SkinAnimations[u16](instance2, v41, p4 or {})
+					end
+
+					return
+				end
+			end
+
+			v41 = LayerCollector ~= nil and LayerCollector:GetAttribute(module.STILL_SKINS_ATTRIBUTE) == true
+			g37 = true
+		until not g37
+	end)
+end
+
+local t2 = {
+	Enum.NormalId.Top,
+	Enum.NormalId.Bottom,
+	Enum.NormalId.Front,
+	Enum.NormalId.Back,
+	Enum.NormalId.Right,
+	Enum.NormalId.Left
+}
+
+function module.applyVisualsToPart(p5, p6, container2, p8)
+	if p5:GetAttribute("OnlyAllowStaticSkins") then
+		return
+	end
+
+	local v21 = if p6 then if type(container2) ~= "table" then container2:GetChildren() else container2 else if type(container2) ~= "table" then container2:GetChildren() else container2
+
+	local function finalOnVisualCreated(p9)
+		CollectionService:AddTag(p9, "SkinVisual_Client")
+
+		if p8 then
+			p8(p9)
+		end
+	end
+
+	for _, v in pairs(v21) do
+		if v:IsA("Texture") then
+			for _, v2 in pairs(t2) do
+				local clone = v:Clone()
+
+				CollectionService:AddTag(clone, "SkinVisual_Client")
+
+				if p8 then
+					p8(clone)
+				end
+
+				clone.Face = v2
+				clone.Parent = p5
+			end
+		end
+	end
+end
+function module.handleTextureChangedOnSkinInst(p10)
+	local SurfaceAppearance = p10:FindFirstChildOfClass("SurfaceAppearance")
+
+	if SurfaceAppearance then
+		SurfaceAppearance:Destroy()
+	end
+end
+
+local function getTaggedSkinPartCallback(p11)
+	return function(emitter4)
+		if p11 then
+			local p12Material = emitter4.Material
+			local p12Color = emitter4.Color
+			local p12Transparency = emitter4.Transparency
+
+			p11(emitter4)
+
+			if p12Material ~= emitter4.Material or p12Color ~= emitter4.Color then
+				module.handleTextureChangedOnSkinInst(emitter4)
+			end
+
+			if p12Transparency > 0 and p12Transparency ~= emitter4.Transparency then
+				emitter4.Transparency = p12Transparency
+			end
+		end
+	end
+end
+
+function module.runCallbackOnTaggedSkinParts(container, p14, p15, p16)
+	local descendants = container:GetDescendants()
+
+	table.insert(descendants, container)
+	CollectionServiceUtil.runCallbackOnTaggedInstances(descendants, {
+		Skin_Primary = function(emitter)
+			if p14 then
+				local p17Material = emitter.Material
+				local p17Color = emitter.Color
+				local p17Transparency = emitter.Transparency
+
+				p14(emitter)
+
+				if p17Material ~= emitter.Material or p17Color ~= emitter.Color then
+					module.handleTextureChangedOnSkinInst(emitter)
+				end
+
+				if p17Transparency > 0 and p17Transparency ~= emitter.Transparency then
+					emitter.Transparency = p17Transparency
+				end
+			end
+		end,
+		Skin_Secondary = function(emitter2)
+			if p15 then
+				local p18Material = emitter2.Material
+				local p18Color = emitter2.Color
+				local p18Transparency = emitter2.Transparency
+
+				p15(emitter2)
+
+				if p18Material ~= emitter2.Material or p18Color ~= emitter2.Color then
+					module.handleTextureChangedOnSkinInst(emitter2)
+				end
+
+				if p18Transparency > 0 and p18Transparency ~= emitter2.Transparency then
+					emitter2.Transparency = p18Transparency
+				end
+			end
+		end,
+		Skin_Tertiary = function(emitter3)
+			if p16 then
+				local p19Material = emitter3.Material
+				local p19Color = emitter3.Color
+				local p19Transparency = emitter3.Transparency
+
+				p16(emitter3)
+
+				if p19Material ~= emitter3.Material or p19Color ~= emitter3.Color then
+					module.handleTextureChangedOnSkinInst(emitter3)
+				end
+
+				if p19Transparency > 0 and p19Transparency ~= emitter3.Transparency then
+					emitter3.Transparency = p19Transparency
+				end
+			end
+		end
+	}, function(part)
+		return part:IsA("BasePart")
+	end)
+end
+
+return module

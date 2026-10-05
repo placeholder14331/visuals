@@ -1,0 +1,76 @@
+local TweenService = game:GetService("TweenService")
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Bubble = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Bubble
+
+return function()
+	return {
+		displayName = "Bubble",
+		icon = "rbxassetid://74992504509610",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local maid = Maid.new()
+
+			task.delay(0.66, function()
+				maid:Destroy()
+			end)
+
+			local clone = Bubble.Bubble:Clone()
+
+			clone.Anchored = true
+			clone.CanCollide = false
+			clone.CFrame = HumanoidRootPart.CFrame
+			clone.Parent = workspace.EffectsJunk
+
+			local Weld = Instance.new("Weld")
+
+			Weld.Part0 = clone
+			Weld.Part1 = HumanoidRootPart
+			Weld.Parent = clone
+
+			local capture = clone.capture
+
+			task.delay(4, function()
+				capture:Destroy()
+			end)
+
+			local WorldCFrame = capture.WorldCFrame
+
+			capture.Parent = workspace.Terrain
+			capture.WorldCFrame = WorldCFrame
+			VisualEffectsUtil.emitObject(capture, nil, true)
+
+			local position = HumanoidRootPart.Position + Vector3.new(Random.new():NextNumber(-50, 50), Random.new():NextNumber(30, 40), Random.new():NextNumber(-50, 50))
+			local tween = TweenService:Create(clone, TweenInfo.new(4, Enum.EasingStyle.Linear), {
+				CFrame = CFrame.new(position) * CFrame.Angles(math.rad((Random.new():NextNumber(-180, 180))), math.rad((Random.new():NextNumber(-180, 180))), (math.rad((Random.new():NextNumber(-180, 180)))))
+			})
+
+			tween:Play()
+			tween.Completed:Once(function()
+				maid:Destroy()
+			end)
+			maid:GiveTask(function()
+				tween:Cancel()
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+
+				local explode = clone.explode
+
+				task.delay(4, function()
+					explode:Destroy()
+				end)
+
+				local WorldCFrame2 = explode.WorldCFrame
+
+				explode.Parent = workspace.Terrain
+				explode.WorldCFrame = WorldCFrame2
+				VisualEffectsUtil.emitObject(explode, nil, true)
+				clone:Destroy()
+			end)
+		end
+	}
+end

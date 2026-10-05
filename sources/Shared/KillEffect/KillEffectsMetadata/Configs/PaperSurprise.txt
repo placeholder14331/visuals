@@ -1,0 +1,42 @@
+local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local KillEffects = game.ReplicatedStorage.Shared.Assets.Sounds.KillEffects
+local PaperSurprise = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.PaperSurprise
+
+KillEffects.SparkleExplosion.Volume = 1.25
+
+return function()
+	return {
+		displayName = "Paper Surprise",
+		icon = "rbxassetid://11896864796",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		willCharacterDisappear = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local clone = PaperSurprise.PaperSurprise:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone.Anchored = true
+			clone.CFrame = CFrame.new(position)
+			clone.Parent = workspace.EffectsJunk
+			SoundHandler.playSound({
+				soundObject = KillEffects.SparkleExplosion,
+				parent = HumanoidRootPart
+			})
+
+			for _, child in pairs(clone.Attachment:GetChildren()) do
+				if child:IsA("ParticleEmitter") then
+					VisualEffectsUtil.emit(child)
+				end
+			end
+		end
+	}
+end

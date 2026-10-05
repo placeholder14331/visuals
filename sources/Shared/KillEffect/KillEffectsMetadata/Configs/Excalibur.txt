@@ -1,0 +1,74 @@
+local TweenService = game:GetService("TweenService")
+local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local KillEffects = game.ReplicatedStorage.Shared.Assets.Sounds.KillEffects
+local Excalibur = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Excalibur
+
+return function()
+	return {
+		displayName = "Excalibur",
+		icon = "rbxassetid://11669337240",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+
+			HumanoidRootPart.Anchored = true
+
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local clone = Excalibur.Excalibur:Clone()
+
+			task.delay(4.5, function()
+				clone:Destroy()
+			end)
+			clone:PivotTo(CFrame.new(position))
+			clone.Parent = workspace.EffectsJunk
+
+			local Cylinder = clone.Cylinder
+
+			Cylinder.Anchored = true
+
+			local tween = TweenService:Create(clone.Cylinder, TweenInfo.new(0.125, Enum.EasingStyle.Linear), {
+				Position = HumanoidRootPart.Position
+			})
+
+			tween:Play()
+			tween.Completed:Once(function()
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+				SoundHandler.playSound({
+					soundObject = KillEffects.Excalibur,
+					parent = HumanoidRootPart
+				})
+
+				local Part = clone.Part
+
+				Part.PlayerHeight.WorldCFrame = CFrame.new(HumanoidRootPart.Position)
+
+				for _, descendant in pairs(Part:GetDescendants()) do
+					if descendant:IsA("ParticleEmitter") then
+						VisualEffectsUtil.emit(descendant)
+					end
+				end
+
+				for _, child in Cylinder:GetChildren() do
+					if child:IsA("Beam") then
+						TweenService:Create(child, TweenInfo.new(1, Enum.EasingStyle.Linear), {
+							Width0 = 0,
+							Width1 = 0
+						}):Play()
+					elseif child:IsA("ParticleEmitter") then
+						child.Enabled = false
+					end
+				end
+
+				TweenService:Create(clone.Cylinder, TweenInfo.new(1, Enum.EasingStyle.Linear), {
+					Transparency = 1
+				}):Play()
+			end)
+		end
+	}
+end

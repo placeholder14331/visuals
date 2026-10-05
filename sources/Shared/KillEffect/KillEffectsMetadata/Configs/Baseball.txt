@@ -1,0 +1,69 @@
+local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Baseball = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Baseball
+
+return function()
+	return {
+		displayName = "Baseball",
+		icon = "rbxassetid://11682508668",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		apply = function(character)
+			local KnockbackHandler = require(game.ReplicatedStorage.Shared.Source.Knockback.KnockbackHandler)
+			local HumanoidRootPart = character.HumanoidRootPart
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = Baseball.Bat:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone:PivotTo(HumanoidRootPart.CFrame)
+			clone.Parent = workspace.EffectsJunk
+
+			local TrailPart = clone.TrailPart
+
+			TrailPart.Anchored = false
+
+			local ManualWeld = Instance.new("ManualWeld")
+
+			ManualWeld.Part0 = HumanoidRootPart
+			ManualWeld.Part1 = TrailPart
+			ManualWeld.Parent = TrailPart
+			TrailPart.Parent = character
+
+			local track = clone.FBXImportGeneric.AnimationController:LoadAnimation(Baseball.Animation)
+
+			track:Play()
+			track:GetMarkerReachedSignal("hit"):Once(function()
+				SoundHandler.playSound({
+					soundObject = clone.Part.HitSound
+				})
+
+				for _, child in pairs(TrailPart:GetChildren()) do
+					if child:IsA("ParticleEmitter") then
+						child.Enabled = true
+						VisualEffectsUtil.emit(child)
+					end
+				end
+
+				for _, descendant in pairs(clone.Part:GetDescendants()) do
+					if descendant:IsA("ParticleEmitter") then
+						VisualEffectsUtil.emit(descendant)
+					end
+				end
+
+				HumanoidRootPart.Anchored = false
+				KnockbackHandler.knockbackCharacterPart(character, HumanoidRootPart, {
+					velocity = Vector3.new(HumanoidRootPart.CFrame.LookVector.X, 0, HumanoidRootPart.CFrame.LookVector.Z).Unit * 250 + Vector3.new(0, 250, 0)
+				})
+			end)
+			track.Stopped:Once(function()
+				clone.FBXImportGeneric.Cylinder.Transparency = 1
+			end)
+		end
+	}
+end

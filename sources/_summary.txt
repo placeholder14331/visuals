@@ -1,0 +1,8 @@
+Combat Warriors - sistemas de cosmetico, decompilado 2026-10-05 10:07 UTC
+place 4282985734
+
+modulos encontrados: 498
+escritos:            498
+falhas:              0
+codigo total:        516.9 KB
+

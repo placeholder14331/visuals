@@ -1,0 +1,41 @@
+local ArchAngel = game.ReplicatedStorage.Shared.Assets.Cosmetics.CharacterAuras.ArchAngel
+
+return function()
+	return {
+		displayName = "Archangel",
+		icon = "rbxassetid://12058248530",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "epic",
+		inItemShop = true,
+		apply = function(character)
+			local CharacterAuraUtil = require(game.ReplicatedStorage.Shared.Source.CharacterAura.CharacterAuraUtil)
+
+			CharacterAuraUtil.applyFromDummy(ArchAngel.Dummy, character)
+
+			local clone = ArchAngel.Cylinder:Clone()
+
+			CharacterAuraUtil.onCharacterAuraInstanceCreated(clone)
+			clone.Parent = character.HumanoidRootPart
+
+			local Weld = Instance.new("Weld")
+
+			Weld.Part0 = character.HumanoidRootPart
+			Weld.Part1 = clone
+			Weld.C1 = CFrame.new(0, 3, 0)
+			Weld.Parent = Weld.Part0
+
+			local clone2 = ArchAngel.Part:Clone()
+
+			CharacterAuraUtil.onCharacterAuraInstanceCreated(clone2)
+			clone2.Parent = character.HumanoidRootPart
+
+			local Weld2 = Instance.new("Weld")
+
+			Weld2.Part0 = character.Torso
+			Weld2.Part1 = clone2
+			Weld2.C1 = CFrame.new(0, 3, 0)
+			Weld2.Parent = Weld2.Part0
+		end
+	}
+end

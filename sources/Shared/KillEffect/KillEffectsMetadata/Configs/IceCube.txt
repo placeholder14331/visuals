@@ -1,0 +1,38 @@
+local IceCube = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.IceCube
+
+return function()
+	return {
+		displayName = "Ice Cube",
+		icon = "rbxassetid://9552316353",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		inItemShop = true,
+		apply = function(character)
+			local CharacterConstantsClient = require(game.ReplicatedStorage.Client.Source.Character.CharacterConstantsClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = IceCube.IceCube:Clone()
+
+			task.delay(CharacterConstantsClient.FAKE_CHARACTER_DESTROY_DELAY, function()
+				clone:Destroy()
+			end)
+			clone.Position = HumanoidRootPart.Position
+			clone.Anchored = true
+			clone.Orientation = Vector3.new(Random.new():NextNumber(-360, 360), Random.new():NextNumber(-360, 360), Random.new():NextNumber(-360, 360))
+			clone.Parent = workspace.EffectsJunk
+
+			for _, child in pairs(IceCube.IceCubeParticles:GetChildren()) do
+				local v8 = character[child.Name]
+
+				for _, child2 in child:GetChildren() do
+					if child2:IsA("ParticleEmitter") then
+						child2:Clone().Parent = v8
+					end
+				end
+			end
+		end
+	}
+end

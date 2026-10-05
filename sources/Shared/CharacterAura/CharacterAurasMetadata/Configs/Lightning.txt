@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetLightningCharacterAuraConfigCreator)({
+	displayName = "Lightning",
+	icon = "rbxassetid://12006664198"
+})

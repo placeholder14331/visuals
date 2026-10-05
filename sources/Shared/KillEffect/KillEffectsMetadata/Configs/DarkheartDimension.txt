@@ -1,0 +1,88 @@
+local TweenService = game:GetService("TweenService")
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local NumberUtil = require(game.ReplicatedStorage.Shared.Source.Number.NumberUtil)
+local KillEffectUtil = require(game.ReplicatedStorage.Shared.Source.KillEffect.KillEffectUtil)
+local DarkheartDimension = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.DarkheartDimension
+local createPartCacheFromTemplate = KillEffectUtil.createPartCacheFromTemplate(DarkheartDimension.Sword, 16)
+
+return function()
+	return {
+		displayName = "Darkheart Dimension",
+		icon = "rbxassetid://139653274528051",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Torso = character.Torso
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or character.HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local maid = Maid.new()
+
+			task.delay(4.5, function()
+				maid:Destroy()
+			end)
+			maid:GiveTask(function()
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+			end)
+			HumanoidRootPart.Anchored = true
+
+			local clone = DarkheartDimension.Part:Clone()
+
+			maid:GiveTask(clone)
+			clone.CFrame = CFrame.new(position + Vector3.new(0, clone.Size.Y / 2, 0))
+			clone.Parent = workspace.EffectsJunk
+
+			local getEmitCountOptimizeMult = VisualEffectsUtil.getEmitCountOptimizeMult(clone)
+
+			for _, child in pairs(clone:GetChildren()) do
+				if child:IsA("ParticleEmitter") then
+					VisualEffectsUtil.emit(child, nil, getEmitCountOptimizeMult)
+				end
+			end
+
+			TweenService:Create(clone, TweenInfo.new(0.33, Enum.EasingStyle.Linear), {
+				Transparency = 0
+			}):Play()
+
+			for _ = 1, 4 do
+				local position2 = Torso.Position + Vector3.new(Random.new():NextNumber(-1, 1), Random.new():NextNumber(-1, 1), Random.new():NextNumber(-1, 1))
+				local pose = CFrame.lookAt(clone.Position + Vector3.new(Random.new():NextNumber(6, 8) * NumberUtil.getRandomSign(), Random.new():NextNumber(2.5, 7.5), Random.new():NextNumber(6, 8) * NumberUtil.getRandomSign()), position2) * CFrame.Angles(0, 1.57079633, 0)
+				local Part = createPartCacheFromTemplate:GetPart()
+
+				maid:GiveTask(function()
+					createPartCacheFromTemplate:ReturnPart(Part)
+				end)
+				Part.Anchored = false
+
+				local Weld = Instance.new("Weld")
+
+				maid:GiveTask(Weld)
+				Weld.Part0 = Torso
+				Weld.Part1 = Part
+				Weld.C1 = Weld.Part0.CFrame:ToObjectSpace(pose):Inverse()
+				Weld.Parent = Torso
+				task.delay(0.33, function()
+					TweenService:Create(Weld, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+						C1 = Weld.Part0.CFrame:ToObjectSpace(CFrame.new(position2) * CFrame.Angles(pose:ToEulerAnglesXYZ())):Inverse()
+					}):Play()
+				end)
+			end
+
+			task.delay(0.53, function()
+				for _, child in pairs(clone.ExplosionAttachment:GetChildren()) do
+					if child:IsA("ParticleEmitter") then
+						VisualEffectsUtil.emit(child, nil, getEmitCountOptimizeMult)
+					end
+				end
+
+				task.delay(2.5, function()
+					maid:Destroy()
+				end)
+			end)
+		end
+	}
+end

@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetBubblesCharacterAuraConfigCreator)({
+	displayName = "Bubbles",
+	icon = "rbxassetid://12006666148"
+})

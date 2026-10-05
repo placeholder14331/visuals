@@ -1,0 +1,62 @@
+local SoundHandler = require(game.ReplicatedStorage.Shared.Source.Sound.SoundHandler)
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local KillEffects = game.ReplicatedStorage.Shared.Assets.Sounds.KillEffects
+local Tentacle = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.Tentacle
+
+return function()
+	return {
+		displayName = "Tentacle",
+		icon = "rbxassetid://11669336176",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		willHaveVictimAnimation = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Animator = character.Humanoid.Animator
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position2 = part and part.Position or character.HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local position = part and part.Normal or Vector3.new(0, 1, 0)
+
+			HumanoidRootPart.Anchored = true
+
+			local clone = Tentacle.Model:Clone()
+
+			task.delay(4, function()
+				clone:Destroy()
+			end)
+			clone:PivotTo(CFrame.fromMatrix(position2, HumanoidRootPart.CFrame.LookVector:Cross(position), position))
+			clone.Parent = workspace.EffectsJunk
+			character:PivotTo(clone:GetPivot() * CFrame.new(0, 3, 0))
+
+			local track = clone.riggedtentacle.AnimationController:LoadAnimation(Tentacle.Animation)
+
+			track:Play()
+			Animator:LoadAnimation(Tentacle.VictimAnimation):Play()
+
+			local children = clone.Middle.Attachment:GetChildren()
+
+			task.delay(1.25, function()
+				SoundHandler.playSound({
+					soundObject = KillEffects.Octopus,
+					parent = HumanoidRootPart
+				})
+
+				local getEmitCountOptimizeMult = VisualEffectsUtil.getEmitCountOptimizeMult(clone.Middle.Attachment)
+
+				for _, v17 in children do
+					VisualEffectsUtil.emit(v17, nil, getEmitCountOptimizeMult)
+				end
+			end)
+			track.Stopped:Once(function()
+				clone:Destroy()
+
+				if character:IsDescendantOf(game) then
+					KillEffectsUtilClient.makeCharacterDisappear(character)
+				end
+			end)
+		end
+	}
+end

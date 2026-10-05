@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.KillEffect.GetConfigCreators.GetTornadoKillEffectConfigCreator)({
+	prefabName = "Earth",
+	displayNameAppend = " Earth",
+	iconId = "rbxassetid://13515775633"
+})

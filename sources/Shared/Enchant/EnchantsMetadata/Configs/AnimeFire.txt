@@ -1,0 +1,4 @@
+return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetAnimeFireEnchantConfigCreator)({
+	displayName = "Anime Fire",
+	icon = "rbxassetid://75553918399026"
+})

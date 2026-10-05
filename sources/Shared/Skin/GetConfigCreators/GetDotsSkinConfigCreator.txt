@@ -1,0 +1,32 @@
+local Pokadots = game.ReplicatedStorage.Shared.Assets.Cosmetics.Skins.Pokadots
+
+return function(config)
+	local color = config.color
+
+	return function()
+		return {
+			displayName = config.displayName,
+			apply = function(target)
+				local SkinUtil = require(game.ReplicatedStorage.Shared.Source.Skin.SkinUtil)
+
+				local function onVisualCreated(p3)
+					if p3:IsA("Texture") and color then
+						p3.Color3 = color
+					end
+				end
+
+				SkinUtil.runCallbackOnTaggedSkinParts(target, function(p4)
+					SkinUtil.applyVisualsToPart(p4, {}, Pokadots, onVisualCreated)
+				end, function(p5)
+					SkinUtil.applyVisualsToPart(p5, {}, Pokadots, onVisualCreated)
+				end, function(p6)
+					SkinUtil.applyVisualsToPart(p6, {}, Pokadots, onVisualCreated)
+				end)
+			end,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = "uncommon",
+			inItemShop = true
+		}
+	end
+end

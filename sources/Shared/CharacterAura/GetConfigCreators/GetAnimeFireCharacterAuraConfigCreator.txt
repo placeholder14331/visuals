@@ -1,0 +1,33 @@
+local AnimeFire = game.ReplicatedStorage.Shared.Assets.Cosmetics.CharacterAuras.AnimeFire
+
+return function(config)
+	local color = config.color
+	local isDarkColor = config.isDarkColor
+	local canObtain = config.canObtain == nil
+	local rarity2 = config.rarity or "legendary"
+
+	return function()
+		return {
+			displayName = config.displayName,
+			icon = config.icon,
+			vaulted = false,
+			refundIfVaulted = false,
+			rarity = rarity2,
+			inItemShop = canObtain,
+			caseIds = not canObtain and {} or nil,
+			apply = function(character)
+				require(game.ReplicatedStorage.Shared.Source.CharacterAura.CharacterAuraUtil).applyFromDummy(AnimeFire, character, function(visual)
+					if visual:IsA("ParticleEmitter") then
+						if isDarkColor then
+							visual.LightEmission = 0
+						end
+
+						if color then
+							visual.Color = ColorSequence.new(color)
+						end
+					end
+				end)
+			end
+		}
+	end
+end

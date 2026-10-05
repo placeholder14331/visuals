@@ -1,0 +1,5 @@
+return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetWindSkinConfigCreator)({
+	displayName = "Shadow Wind",
+	partColor = Color3.new(0, 0, 0),
+	textureColor = Color3.new(1, 1, 1)
+})

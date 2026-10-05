@@ -1,0 +1,91 @@
+local TweenService = game:GetService("TweenService")
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local SoulGrasp = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.SoulGrasp
+
+return function()
+	return {
+		displayName = "Soul Grasp",
+		icon = "rbxassetid://92390403546547",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		willCharacterDisappear = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local maid = Maid.new()
+
+			task.delay(4.5, function()
+				maid:Destroy()
+			end)
+			HumanoidRootPart.Anchored = true
+
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2.5, 0)
+			local clone = SoulGrasp.particles.StartEmitAttachment:Clone()
+
+			maid:GiveTask(clone)
+			clone.WorldPosition = position
+			clone.Parent = workspace.Terrain
+
+			local clone2 = SoulGrasp.particles.AfterStartEnableAttachment:Clone()
+
+			maid:GiveTask(clone2)
+			clone2.WorldPosition = position
+			clone2.Parent = workspace.Terrain
+
+			local _, yaw, _ = HumanoidRootPart.CFrame:ToEulerAnglesXYZ()
+			local clone3 = SoulGrasp.Sphere:Clone()
+
+			maid:GiveTask(clone3)
+			clone3.CFrame = CFrame.new(position) * CFrame.Angles(0, yaw, 0)
+			clone3.Parent = workspace.EffectsJunk
+
+			local position2 = position + Vector3.new(0, 6, 0)
+
+			TweenService:Create(clone3, TweenInfo.new(1, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
+				Position = position2
+			}):Play()
+			VisualEffectsUtil.emitObject(clone, nil, true)
+			task.delay(0.25, function()
+				for _, child in clone3.suckingAttachment:GetChildren() do
+					child.Enabled = true
+				end
+
+				for _, child in clone3.BeamsAttachment:GetChildren() do
+					child.Enabled = true
+				end
+
+				task.delay(3, function()
+					for _, child in clone2:GetChildren() do
+						child.Enabled = false
+					end
+
+					for _, child in clone3.suckingAttachment:GetChildren() do
+						child.Enabled = false
+					end
+
+					for _, child in clone3.BeamsAttachment:GetChildren() do
+						child.Enabled = false
+					end
+
+					local tween = TweenService:Create(clone3, TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
+						Position = position + Vector3.new(0, -clone3.Size.Y / 2, 0)
+					})
+
+					tween:Play()
+
+					for _, child in clone3.finalaura:GetChildren() do
+						child.Enabled = true
+					end
+
+					tween.Completed:Once(function()
+						maid:Destroy()
+					end)
+				end)
+			end)
+		end
+	}
+end

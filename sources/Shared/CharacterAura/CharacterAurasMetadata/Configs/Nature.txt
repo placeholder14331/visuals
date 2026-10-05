@@ -1,0 +1,26 @@
+local Nature = game.ReplicatedStorage.Shared.Assets.Cosmetics.CharacterAuras.Nature
+
+return function()
+	return {
+		displayName = "Nature",
+		icon = "rbxassetid://11669336627",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "rare",
+		inItemShop = true,
+		apply = function(character)
+			local CharacterAuraUtil = require(game.ReplicatedStorage.Shared.Source.CharacterAura.CharacterAuraUtil)
+			local clone = Nature.Part:Clone()
+
+			CharacterAuraUtil.onCharacterAuraInstanceCreated(clone)
+			clone.Parent = character.HumanoidRootPart
+
+			local Weld = Instance.new("Weld")
+
+			Weld.Part0 = character.HumanoidRootPart
+			Weld.Part1 = clone
+			Weld.C0 = CFrame.new(0, 3.55, 0)
+			Weld.Parent = clone
+		end
+	}
+end

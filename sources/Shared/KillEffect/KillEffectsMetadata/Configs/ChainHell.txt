@@ -1,0 +1,51 @@
+local VisualEffectsUtil = require(game.ReplicatedStorage.Shared.Source.VFX.VisualEffectsUtil)
+local Maid = require(game.ReplicatedStorage.Shared.Vendor.Maid)
+local ChainHell = game.ReplicatedStorage.Shared.Assets.Cosmetics.KillEffects.ChainHell
+
+return function()
+	return {
+		displayName = "Chain Hell",
+		icon = "rbxassetid://13325591034",
+		vaulted = false,
+		refundIfVaulted = false,
+		rarity = "legendary",
+		inItemShop = true,
+		willHaveVictimAnimation = true,
+		apply = function(character)
+			local KillEffectsUtilClient = require(game.ReplicatedStorage.Client.Source.KillEffect.KillEffectsUtilClient)
+			local HumanoidRootPart = character.HumanoidRootPart
+			local Humanoid = character.Humanoid
+
+			HumanoidRootPart.Anchored = true
+
+			local maid = Maid.new()
+
+			task.delay(4, function()
+				maid:Destroy()
+			end)
+
+			local part = KillEffectsUtilClient.getCharacterFloor(character)
+			local position2 = part and part.Position or HumanoidRootPart.Position + Vector3.new(0, -2, 0)
+			local position = part and part.Normal or Vector3.new(0, 1, 0)
+			local clone = ChainHell.Model:Clone()
+
+			maid.model = clone
+			clone:PivotTo(CFrame.fromMatrix(position2, HumanoidRootPart.CFrame.LookVector:Cross(position), position))
+			clone.Parent = workspace.EffectsJunk
+			character:PivotTo(clone:GetPivot() * CFrame.new(0, 3, 0) * CFrame.Angles(0, 3.1415927, 0))
+
+			local track = clone.AnimationController:LoadAnimation(ChainHell.Animation)
+
+			track:Play()
+			Humanoid.Animator:LoadAnimation(ChainHell.CharacterAnimation):Play()
+			maid:GiveTask(track:GetMarkerReachedSignal("pulledUnder"):Connect(function()
+				VisualEffectsUtil.emitObject(clone.FloorFire.emit)
+				KillEffectsUtilClient.makeCharacterDisappear(character)
+			end))
+			maid:GiveTask(track.Stopped:Connect(function()
+				clone["chain.001"]:Destroy()
+				clone["chain.002"]:Destroy()
+			end))
+		end
+	}
+end
