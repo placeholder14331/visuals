@@ -1,4 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetCosmicEnchantConfigCreator)({
-	displayName = "Cosmic Shield",
-	icon = "rbxassetid://76178197558362"
-})

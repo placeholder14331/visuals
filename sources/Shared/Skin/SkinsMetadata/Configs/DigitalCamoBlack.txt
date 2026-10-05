@@ -1,4 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetDigitalCamoSkinConfigCreator)({
-	displayName = "Covert Digital Camo",
-	color = Color3.fromRGB(55, 55, 55)
-})

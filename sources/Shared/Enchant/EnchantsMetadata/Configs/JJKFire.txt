@@ -1,4 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetJJKFireEnchantConfigCreator)({
-	displayName = "Jujutsu Fire",
-	icon = "rbxassetid://13515775198"
-})

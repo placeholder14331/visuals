@@ -1,5 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetWrapSkinConfigCreator)({
-	displayName = "Gold Wrap",
-	canObtain = false,
-	color = Color3.fromRGB(185, 138, 26)
-})

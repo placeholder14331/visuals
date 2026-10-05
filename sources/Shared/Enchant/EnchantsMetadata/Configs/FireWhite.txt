@@ -1,5 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetFireEnchantConfigCreator)({
-	displayName = "White Fire",
-	icon = "rbxassetid://9612756444",
-	color = Color3.fromRGB(255, 255, 255)
-})

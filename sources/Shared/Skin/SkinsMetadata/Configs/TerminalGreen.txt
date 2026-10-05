@@ -1,5 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetTerminalSkinConfigCreator)({
-	displayName = "Motherboard",
-	textureColor = Color3.fromRGB(0, 200, 0),
-	partColor = Color3.fromRGB(0, 100, 0)
-})

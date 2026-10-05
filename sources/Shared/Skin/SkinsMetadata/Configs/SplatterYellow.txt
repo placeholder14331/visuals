@@ -1,4 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetSplatterSkinConfigCreator)({
-	displayName = "Yellow Splatter",
-	color = Color3.new(1, 1, 0.5)
-})

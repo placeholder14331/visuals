@@ -1,4 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetSparklesCharacterAuraConfigCreator)({
-	displayName = "Sparkles",
-	icon = "rbxassetid://12058245363"
-})

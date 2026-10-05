@@ -1,9 +1,0 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CaseIds = require(ReplicatedStorage.Shared.Source.Case.CaseIds)
-
-return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetValentineWingsCharacterAuraConfigCreator)({
-	prefabName = "FallenGrace",
-	displayName = "Fallen Grace",
-	icon = "rbxassetid://122187504228756",
-	caseIds = { CaseIds.valentines2026 }
-})

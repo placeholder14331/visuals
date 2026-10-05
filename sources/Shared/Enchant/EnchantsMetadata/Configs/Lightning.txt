@@ -1,4 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetLightningEnchantConfigCreator)({
-	displayName = "Lightning",
-	icon = "rbxassetid://9612756603"
-})

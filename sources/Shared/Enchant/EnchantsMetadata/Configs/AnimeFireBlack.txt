@@ -1,6 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetAnimeFireEnchantConfigCreator)({
-	displayName = "Anime Fire Black",
-	icon = "rbxassetid://117588289243163",
-	isDarkColor = true,
-	color = Color3.fromRGB(0, 0, 0)
-})

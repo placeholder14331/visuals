@@ -1,6 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetBodyCharacterAuraConfigCreator)({
-	fileName = "Nightmare",
-	displayName = "Nightmare",
-	icon = "rbxassetid://11576963840",
-	rarity = "epic"
-})

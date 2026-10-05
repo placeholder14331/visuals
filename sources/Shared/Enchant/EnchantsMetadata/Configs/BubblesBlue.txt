@@ -1,5 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetBubblesEnchantConfigCreator)({
-	displayName = "Blue Bubbles",
-	icon = "rbxassetid://9726015503",
-	color = Color3.fromRGB(0, 0, 255)
-})

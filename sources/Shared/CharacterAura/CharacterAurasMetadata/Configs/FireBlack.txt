@@ -1,7 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetFireCharacterAuraConfigCreator)({
-	displayName = "Amaterasu",
-	icon = "rbxassetid://12006666401",
-	color = Color3.new(0, 0, 0),
-	isDarkColor = true,
-	rarity = "legendary"
-})

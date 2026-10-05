@@ -1,7 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetFrostlineAlloySkinConfigCreator)({
-	displayName = "Frostline Alloy",
-	rarity = "uncommon",
-	textureColor = Color3.new(0, 1, 1),
-	partColor = Color3.new(1, 1, 1),
-	caseIds = { "case16" }
-})

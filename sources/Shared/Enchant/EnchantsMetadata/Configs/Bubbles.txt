@@ -1,4 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetBubblesEnchantConfigCreator)({
-	displayName = "Bubbles",
-	icon = "rbxassetid://9612799959"
-})

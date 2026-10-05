@@ -1,5 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetDragonCharacterAuraConfigCreator)({
-	prefabName = "Purple",
-	displayName = "Dragon (Purple)",
-	icon = "rbxassetid://11873781386"
-})

@@ -1,4 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetTigerSkinConfigCreator)({
-	displayName = "Tiger Frost",
-	partColor = Color3.new(0, 1, 1)
-})

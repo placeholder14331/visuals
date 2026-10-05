@@ -1,5 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetJJKFireCharacterAuraConfigCreator)({
-	displayName = "JJK Fire",
-	icon = "rbxassetid://12006664981",
-	rarity = "legendary"
-})

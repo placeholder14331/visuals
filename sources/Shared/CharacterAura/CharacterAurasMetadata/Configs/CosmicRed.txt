@@ -1,6 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetCosmicCharacterAuraConfigCreator)({
-	displayName = "Cosmic Shield Red",
-	icon = "rbxassetid://108127914272834",
-	color = Color3.fromRGB(255, 0, 0),
-	color2 = Color3.fromRGB(215, 0, 0)
-})

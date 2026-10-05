@@ -1,4 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetNeonSkinConfigCreator)({
-	displayName = "Neon Orange",
-	color = Color3.fromRGB(235, 97, 35)
-})

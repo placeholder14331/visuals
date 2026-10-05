@@ -1,5 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetPoisonEnchantConfigCreator)({
-	displayName = "Blue Poison",
-	icon = "rbxassetid://9612800193",
-	color = Color3.fromRGB(0, 0, 255)
-})

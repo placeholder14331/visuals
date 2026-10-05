@@ -1,6 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetBodyCharacterAuraConfigCreator)({
-	fileName = "WaterAura",
-	displayName = "Water",
-	icon = "rbxassetid://11669335957",
-	rarity = "uncommon"
-})

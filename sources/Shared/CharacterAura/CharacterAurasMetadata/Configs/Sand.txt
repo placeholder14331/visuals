@@ -1,6 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetBodyCharacterAuraConfigCreator)({
-	fileName = "Sand",
-	displayName = "Sand",
-	icon = "rbxassetid://11873907341",
-	rarity = "rare"
-})

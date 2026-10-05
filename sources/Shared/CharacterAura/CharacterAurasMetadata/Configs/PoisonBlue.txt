@@ -1,6 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetPoisonCharacterAuraConfigCreator)({
-	displayName = "Blue Poison",
-	icon = "rbxassetid://12058246969",
-	color = Color3.fromRGB(0, 0, 255),
-	canObtain = false
-})

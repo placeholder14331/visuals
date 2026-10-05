@@ -1,6 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetCosmicEnchantConfigCreator)({
-	displayName = "Cosmic Shield Red",
-	icon = "rbxassetid://107908377189688",
-	color = Color3.fromRGB(255, 0, 0),
-	color2 = Color3.fromRGB(215, 0, 0)
-})

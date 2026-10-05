@@ -1,4 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetCubesSkinConfigCreator)({
-	displayName = "Blue Cubes",
-	color = Color3.fromRGB(0, 85, 127)
-})

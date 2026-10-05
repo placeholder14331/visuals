@@ -1,6 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.CharacterAura.GetConfigCreators.GetFireCharacterAuraConfigCreator)({
-	displayName = "Fire Red",
-	icon = "",
-	color = Color3.new(1, 0, 0),
-	rarity = "legendary"
-})

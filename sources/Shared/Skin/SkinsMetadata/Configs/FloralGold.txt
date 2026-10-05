@@ -1,5 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetFloralSkinConfigCreator)({
-	displayName = "Gold Floral",
-	textureColor = Color3.new(1, 1, 0.5),
-	partColor = Color3.new(0.25, 0.25, 0.125)
-})

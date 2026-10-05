@@ -1,6 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetFireEnchantConfigCreator)({
-	displayName = "Amaterasu",
-	icon = "rbxassetid://13515774859",
-	isDarkColor = true,
-	color = Color3.fromRGB(0, 0, 0)
-})

@@ -1,5 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Enchant.GetConfigCreators.GetSkullsEnchantConfigCreator)({
-	displayName = "Crimson Skulls",
-	icon = "rbxassetid://9726015191",
-	color = Color3.fromRGB(255, 0, 0)
-})

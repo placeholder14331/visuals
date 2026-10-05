@@ -1,4 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetLeopardSkinConfigCreator)({
-	displayName = "Cyan Leopard",
-	partColor = Color3.new(0, 1, 1)
-})

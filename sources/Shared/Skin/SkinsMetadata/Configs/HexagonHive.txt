@@ -1,7 +1,0 @@
-return require(game.ReplicatedStorage.Shared.Source.Skin.GetConfigCreators.GetHexagonSkinConfigCreator)({
-	displayName = "Hive",
-	textureColor = Color3.fromRGB(255, 111, 0),
-	partColor = Color3.fromRGB(55, 55, 55),
-	texture2Color = Color3.fromRGB(55, 55, 55),
-	part2Color = Color3.fromRGB(255, 111, 0)
-})
